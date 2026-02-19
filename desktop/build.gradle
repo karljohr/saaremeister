@@ -18,6 +18,17 @@ project.ext.assetsDir = new File("../assets")
 
 import org.gradle.internal.os.OperatingSystem
 
+// Ensure any JavaExec (including IDE/Gradle-generated ones) on macOS starts on the first thread
+tasks.withType(JavaExec).configureEach {
+    if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
+        // Add -XstartOnFirstThread if not already present
+        if (!jvmArgs?.contains('-XstartOnFirstThread')) {
+            jvmArgs = (jvmArgs ?: []) + ['-XstartOnFirstThread']
+        }
+    }
+}
+
+
 tasks.register('run', JavaExec) {
     dependsOn classes
     mainClass = project.mainClassName

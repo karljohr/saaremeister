@@ -2,7 +2,7 @@ package ee.kool.server;
 
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
-import ee.kool.server.listener.ServerListener;
+import ee.kool.server.listener.ChatServerListener;
 import network.register.Register;
 
 import java.io.IOException;
@@ -10,13 +10,13 @@ import java.io.IOException;
 public class ChatServer {
     private static final int TCP_PORT = 8080;
     private final Server server;
-    private final ServerListener serverListener;
+    private final ChatServerListener serverListener;
 
     public ChatServer() throws IOException {
         Log.set(Log.LEVEL_INFO);
 
         server = new Server();
-        serverListener = new ServerListener(this);
+        serverListener = new ChatServerListener(this);
 
         Register.register(server.getKryo());
 

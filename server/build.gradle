@@ -1,3 +1,11 @@
+plugins {
+    id 'application'
+}
+
+application {
+    mainClass = 'ee.kool.server.ChatServer'
+}
+
 apply plugin: "java-library"
 
 repositories {

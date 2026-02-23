@@ -8,11 +8,11 @@ import messages.TextMsg;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServerManager {
+public class ChatServerManager {
     private final ChatServer chatServer;
     private final List<Integer> players = new ArrayList<>();
 
-    public ServerManager(ChatServer chatServer) {
+    public ChatServerManager(ChatServer chatServer) {
         this.chatServer = chatServer;
     }
 

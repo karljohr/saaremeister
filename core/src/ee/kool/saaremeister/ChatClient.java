@@ -4,7 +4,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.listener.ClientListener;
 import messages.TextMsg;
-import network.register.Register;
+import register.Register;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -14,17 +14,21 @@ public class ChatClient {
     private static final int TCP_PORT = 8080;
     private final Client client;
     private final ClientListener clientListener;
+    private SaaremeisterGame game;
 
-    public ChatClient() throws IOException {
+    public ChatClient(SaaremeisterGame game) throws IOException {
+        this.game = game;
         Log.set(Log.LEVEL_INFO); // Reduce verbosity in logs
         client = new Client(); // Creating a KryoNet client
         client.start(); // Start the client's networking threads
-        clientListener = new ClientListener(this);
+        clientListener = new ClientListener(this, game);
 
         Register.register(client.getKryo()); // Register all classes that will be sent over the network
 
         bindServer(); // Connect to the server
         client.addListener(clientListener);
+
+        startConsoleListener();
     }
 
     private void bindServer() throws IOException {
@@ -41,6 +45,22 @@ public class ChatClient {
         }
     }
 
+    // Allow to type text in the console.
+    private void startConsoleListener() {
+        Thread consoleThread = new Thread(() -> {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Chat is active. Type your message:");
+            while (client.isConnected()) {
+                if (scanner.hasNextLine()) {
+                    String input = scanner.nextLine();
+                    sendMessage(input);
+                }
+            }
+        });
+        consoleThread.setDaemon(true);
+        consoleThread.start();
+    }
+
     public Client getClient() {
         return client;
     }
@@ -52,7 +72,7 @@ public class ChatClient {
     }
 
     public static void main(String[] args) throws IOException {
-        ChatClient client = new ChatClient();
+        ChatClient client = new ChatClient(null);
 
         // Reading messages from the console and sending them to the server
         Scanner scanner = new Scanner(System.in);

@@ -10,16 +10,20 @@ import messages.DTO.Input;
 
 public class GameServerListener extends Listener {
     private final GameServerManager gameServerManager;
+    private final GameServer gameServer;
 
     public GameServerListener(GameServer gameServer) {
-        gameServerManager = new GameServerManager(gameServer);
+        this.gameServer = gameServer;
+        this.gameServerManager = new GameServerManager(gameServer);
     }
 
     public void connected(Connection c) {
+        gameServer.onConnected(c);
         gameServerManager.playerConnected(c);
     }
 
     public void disconnected(Connection c) {
+        gameServer.onDisconnected(c);
         gameServerManager.playerDisconnected(c);
     }
 

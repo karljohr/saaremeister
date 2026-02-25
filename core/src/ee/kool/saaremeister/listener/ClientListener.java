@@ -5,15 +5,19 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.ChatClient;
+import ee.kool.saaremeister.SaaremeisterGame;
 import ee.kool.saaremeister.manager.ClientManager;
 import messages.PeopleCountMsg;
 import messages.TextMsg;
+import messages.WorldStateMsg;
 
 public class ClientListener extends Listener {
     private final ClientManager clientManager;
+    private final SaaremeisterGame game;
 
-    public ClientListener(ChatClient chatClient) {
+    public ClientListener(ChatClient chatClient, SaaremeisterGame game) {
         clientManager = new ClientManager(chatClient);
+        this.game = game;
     }
 
     public void connected(Connection c) {
@@ -31,6 +35,11 @@ public class ClientListener extends Listener {
             case PeopleCountMsg message ->
                 // Handle message containing the number of connected players
                     clientManager.numberOfPeople(message);
+
+            // Send the list of players to the server.
+            case WorldStateMsg worldState ->
+                game.updateWorldState(worldState.players);
+
             case FrameworkMessage.KeepAlive ignored ->
                 // Handle KryoNet's KeepAlive heartbeat message
                 // (used internally to keep the TCP connection alive)

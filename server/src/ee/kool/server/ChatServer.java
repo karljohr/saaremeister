@@ -3,7 +3,7 @@ package ee.kool.server;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.server.listener.ChatServerListener;
-import network.register.Register;
+import register.Register;
 
 import java.io.IOException;
 

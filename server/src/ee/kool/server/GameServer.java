@@ -6,6 +6,9 @@ import com.esotericsoftware.minlog.Log;
 import ee.kool.server.listener.GameServerListener;
 import ee.kool.server.objects.ServerPlayer;
 import messages.DTO.Input;
+import messages.DTO.PlayerState;
+import messages.WorldStateMsg;
+import register.Register;
 
 import java.io.IOException;
 import java.util.Map;
@@ -33,7 +36,7 @@ public class GameServer {
         server = new Server();
         listener = new GameServerListener(this);
 
-        network.register.Register.register(server.getKryo());
+        Register.register(server.getKryo());
 
         bindServer();
 
@@ -104,10 +107,22 @@ public class GameServer {
 
             player.applyInput(input, delta);
         }
+        // Sync the world state.
+        WorldStateMsg worldState = new WorldStateMsg();
+        for (var entry : players.entrySet()) {
+            int id = entry.getKey();
+            ServerPlayer sp = entry.getValue();
+            worldState.players.add(new PlayerState(id, sp.x, sp.y));
+        }
+        server.sendToAllUDP(worldState);
     }
 
     public void stop() {
         running = false;
         server.stop();
+    }
+
+    public static void main(String[] args) throws IOException {
+        new GameServer();
     }
 }

@@ -6,20 +6,22 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import com.esotericsoftware.kryonet.Client;
+import register.Register;
 
 public class SaaremeisterGame extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture img;
     private ShapeRenderer shapes;
+    private ChatClient chatClient; // For chat (Port 8080)
+    private Client gameNetworkClient; // For game (Port 8081/8082)
 
-    private final Vector2 playerPos = new Vector2(40, 40);
+    private java.util.List<messages.DTO.PlayerState> otherPlayers = new java.util.ArrayList<>();
     private final float playerSize = 20f;
-    private final float playerSpeed = 200f;
 
     private final Rectangle goal = new Rectangle(500, 300, 100, 50);
+    private final Rectangle tempRect = new Rectangle();
     private boolean won = false;
 
     @Override
@@ -27,48 +29,75 @@ public class SaaremeisterGame extends ApplicationAdapter {
         batch = new SpriteBatch();
         img = new Texture("badlogic.jpg");
         shapes = new ShapeRenderer();
+
+        try {
+            // Activate chat
+            chatClient = new ChatClient(this);
+
+            // Activate game
+            gameNetworkClient = new Client();
+            Register.register(gameNetworkClient.getKryo());
+            gameNetworkClient.start();
+            gameNetworkClient.connect(5000, "127.0.0.1", 8081, 8082);
+
+            // Add listener, which checks world state.
+            gameNetworkClient.addListener(new com.esotericsoftware.kryonet.Listener() {
+                public void received(com.esotericsoftware.kryonet.Connection c, Object obj) {
+                    if (obj instanceof messages.WorldStateMsg msg) {
+                        updateWorldState(msg.players);
+                    }
+                }
+            });
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateWorldState(java.util.List<messages.DTO.PlayerState> players) {
+        this.otherPlayers = players;
     }
 
     @Override
     public void render() {
-        float dt = Gdx.graphics.getDeltaTime();
+        // Take input and send to server.
+        messages.DTO.Input inputMsg = new messages.DTO.Input();
 
-        float dx = 0f;
-        float dy = 0f;
+        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.W)) inputMsg.up = true;
+        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.S)) inputMsg.down = true;
+        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.A)) inputMsg.left = true;
+        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.D)) inputMsg.right = true;
 
-        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.W)) dy += 1f;
-        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.S)) dy -= 1f;
-        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.A)) dx -= 1f;
-        if (Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.D)) dx += 1f;
-
-        if (!won) {
-            playerPos.x += dx * playerSpeed * dt;
-            playerPos.y += dy * playerSpeed * dt;
-
-            playerPos.x = MathUtils.clamp(playerPos.x, 0f, 600f - playerSize);
-            playerPos.y = MathUtils.clamp(playerPos.y, 0f, 400f - playerSize);
-
-            Rectangle playerRect = new Rectangle(playerPos.x, playerPos.y, playerSize, playerSize);
-            if (goal.overlaps(playerRect)) {
-                won = true;
-                System.out.println("You won!");
-            }
+        if (gameNetworkClient.isConnected()) {
+            gameNetworkClient.sendUDP(inputMsg);
         }
 
+        // Screen.
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        batch.begin();
-        batch.draw(img, 0, 0);
-        batch.end();
-
         shapes.begin(ShapeRenderer.ShapeType.Filled);
 
-        shapes.setColor(0, 0, 0, 0);
+        // Drawing goal.
+        shapes.setColor(0, 0, 0, 1);
         shapes.rect(goal.x, goal.y, goal.width, goal.height);
 
-        shapes.setColor(0, 1, 0, 1);
-        shapes.rect(playerPos.x, playerPos.y, playerSize, playerSize);
+        // Draw all players, so its synced.
+        for (messages.DTO.PlayerState ps : otherPlayers) {
+            tempRect.set(ps.x, ps.y, playerSize, playerSize);
+
+            if (gameNetworkClient != null && ps.playerId == gameNetworkClient.getID()) {
+                shapes.setColor(0, 1, 0, 1); // You green
+
+                // Win condition.
+                if (!won && goal.overlaps(tempRect)) {
+                    won = true;
+                    System.out.println("YOU WON!");
+                }
+            } else {
+                shapes.setColor(0, 0, 1, 1); // others blue
+            }
+            shapes.rect(ps.x, ps.y, playerSize, playerSize);
+        }
 
         shapes.end();
     }
@@ -77,5 +106,6 @@ public class SaaremeisterGame extends ApplicationAdapter {
     public void dispose() {
         batch.dispose();
         img.dispose();
+        shapes.dispose();
     }
 }

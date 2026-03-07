@@ -14,7 +14,7 @@ import static ee.kool.saaremeister.utility.Font.getPixelFont;
  * Utility class for creating different types of buttons.
  * Provides methods to generate standard TextButtons.
  */
-public class ButtonComponents {
+public class ButtonComponent {
 
     /**
      * This allows passing custom click behavior (function) into the getButton method as a lambda or method reference.

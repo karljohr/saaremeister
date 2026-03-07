@@ -27,6 +27,7 @@ public class GameScreen extends ScreenAdapter {
 
     private final SpriteBatch spriteBatch;
     private final Arena arena;
+    private final int lobbyId;
     // TODO: private final Hud hud;
 
     private OrthographicCamera camera;
@@ -39,8 +40,9 @@ public class GameScreen extends ScreenAdapter {
      *
      * @param game Current game instance, used for navigating between screens, for example GameScreen -> TitleScreen
      */
-    public GameScreen(Game game) {
+    public GameScreen(Game game, int lobbyId) {
         this.game = game;
+        this.lobbyId = lobbyId;
         gameStateManager = new GameStateManager();  // receives game state from the server
         playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
 

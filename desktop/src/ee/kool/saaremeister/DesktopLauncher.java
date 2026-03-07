@@ -9,7 +9,7 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 		config.setTitle("Saaremeister");
-		config.setWindowedMode(960, 540);
+		config.setWindowedMode(2000, 1500);
 		new Lwjgl3Application(new Main(), config);
 	}
 }

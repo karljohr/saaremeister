@@ -6,31 +6,35 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.GameJoinMessage;
+import message.LobbyUpdateMessage;
 
-import static ee.kool.saaremeister.component.ButtonComponents.getButton;
+import static ee.kool.saaremeister.component.ButtonComponent.getButton;
 
 public class TitleScreen extends ScreenAdapter {
+    private final Game game;
     private final Stage stage;
+    private final int lobbyId = 1;
+    private int pendingLobbyId = 0;
 
     /**
      * TitleScreen represents the main menu of the game, where players can choose to start the game or exit.
      * It listens for user input and directs user to different screens, for example TitleScreen -> GameScreen.
      */
     public TitleScreen(Game game) {
+        this.game = game;
         stage = new Stage();
 
-        // NB! important line - will make the stage listen for user input
-        // For example when this is not set no hover or click events will be triggered
+        // NB! an important line - will make the stage listen for user input,
+        // For example, when this is not set no hover or click events will be triggered
         Gdx.input.setInputProcessor(stage);
 
         // menu buttons
-        var startButton = getButton(20, "Start", () -> {
-            // send a message to the server that the player wants to join the game
-            ServerConnection.getInstance().getClient().sendTCP(new GameJoinMessage());
-            stage.dispose();
-            game.setScreen(new GameScreen(game));
+        var startButton = getButton(20, "Join a Lobby", () -> {
+            // send a message to the server that the player wants to join a lobby
+            tryJoiningLobby(lobbyId);
         });
         var exitButton = getButton(20, "Exit", () -> Gdx.app.exit());
 
@@ -42,6 +46,24 @@ public class TitleScreen extends ScreenAdapter {
         table.add(exitButton);
 
         stage.addActor(table);
+    }
+
+    private void tryJoiningLobby(int lobbyId) {
+        if (pendingLobbyId != 0) {
+            return;
+        }
+
+        pendingLobbyId = lobbyId;
+        Log.info("Attempting to join lobby " + lobbyId);
+        ServerConnection.getInstance().joinLobby(lobbyId, msg -> {
+            if (msg.getPlayerCount() >= 0) {
+                game.setScreen(new LobbyScreen(game, lobbyId, msg.getPlayerCount()));
+                this.dispose();
+            } else {
+                Log.info("Failed to join lobby " + lobbyId);
+                pendingLobbyId = 0;
+            }
+        });
     }
 
     /**
@@ -66,5 +88,11 @@ public class TitleScreen extends ScreenAdapter {
         super.resize(width, height);
 
         stage.getViewport().update(width, height, true);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        stage.dispose();
     }
 }

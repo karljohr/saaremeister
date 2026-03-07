@@ -2,11 +2,16 @@ package ee.kool.saaremeister.network;
 
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Client;
+import ee.kool.saaremeister.network.listener.LobbyListener;
 import lombok.Getter;
 import lombok.Setter;
 import message.GameJoinMessage;
+import message.LobbyExitMessage;
+import message.LobbyUpdateMessage;
 import message.StartGameMessage;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import static constant.Constants.*;
@@ -17,11 +22,17 @@ import static network.Register.registerClasses;
 public class ServerConnection {
     private static ServerConnection instance;
     private final Client client;
+    private final LobbyListener lobbyListener;
     private Consumer<StartGameMessage> startGameListener;
+    private Consumer<LobbyUpdateMessage> lobbyUpdateListener;
+    private Consumer<LobbyExitMessage> lobbyExitListener;
+    private final Map<Integer, Consumer<LobbyUpdateMessage>> pendingJoinCallbacks = new ConcurrentHashMap<>();
 
     private ServerConnection() {
         client = new Client();
         registerClasses(client.getKryo());
+        lobbyListener = new LobbyListener(this);
+        client.addListener(lobbyListener);
         client.start();
     }
 
@@ -40,12 +51,51 @@ public class ServerConnection {
         }
     }
 
+    public void joinLobby(int lobbyId, Consumer<LobbyUpdateMessage> callback) {
+        pendingJoinCallbacks.put(lobbyId, callback);
+        GameJoinMessage joinMessage = new GameJoinMessage();
+        joinMessage.setLobbyId(lobbyId);
+        try {
+            client.sendTCP(joinMessage);
+        } catch (Exception e) {
+            pendingJoinCallbacks.remove(lobbyId);
+            Gdx.app.error("ServerConnection", "Failed to join lobby", e);
+        }
+    }
+
     public void handleStartGame(StartGameMessage msg) {
         if (startGameListener != null) {
             try {
                 startGameListener.accept(msg);
             } catch (Exception e) {
                 Gdx.app.error("ServerConnection", "Error in start game listener", e);
+            }
+        }
+    }
+
+    public void handleLobbyUpdate(LobbyUpdateMessage msg) {
+        Consumer<LobbyUpdateMessage> callBack = pendingJoinCallbacks.remove(msg.getLobbyId());
+        if (callBack != null) {
+            try {
+                callBack.accept(msg);
+            } catch (Exception e) {
+                Gdx.app.error("ServerConnection", "Error in callback", e);
+            }
+        } else if (lobbyUpdateListener != null) {
+            try {
+                lobbyUpdateListener.accept(msg);
+            } catch (Exception e) {
+                Gdx.app.error("ServerConnection", "Error in lobby update listener", e);
+            }
+        }
+    }
+
+    public void handleLobbyExit(LobbyExitMessage msg) {
+        if (lobbyExitListener != null) {
+            try {
+                lobbyExitListener.accept(msg);
+            } catch (Exception e) {
+                Gdx.app.error("ServerConnection", "Error in lobby exit listener", e);
             }
         }
     }

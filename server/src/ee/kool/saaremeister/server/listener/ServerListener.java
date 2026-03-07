@@ -12,7 +12,8 @@ import message.GameJoinMessage;
 public class ServerListener extends Listener {
     private GameInstance game;
 
-    public ServerListener() { }
+    public ServerListener() {
+    }
 
     @Override
     public void connected(Connection connection) {
@@ -35,19 +36,7 @@ public class ServerListener extends Listener {
     @Override
     public void received(Connection connection, Object object) {
         Log.debug("Received message from client: " + connection.getRemoteAddressTCP().getAddress().getHostAddress() + ": " + object.toString());
-
-        // when a GameJoinMessage is received, the server will add the connection to the game instance
-        // if there is no active instance, a new one is created
-        if (object instanceof GameJoinMessage) {
-            if (game == null) {
-                game = new GameInstance(this, connection); // Create a new game instance for the first player (connection)
-                game.start(); // Start the Thread, which contains the main game loop
-            } else {
-                game.addConnection(connection);
-            }
-
-            super.received(connection, object);
-        }
+        super.received(connection, object);
     }
 
     /**

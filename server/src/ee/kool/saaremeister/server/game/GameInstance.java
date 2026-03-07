@@ -28,11 +28,10 @@ public class GameInstance extends Thread {
     private List<Bullet> bullets = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
 
-    public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId, Connection connection) {
+    public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
-        addConnection(connection);
 
     }
 

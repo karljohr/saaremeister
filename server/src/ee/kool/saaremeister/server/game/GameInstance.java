@@ -28,17 +28,12 @@ public class GameInstance extends Thread {
     private List<Bullet> bullets = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
 
-<<<<<<< server/src/ee/kool/saaremeister/server/game/GameInstance.java
-    public GameInstance(ServerListener serverListener, Connection connection) {
-        this.serverListener = serverListener;
-        addConnection(connection);
-=======
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId, Connection connection) {
         this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
         addConnection(connection);
->>>>>>> server/src/ee/kool/saaremeister/server/game/GameInstance.java
+
     }
 
     public boolean hasEnoughPlayers() {

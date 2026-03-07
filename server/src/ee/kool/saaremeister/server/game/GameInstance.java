@@ -28,10 +28,12 @@ public class GameInstance extends Thread {
     private List<Bullet> bullets = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
 
-    public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
+    public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId, Connection connection) {
         this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
+        addConnection(connection);
+
     }
 
     public boolean hasEnoughPlayers() {
@@ -68,12 +70,13 @@ public class GameInstance extends Thread {
     private void disposeGame() {
         players.forEach(Player::dispose);
         connections.clear();
+        serverListener.disposeGame();
     }
 
     @Override
     public void run() {
         boolean isGameRunning = true;
-
+        System.out.println("Game is running: " + isGameRunning);
         while (isGameRunning) {
             gameStateHandler.incrementGameTimeIfPlayersPresent();
             bullets.forEach(Bullet::update);

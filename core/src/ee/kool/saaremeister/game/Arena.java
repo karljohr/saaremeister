@@ -43,11 +43,22 @@ public class Arena {
         this.bullets = gameStateMessage.getBulletStates();
     }
 
-    // public void render()
+    /**
+     * Render map, players and bullets. This makes them visible on the screen.
+     *
+     * @param spriteBatch used for rendering (and scaling/resizing) all visual elements
+     */
+    public void render(SpriteBatch spriteBatch) {
+        renderPlayers(spriteBatch);
+        // TODO: renderBullets(spriteBatch);
+    }
 
     // private void renderMap()
 
-    // private void renderPlayers()
+    private void renderPlayers(SpriteBatch spriteBatch) {
+        players.forEach(player -> player.render(spriteBatch));
+    }
+
 
     //private void renderBullets()
 }

@@ -2,10 +2,13 @@ package constant;
 
 public class Constants {
 
+    // Box2D
+    public static final float PPM = 100f;
+
     // Networking
     public static final int TCP_PORT = 8080;
     public static final int UDP_PORT = 8081;
-    public static final String SERVER_IP = "193.40.157.179";
+    public static final String SERVER_IP = "127.0.0.1";
 
     // Game
     public static final int GAME_TICK_RATE = 60;

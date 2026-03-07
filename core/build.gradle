@@ -24,4 +24,5 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok:1.18.42'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
+    implementation "com.badlogicgames.gdx:gdx-freetype:1.12.1"
 }

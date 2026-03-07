@@ -15,7 +15,10 @@ public class GameStateManager {
     private GameStateMessage latestGameStateMessage;
 
     public GameStateManager() {
-        ServerConnection.getInstance().getClient().addListener(new GameStateMessageListener(this));
+        ServerConnection
+                .getInstance()
+                .getClient()
+                .addListener(new GameStateMessageListener(this));
 
         latestGameStateMessage = new GameStateMessage();
         latestGameStateMessage.setPlayerStates(new ArrayList<>());

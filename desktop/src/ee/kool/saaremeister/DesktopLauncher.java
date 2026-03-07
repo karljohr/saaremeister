@@ -9,6 +9,6 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 		config.setTitle("Saaremeister");
-		new Lwjgl3Application(new SaaremeisterGame(), config);
+		new Lwjgl3Application(new Main(), config);
 	}
 }

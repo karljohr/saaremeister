@@ -17,4 +17,10 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 dependencies {
     api "com.badlogicgames.gdx:gdx:1.12.1"
     api "com.esotericsoftware:kryonet:2.22.0-RC1"
+
+    compileOnly "org.projectlombok:lombok:1.18.38"
+    annotationProcessor "org.projectlombok:lombok:1.18.38"
+
+    testCompileOnly "org.projectlombok:lombok:1.18.38"
+    testAnnotationProcessor "org.projectlombok:lombok:1.18.38"
 }

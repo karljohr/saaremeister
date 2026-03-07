@@ -5,6 +5,7 @@ import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
+import ee.kool.saaremeister.server.lobby.LobbyManager;
 
 import java.time.Duration;
 import java.util.*;
@@ -19,14 +20,18 @@ import static constant.Constants.PLAYER_COUNT_INGAME_LIMIT;
 public class GameInstance extends Thread {
 
     private final ServerListener serverListener;
+    private final LobbyManager lobbyManager;
+    private final int lobbyId;
     private final GameStateHandler gameStateHandler = new GameStateHandler();
     private final Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
     private final List<Player> players = new ArrayList<>();
     private List<Bullet> bullets = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
 
-    public GameInstance(ServerListener serverListener) {
+    public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
+        this.lobbyManager = lobbyManager;
+        this.lobbyId = lobbyId;
     }
 
     public boolean hasEnoughPlayers() {

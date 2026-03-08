@@ -29,7 +29,7 @@ public class LobbyManager {
         }
 
         removePlayerFromAllLobbies(connection);
-        Lobby lobby = lobbies.computeIfAbsent(lobbyId, Lobby::new);
+        Lobby lobby = lobbies.computeIfAbsent(lobbyId, Lobby::new);     // Stores lobbies as <lobbyID, Lobby> map.
         boolean success = lobby.addPlayer(connection);
 
         if (!success) {

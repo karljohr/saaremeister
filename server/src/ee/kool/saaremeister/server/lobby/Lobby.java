@@ -21,6 +21,7 @@ public class Lobby {
     private final int lobbyId;
     private final Set<Connection> players = new HashSet<>();
     private GameInstance gameInstance;
+    private boolean started = false;
 
     public Lobby(int lobbyId) {
         this.lobbyId = lobbyId;
@@ -61,7 +62,11 @@ public class Lobby {
         return players.contains(connection);
     }
 
-    public void startGame(com.esotericsoftware.kryonet.Connection startingPlayer, ServerListener serverListener, LobbyManager lobbyManager) {
+    /**
+     * Starts a game instance for the lobby.
+     */
+    public void startGame(com.esotericsoftware.kryonet.Connection startingPlayer, ServerListener serverListener,
+                          LobbyManager lobbyManager) {
         if (players.isEmpty()) {
             Log.warn("Cannot start game - no players in lobby: " + lobbyId);
             return;
@@ -78,6 +83,7 @@ public class Lobby {
         StartGameMessage startMessage = new StartGameMessage();
         startMessage.setLobbyId(lobbyId);
         players.forEach(player -> player.sendTCP(startMessage));
+        started = true;
         Log.info("Game started for lobby: " + lobbyId + " with " + players.size() + " players");
     }
 
@@ -88,6 +94,7 @@ public class Lobby {
         LobbyUpdateMessage updateMessage = new LobbyUpdateMessage();
         updateMessage.setLobbyId(lobbyId);
         updateMessage.setPlayerCount(players.size());
+        updateMessage.setStarted(started);
         players.forEach(conn -> conn.sendTCP(updateMessage));
     }
 
@@ -97,6 +104,7 @@ public class Lobby {
 
     public void disposeGame() {
         gameInstance = null;
+        started = false;
         Log.info("Disposed game instance for lobby " + lobbyId);
     }
 }

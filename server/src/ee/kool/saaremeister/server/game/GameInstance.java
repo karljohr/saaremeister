@@ -37,7 +37,7 @@ public class GameInstance extends Thread {
     }
 
     public boolean hasEnoughPlayers() {
-        return players.size() >= PLAYER_COUNT_INGAME_LIMIT;
+        return players.size() == PLAYER_COUNT_INGAME_LIMIT;
     }
 
     public void addConnection(com.esotericsoftware.kryonet.Connection connection) {

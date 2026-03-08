@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import ee.kool.saaremeister.game.Arena;
 import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
+import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import message.GameStateMessage;
 
@@ -53,17 +54,43 @@ public class GameScreen extends ScreenAdapter {
     }
 
     public void box2dWorldGenerator() {
-        // set up camera
-        camera = new OrthographicCamera(); // create 2D camera
-        camera.setToOrtho(false, Gdx.graphics.getWidth() / PPM, Gdx.graphics.getHeight() / PPM); // set Y-up and viewport size in meters
+        // Set up camera
+        camera = new OrthographicCamera();
 
-        // viewport
-        this.viewport = new FitViewport(800, 400, camera); // maintain aspect ratio with fixed world size
+        // Viewport
+        this.viewport = new FitViewport(30, 20, camera);
 
-        // load tiled map
-        TmxMapLoader mapLoader = new TmxMapLoader(); // loader for TMX tile maps
-        this.map = mapLoader.load("shared/src/TMXAssets/map.tmx"); // load map file from shared. change as necessary
-        this.renderer = new IsometricTiledMapRenderer(map, 1f / PPM); // render map scaled to meters
+        // Load tiled map
+        TmxMapLoader mapLoader = new TmxMapLoader();
+        this.map = mapLoader.load("shared/src/TMXAssets/map.tmx");
+        this.renderer = new IsometricTiledMapRenderer(map, 1f / PPM);
+    }
+
+    private void update(float delta) {
+        playerInputManager.handleMovementInput();
+        handleScreenNavigation(game);
+
+        GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
+        arena.update(currentGameState);
+
+        int myId = ServerConnection.getInstance().getClient().getID();
+
+        // Dynamic camera
+        arena.getPlayers().stream()
+                .filter(p -> p.getId() == myId)
+                .findFirst()
+                .ifPresent(me -> {
+                    float lerp = 5f;
+                    camera.position.x += (me.getX() - camera.position.x) * lerp * delta;
+                    camera.position.y += (me.getY() - camera.position.y) * lerp * delta;
+                });
+
+        camera.update();
+        renderer.setView(camera);
+
+        // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
+
+        // TODO: hud.update(currentGameState);  // update info overlay time, lives etc
     }
 
     /**
@@ -73,31 +100,36 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void render(float delta) {
-        super.render(delta);
-        // clear the screen
-        Gdx.gl.glClearColor(192 / 255f, 192 / 255f, 192 / 255f, 1); // to get that win 95 look
+        // Update locations
+        update(delta);
+
+        // Draw
+        Gdx.gl.glClearColor(192 / 255f, 192 / 255f, 192 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        camera.update(); // Update the camera matrices
-        renderer.setView(camera); // Set the renderer to use the current camera
-        renderer.render(); // Draw the tiled map
+        // Render isometric map
+        renderer.render();
 
-        playerInputManager.handleMovementInput(); // send player movement info to server
-        // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
-        handleScreenNavigation(game); // ESC - navigate back to Title screen
-
-        GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
-        arena.update(currentGameState);  // update players' and bullets' positions
-        // TODO: hud.update(currentGameState);  // update info overlay time, lives etc
-
+        // Render players and items
         spriteBatch.setProjectionMatrix(camera.combined);
-
-        // render players and bullets onto the screen
         spriteBatch.begin();
-        arena.render(spriteBatch);  // all spriteBatch rendering should occur between .begin() and .end()
+        arena.render(spriteBatch);
         spriteBatch.end();
 
         // TODO: hud.render(); // render the HUD last to ensure it appears on top of all other content
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        // See on hädavajalik, et FitViewport teaks uusi akna mõõte
+        viewport.update(width, height);
+    }
+
+    @Override
+    public void dispose() {
+        spriteBatch.dispose();
+        map.dispose();
+        renderer.dispose();
     }
 
     private void handleScreenNavigation(Game game) {

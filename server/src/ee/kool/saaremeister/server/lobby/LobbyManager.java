@@ -2,6 +2,7 @@ package ee.kool.saaremeister.server.lobby;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
 import lombok.Data;
 import message.GameJoinMessage;
@@ -10,12 +11,14 @@ import message.StartGameMessage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class LobbyManager {
 
     private final Map<Integer, Lobby> lobbies = new HashMap<>();
     private final ServerListener serverListener;
+    private final Map<Integer, String> usernames = new ConcurrentHashMap<>();
 
     public LobbyManager(ServerListener serverListener) {
         this.serverListener = serverListener;
@@ -27,10 +30,12 @@ public class LobbyManager {
             Log.warn("Invalid lobby id: " + lobbyId);
             return;
         }
+        storeUsername(connection, gameJoinMessage.getUsername());
 
         removePlayerFromAllLobbies(connection);
         Lobby lobby = lobbies.computeIfAbsent(lobbyId, Lobby::new);     // Stores lobbies as <lobbyID, Lobby> map.
-        boolean success = lobby.addPlayer(connection);
+        boolean success = lobby.addPlayer(connection, gameJoinMessage.getUsername());
+        Log.info("Player joined with username: '" + gameJoinMessage.getUsername() + "'");
 
         if (!success) {
             Log.info("Failed to add player to lobby: " + lobbyId);
@@ -62,7 +67,7 @@ public class LobbyManager {
                 lobby.getGameInstance().removeConnection(connection);
             }
 
-            lobby.removePlayer(connection);
+            lobby.removePlayer(connection, usernames.get(connection.getID()));
             LobbyExitMessage confirmationMessage = new LobbyExitMessage();
             confirmationMessage.setLobbyId(lobbyId);
             connection.sendTCP(confirmationMessage);
@@ -79,7 +84,7 @@ public class LobbyManager {
             int lobbyId = entry.getKey();
             Lobby lobby = entry.getValue();
 
-            if (lobby.removePlayer(connection)) {
+            if (lobby.removePlayer(connection, usernames.get(connection.getID()))) {
                 Log.info("Removed disconnected player from lobby " + lobbyId);
 
                 if (lobby.getGameInstance() != null) {
@@ -93,6 +98,14 @@ public class LobbyManager {
                 break;
             }
         }
+    }
+
+    public void storeUsername(Connection connection, String username) {
+        usernames.put(connection.getID(), username);
+    }
+
+    public String getUsername(Connection connection) {
+        return usernames.get(connection.getID());
     }
 
     public Lobby getLobby(int lobbyId) {

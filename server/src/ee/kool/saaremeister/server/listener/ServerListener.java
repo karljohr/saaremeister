@@ -3,7 +3,6 @@ package ee.kool.saaremeister.server.listener;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
-import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import message.GameJoinMessage;
 import message.LobbyExitMessage;

@@ -1,6 +1,7 @@
 package ee.kool.saaremeister.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import lombok.Getter;
 import message.GameStateMessage;
 import message.dto.BulletState;
 import message.dto.PlayerState;
@@ -13,6 +14,7 @@ import java.util.List;
  */
 public class Arena {
 
+    @Getter
     private final List<Player> players = new ArrayList<>();
     private List<BulletState> bullets = new ArrayList<>();
 

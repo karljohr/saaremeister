@@ -5,6 +5,7 @@ import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
+import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 
 import java.time.Duration;
@@ -69,7 +70,14 @@ public class GameInstance extends Thread {
     private void disposeGame() {
         players.forEach(Player::dispose);
         connections.clear();
-        serverListener.disposeGame();
+
+        Lobby lobby = lobbyManager.getLobby(lobbyId);
+        if (lobby != null) {
+            lobby.disposeGame();
+            Log.info("Game disposed in lobby " + lobbyId);
+        } else {
+            Log.warn("Lobby not found for game " + lobbyId);
+        }
     }
 
     @Override

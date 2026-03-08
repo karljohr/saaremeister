@@ -5,8 +5,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
 public class Font {
-    private static final FreeTypeFontGenerator pixelFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PixelifySans-VariableFont_wght.ttf"));
-    private static final FreeTypeFontGenerator arialFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arial.ttf"));
+    private static final FreeTypeFontGenerator pixelFontGenerator =
+            new FreeTypeFontGenerator(Gdx.files.internal("fonts/PixelifySans-VariableFont_wght.ttf"));
+    private static final FreeTypeFontGenerator arialFontGenerator =
+            new FreeTypeFontGenerator(Gdx.files.internal("fonts/arial.ttf"));
 
 
     public static BitmapFont getPixelFont(int fontSize) {
@@ -22,4 +24,5 @@ public class Font {
 
         return arialFontGenerator.generateFont(parameter);
     }
+
 }

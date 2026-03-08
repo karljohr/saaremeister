@@ -20,5 +20,6 @@ public class Register {
         kryo.register(BulletState.class);
         kryo.register(PlayerState.class);
         kryo.register(Direction.class);
+        kryo.register(message.LobbyUpdateMessage.class);
     }
 }

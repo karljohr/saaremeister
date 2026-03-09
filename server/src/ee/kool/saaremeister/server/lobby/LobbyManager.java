@@ -80,24 +80,17 @@ public class LobbyManager {
     }
 
     public void removePlayerFromAllLobbies(Connection connection) {
-        for (Map.Entry<Integer, Lobby> entry : lobbies.entrySet()) {
-            int lobbyId = entry.getKey();
-            Lobby lobby = entry.getValue();
-
-            if (lobby.removePlayer(connection, usernames.get(connection.getID()))) {
-                Log.info("Removed disconnected player from lobby " + lobbyId);
-
+        // Kasutame eemaldamiseks turvalisemat viisi
+        lobbies.values().removeIf(lobby -> {
+            boolean removed = lobby.removePlayer(connection, usernames.get(connection.getID()));
+            if (removed) {
+                Log.info("Removed player from lobby: " + lobby.getLobbyId());
                 if (lobby.getGameInstance() != null) {
                     lobby.getGameInstance().removeConnection(connection);
                 }
-
-                if (lobby.isEmpty()) {
-                    lobbies.remove(lobbyId);
-                    Log.info("Lobby " + lobbyId + " removed (empty)");
-                }
-                break;
             }
-        }
+            return lobby.isEmpty(); // Kui lobby on tühi, eemaldatakse see map-ist
+        });
     }
 
     public void storeUsername(Connection connection, String username) {

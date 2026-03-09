@@ -44,11 +44,13 @@ public class ServerConnection {
     }
 
     public void connect() {
-        try {
-            client.connect(5000, SERVER_IP, TCP_PORT, UDP_PORT);
-        } catch (Exception e) {
-            Gdx.app.error("ServerConnection", "Failed to connect to server", e);
-        }
+        new Thread(() -> {
+            try {
+                client.connect(5000, SERVER_IP, TCP_PORT, UDP_PORT);
+            } catch (Exception e) {
+                Gdx.app.error("ServerConnection", "Failed to connect to server", e);
+            }
+        }, "ServerConnection").start();
     }
 
     public void joinLobby(int lobbyId, String username, Consumer<LobbyUpdateMessage> callback) {

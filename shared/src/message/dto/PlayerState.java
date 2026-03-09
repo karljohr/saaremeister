@@ -9,4 +9,5 @@ public class PlayerState {
     private float y;
     private int lives;
     private String username;
+    private int money;
 }

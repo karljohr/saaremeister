@@ -23,10 +23,9 @@ public class ServerListener extends Listener {
     @Override
     public void connected(Connection connection) {
         InetSocketAddress address = connection.getRemoteAddressTCP();
-        if (address == null) {
-            return;
+        if (address != null && address.getAddress() != null) {
+            Log.info("Client connected: " + address.getAddress().getHostAddress());
         }
-        Log.info("Client connected: " + connection.getRemoteAddressTCP().getAddress().getHostAddress());
         super.connected(connection);
     }
 
@@ -34,10 +33,11 @@ public class ServerListener extends Listener {
     public void disconnected(Connection connection) {
         lobbyManager.removePlayerFromAllLobbies(connection);
         InetSocketAddress address = connection.getRemoteAddressTCP();
-        if (address == null) {
-            return;
+        if (address != null && address.getAddress() != null) {
+            Log.info("Client disconnected: " + address.getAddress().getHostAddress());
+        } else {
+            Log.info("Client disconnected (address already null)");
         }
-        Log.info("Client disconnected: " + connection.getRemoteAddressTCP().getAddress().getHostAddress());
         super.disconnected(connection);
     }
 

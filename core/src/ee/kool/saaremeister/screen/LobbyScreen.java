@@ -13,6 +13,8 @@ import ee.kool.saaremeister.network.ServerConnection;
 import message.LobbyExitMessage;
 import message.StartGameMessage;
 
+import java.util.List;
+
 import static ee.kool.saaremeister.component.ButtonComponent.getButton;
 import static ee.kool.saaremeister.component.LabelComponent.createLabel;
 
@@ -23,11 +25,14 @@ public class LobbyScreen extends ScreenAdapter {
     private final int lobbyId;
     private Label playerCountLabel;
     private int currentPlayerCount;
+    private Label playerNameLabel;
+    private List<String> currentPlayerNames;
 
-    public LobbyScreen(Game game, int lobbyId, int initialPlayerCount) {
+    public LobbyScreen(Game game, int lobbyId, int initialPlayerCount, List<String> usernames) {
         this.game = game;
         this.lobbyId = lobbyId;
         this.currentPlayerCount = initialPlayerCount;
+        this.currentPlayerNames = usernames;
         stage = new Stage();
 
         Gdx.input.setInputProcessor(stage);
@@ -37,6 +42,7 @@ public class LobbyScreen extends ScreenAdapter {
     private void createUi() {
         Label lobbyCodeLabel = createLabel("Lobby " + lobbyId, Color.BLACK, 24);
         playerCountLabel = createLabel("Players: " + currentPlayerCount, Color.BLACK, 24);
+        playerNameLabel = createLabel(currentPlayerNames.toString(), Color.BLACK, 24);
 
         // A button to start the game.
         var startButton = getButton(20, "Start Game", () -> {
@@ -60,6 +66,8 @@ public class LobbyScreen extends ScreenAdapter {
         table.row();
         table.add(playerCountLabel);
         table.row();
+        table.add(playerNameLabel).padBottom(20);
+        table.row();
         table.add(startButton).padBottom(20);
         table.row();
         table.add(leaveButton);
@@ -73,6 +81,7 @@ public class LobbyScreen extends ScreenAdapter {
         connection.setLobbyUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
                 updatePlayerCount(msg.getPlayerCount());
+                updatePlayerNames(msg.getUsernames());
             }
         });
         connection.setStartGameListener(msg -> {
@@ -93,6 +102,12 @@ public class LobbyScreen extends ScreenAdapter {
         currentPlayerCount = playerCount;
         playerCountLabel.setText("Players: " + currentPlayerCount);
         Log.info("Player count updated to " + currentPlayerCount);
+    }
+    
+    public void updatePlayerNames(List<String> playerNames) {
+        currentPlayerNames = playerNames;
+        playerNameLabel.setText(currentPlayerNames.toString());
+        Log.info("Player names updated to " + currentPlayerNames);
     }
 
     @Override

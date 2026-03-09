@@ -8,4 +8,5 @@ public class PlayerState {
     private float x;
     private float y;
     private int lives;
+    private String username;
 }

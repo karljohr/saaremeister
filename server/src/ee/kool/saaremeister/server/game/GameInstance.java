@@ -47,6 +47,7 @@ public class GameInstance extends Thread {
         }
 
         Player newPlayer = new Player(connection, this);
+        newPlayer.setUsername(lobbyManager.getUsername(connection));
         players.add(newPlayer);
         activePlayers.put(connection.getID(), newPlayer);
         connections.add(connection);

@@ -51,10 +51,11 @@ public class ServerConnection {
         }
     }
 
-    public void joinLobby(int lobbyId, Consumer<LobbyUpdateMessage> callback) {
+    public void joinLobby(int lobbyId, String username, Consumer<LobbyUpdateMessage> callback) {
         pendingJoinCallbacks.put(lobbyId, callback);
         GameJoinMessage joinMessage = new GameJoinMessage();
         joinMessage.setLobbyId(lobbyId);
+        joinMessage.setUsername(username);
         try {
             client.sendTCP(joinMessage);
         } catch (Exception e) {

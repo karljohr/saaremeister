@@ -28,11 +28,11 @@ public class Player {
     private final GameInstance gameInstance;
     private float x, y = 0f;
     private int lives = PLAYER_LIVES;
+    @Getter @Setter
+    private String username = "Player";
 
     /**
      * Initializes a new server/side representation of a player.
-     * @param connection
-     * @param gameInstance
      */
     public Player(Connection connection, GameInstance gameInstance) {
         this.connection = connection;
@@ -44,7 +44,6 @@ public class Player {
 
     /**
      * Moves the player in the given direction.
-     * @param direction
      */
     public void move(Direction direction) {
         if (direction == null) {
@@ -73,6 +72,7 @@ public class Player {
         playerState.setX(x);
         playerState.setY(y);
         playerState.setLives(lives);
+        playerState.setUsername(username);
         return playerState;
     }
 

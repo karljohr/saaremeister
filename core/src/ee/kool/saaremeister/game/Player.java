@@ -1,5 +1,6 @@
 package ee.kool.saaremeister.game;
 
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import ee.kool.saaremeister.utility.Sprites;
 import lombok.Getter;
@@ -8,17 +9,20 @@ import lombok.Setter;
 import static constant.Constants.PPM;
 import static constant.Constants.PLAYER_PIXEL_HEIGHT;
 import static constant.Constants.PLAYER_PIXEL_WIDTH;
+import static ee.kool.saaremeister.utility.Font.getArialFont;
 
 public class Player {
 
     private final int id;
+    private String username;
     @Setter @Getter
     private float x;
     @Setter @Getter
     private float y;
 
-    public Player(int id) {
+    public Player(int id, String username) {
         this.id = id;
+        this.username = username;
     }
 
     public Integer getId() {

@@ -30,19 +30,16 @@ public class Player {
     }
 
     public void render(SpriteBatch spriteBatch) {
-        float w = 1.0f;
-        float h = 1.0f;
+        // x/y are in world units (pixels/PPM). Draw sprite centered with size also in world units.
+        float w = PLAYER_PIXEL_WIDTH / PPM;
+        float h = PLAYER_PIXEL_HEIGHT / PPM;
         spriteBatch.draw(
                 Sprites.playerTexture,
                 x - w / 2f,
                 y - h / 2f,
-                w,
-                h
+                PLAYER_PIXEL_WIDTH / PPM,
+                PLAYER_PIXEL_HEIGHT / PPM
         );
-
-//        // x/y are in world units (pixels/PPM). Draw sprite centered with size also in world units.
-//        float w = PLAYER_PIXEL_WIDTH / PPM;
-//        float h = PLAYER_PIXEL_HEIGHT / PPM;
     }
 
 }

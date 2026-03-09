@@ -58,7 +58,7 @@ public class GameScreen extends ScreenAdapter {
         camera = new OrthographicCamera();
 
         // Viewport
-        this.viewport = new FitViewport(30, 20, camera);
+        this.viewport = new FitViewport(10, 5, camera);
 
         // Load tiled map
         TmxMapLoader mapLoader = new TmxMapLoader();

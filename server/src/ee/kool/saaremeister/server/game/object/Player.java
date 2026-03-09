@@ -56,11 +56,6 @@ public class Player {
             case LEFT -> x -= 1 * PLAYER_SPEED / PPM;
             case RIGHT -> x += 1 * PLAYER_SPEED / PPM;
         }
-
-        // TODO: Remove and add bounds to the map
-        // Limit the player's movement to the arena bounds.
-        x = Math.max(ARENA_LOWER_BOUND_X, Math.min(x, ARENA_UPPER_BOUND_X - PLAYER_PIXEL_WIDTH));
-        y = Math.max(ARENA_LOWER_BOUND_Y, Math.min(y, ARENA_UPPER_BOUND_Y - PLAYER_PIXEL_HEIGHT));
     }
 
     /**

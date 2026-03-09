@@ -29,7 +29,7 @@ public class GameScreen extends ScreenAdapter {
     private final SpriteBatch spriteBatch;
     private final Arena arena;
     private final int lobbyId;
-    // TODO: private final Hud hud;
+    private final Hud hud;
 
     private OrthographicCamera camera;
     private FitViewport viewport;
@@ -44,12 +44,13 @@ public class GameScreen extends ScreenAdapter {
     public GameScreen(Game game, int lobbyId) {
         this.game = game;
         this.lobbyId = lobbyId;
-        gameStateManager = new GameStateManager();  // receives game state from the server
-        playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
+        this.gameStateManager = new GameStateManager();  // receives game state from the server
+        this.playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
 
-        spriteBatch = new SpriteBatch();  // where all the content is rendered
-        arena = new Arena();  // manages players and bullets
-        // TODO: hud = new Hud(spriteBatch);  // info overlay
+        this.spriteBatch = new SpriteBatch();  // where all the content is rendered
+        this.arena = new Arena();  // manages players and bullets
+        this.hud = new Hud(spriteBatch);  // info overlay
+
         box2dWorldGenerator();
     }
 
@@ -71,6 +72,8 @@ public class GameScreen extends ScreenAdapter {
         handleScreenNavigation(game);
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
+
+        if (currentGameState == null) return;
         arena.update(currentGameState);
 
         int myId = ServerConnection.getInstance().getClient().getID();
@@ -90,7 +93,7 @@ public class GameScreen extends ScreenAdapter {
 
         // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
 
-        // TODO: hud.update(currentGameState);  // update info overlay time, lives etc
+        hud.update(currentGameState, myId);  // update info overlay time, lives etc
     }
 
     /**
@@ -116,7 +119,7 @@ public class GameScreen extends ScreenAdapter {
         arena.render(spriteBatch);
         spriteBatch.end();
 
-        // TODO: hud.render(); // render the HUD last to ensure it appears on top of all other content
+        hud.render(); // render the HUD last to ensure it appears on top of all other content
     }
 
     @Override
@@ -130,6 +133,7 @@ public class GameScreen extends ScreenAdapter {
         spriteBatch.dispose();
         map.dispose();
         renderer.dispose();
+        hud.dispose();
     }
 
     private void handleScreenNavigation(Game game) {

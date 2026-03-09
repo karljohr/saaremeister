@@ -3,7 +3,7 @@ plugins {
 }
 
 application {
-    mainClass = 'ee.kool.server.ChatServer'
+    mainClass = 'ee.kool.saaremeister.server.ServerLauncher'
 }
 
 apply plugin: "java-library"

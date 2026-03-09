@@ -23,10 +23,11 @@ public class ServerListener extends Listener {
     @Override
     public void connected(Connection connection) {
         InetSocketAddress address = connection.getRemoteAddressTCP();
-        if (address == null) {
-            return;
+        if (address != null && address.getAddress() != null) {
+            Log.info("Client connected: " + address.getAddress().getHostAddress());
+        } else {
+            Log.info("Client connected (address not available yet)");
         }
-        Log.info("Client connected: " + connection.getRemoteAddressTCP().getAddress().getHostAddress());
         super.connected(connection);
     }
 
@@ -34,10 +35,11 @@ public class ServerListener extends Listener {
     public void disconnected(Connection connection) {
         lobbyManager.removePlayerFromAllLobbies(connection);
         InetSocketAddress address = connection.getRemoteAddressTCP();
-        if (address == null) {
-            return;
+        if (address != null && address.getAddress() != null) {
+            Log.info("Client disconnected: " + address.getAddress().getHostAddress());
+        } else {
+            Log.info("Client disconnected (connection already lost)");
         }
-        Log.info("Client disconnected: " + connection.getRemoteAddressTCP().getAddress().getHostAddress());
         super.disconnected(connection);
     }
 
@@ -47,12 +49,12 @@ public class ServerListener extends Listener {
     @Override
     public void received(Connection connection, Object object) {
         InetSocketAddress address = connection.getRemoteAddressTCP();
-        if (address == null) {
-            return;
-        }
-        Log.debug("Received message from client: "
-                + connection.getRemoteAddressTCP().getAddress().getHostAddress()
-                + ": " + object.toString());
+        String hostAddr = (address != null && address.getAddress() != null)
+                ? address.getAddress().getHostAddress()
+                : "Unknown IP";
+
+        // Logime debug info turvaliselt
+        Log.debug("Received " + object.getClass().getSimpleName() + " from " + hostAddr);
 
         switch (object) {
             case GameJoinMessage gameJoinMessage -> lobbyManager.handleJoinRequest(connection, gameJoinMessage);

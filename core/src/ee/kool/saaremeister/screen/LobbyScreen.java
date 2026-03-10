@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.esotericsoftware.minlog.Log;
+import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.LobbyExitMessage;
 import message.StartGameMessage;
@@ -27,12 +28,15 @@ public class LobbyScreen extends ScreenAdapter {
     private int currentPlayerCount;
     private Label playerNameLabel;
     private List<String> currentPlayerNames;
+    private ChatTable chatTable;
+    private final String username;
 
-    public LobbyScreen(Game game, int lobbyId, int initialPlayerCount, List<String> usernames) {
+    public LobbyScreen(Game game, int lobbyId, int initialPlayerCount, List<String> usernames, String username) {
         this.game = game;
         this.lobbyId = lobbyId;
         this.currentPlayerCount = initialPlayerCount;
         this.currentPlayerNames = usernames;
+        this.username = username;
         stage = new Stage();
 
         Gdx.input.setInputProcessor(stage);
@@ -41,7 +45,10 @@ public class LobbyScreen extends ScreenAdapter {
 
     private void createUi() {
         Label lobbyCodeLabel = createLabel("Lobby " + lobbyId, Color.BLACK, 24);
+
         playerCountLabel = createLabel("Players: " + currentPlayerCount, Color.BLACK, 24);
+
+        // A label that displays the usernames currently joined in the lobby.
         playerNameLabel = createLabel(currentPlayerNames.toString(), Color.BLACK, 24);
 
         // A button to start the game.
@@ -73,6 +80,12 @@ public class LobbyScreen extends ScreenAdapter {
         table.add(leaveButton);
 
         stage.addActor(table);
+
+        // Creating and positioning the chat table.
+        chatTable = new ChatTable(lobbyId, username);
+        chatTable.setSize(355, 230);
+        stage.addActor(chatTable);
+        chatTable.setPosition(10, 10);
     }
 
     @Override
@@ -86,7 +99,7 @@ public class LobbyScreen extends ScreenAdapter {
         });
         connection.setStartGameListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
-                game.setScreen(new GameScreen(game, lobbyId));
+                game.setScreen(new GameScreen(game, lobbyId, username));
                 this.dispose();
             }
         });
@@ -96,6 +109,14 @@ public class LobbyScreen extends ScreenAdapter {
                 this.dispose();
             }
         });
+        connection.setChatUpdateListener(msg -> {
+            if (msg.getLobbyId() == lobbyId) {
+                Gdx.app.postRunnable(() -> {
+                    System.out.println("[UI] Updating ChatTable with " + msg.getMessages().size() + " messages.");
+                    chatTable.updateMessages(msg.getMessages());
+                });
+            }
+        });
     }
 
     public void updatePlayerCount(int playerCount) {
@@ -103,7 +124,7 @@ public class LobbyScreen extends ScreenAdapter {
         playerCountLabel.setText("Players: " + currentPlayerCount);
         Log.info("Player count updated to " + currentPlayerCount);
     }
-    
+
     public void updatePlayerNames(List<String> playerNames) {
         currentPlayerNames = playerNames;
         playerNameLabel.setText(currentPlayerNames.toString());
@@ -115,6 +136,7 @@ public class LobbyScreen extends ScreenAdapter {
         ServerConnection.getInstance().setLobbyUpdateListener(null);
         ServerConnection.getInstance().setStartGameListener(null);
         ServerConnection.getInstance().setLobbyExitListener(null);
+        ServerConnection.getInstance().setChatUpdateListener(null);
     }
 
     @Override

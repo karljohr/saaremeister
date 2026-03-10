@@ -2,8 +2,8 @@ package ee.kool.saaremeister.server.lobby;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+import ee.kool.saaremeister.server.chat.Chat;
 import ee.kool.saaremeister.server.game.GameInstance;
-import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
 import lombok.Data;
 import lombok.Getter;
@@ -26,9 +26,11 @@ public class Lobby {
     private GameInstance gameInstance;
     private boolean started = false;
     private List<String> usernames = new ArrayList<>();
+    private final Chat chat;
 
     public Lobby(int lobbyId) {
         this.lobbyId = lobbyId;
+        this.chat = new Chat(lobbyId, players);
     }
 
     /**
@@ -114,5 +116,9 @@ public class Lobby {
         gameInstance = null;
         started = false;
         Log.info("Disposed game instance for lobby " + lobbyId);
+    }
+
+    public Set<Connection> getConnections() {
+        return players;
     }
 }

@@ -2,6 +2,8 @@ package ee.kool.saaremeister.server.lobby;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+import ee.kool.saaremeister.server.chat.Chat;
+import ee.kool.saaremeister.server.chat.ChatManager;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
 import lombok.Data;
@@ -34,6 +36,15 @@ public class LobbyManager {
 
         removePlayerFromAllLobbies(connection);
         Lobby lobby = lobbies.computeIfAbsent(lobbyId, Lobby::new);     // Stores lobbies as <lobbyID, Lobby> map.
+
+        ChatManager chatManager = (ChatManager) serverListener.getChatManager();
+        if (!chatManager.getChats().containsKey(lobbyId)) {
+            // Loo uus Chat. Eeldame, et Lobby klassis on meetod getConnections()
+            Chat newChat = new Chat(lobbyId, lobby.getConnections());
+            chatManager.getChats().put(lobbyId, newChat);
+            Log.info("Chat initialized for lobby " + lobbyId);
+        }
+
         boolean success = lobby.addPlayer(connection, gameJoinMessage.getUsername());
         Log.info("Player joined with username: '" + gameJoinMessage.getUsername() + "'");
 

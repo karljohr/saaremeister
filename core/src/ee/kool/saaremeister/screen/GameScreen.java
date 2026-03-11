@@ -1,9 +1,6 @@
 package ee.kool.saaremeister.screen;
 
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -29,6 +26,7 @@ public class GameScreen extends ScreenAdapter {
     private final SpriteBatch spriteBatch;
     private final Arena arena;
     private final int lobbyId;
+    private final String username;
     private final Hud hud;
 
     private OrthographicCamera camera;
@@ -37,19 +35,20 @@ public class GameScreen extends ScreenAdapter {
     private IsometricTiledMapRenderer renderer;
 
     /**
-     * Initialize new GameScreen, where the main gameplay happens.
+     * Initialize a new GameScreen, where the main gameplay happens.
      *
-     * @param game Current game instance, used for navigating between screens, for example GameScreen -> TitleScreen
+     * @param game Current game instance, used for navigating between screens, for example, GameScreen -> TitleScreen
      */
-    public GameScreen(Game game, int lobbyId) {
+    public GameScreen(Game game, int lobbyId, String username) {
         this.game = game;
         this.lobbyId = lobbyId;
+        this.username = username;
         this.gameStateManager = new GameStateManager();  // receives game state from the server
         this.playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
 
         this.spriteBatch = new SpriteBatch();  // where all the content is rendered
         this.arena = new Arena();  // manages players and bullets
-        this.hud = new Hud(spriteBatch);  // info overlay
+        this.hud = new Hud(spriteBatch, lobbyId, username);  // info overlay
 
         box2dWorldGenerator();
     }
@@ -119,7 +118,31 @@ public class GameScreen extends ScreenAdapter {
         arena.render(spriteBatch);
         spriteBatch.end();
 
-        hud.render(); // render the HUD last to ensure it appears on top of all other content
+        hud.render(delta); // render the HUD last to ensure it appears on top of all other content
+    }
+
+    /**
+     * Allows the chat to be accessed in the HUD.
+     */
+    @Override
+    public void show() {
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(hud.getStage());
+        Gdx.input.setInputProcessor(multiplexer);
+
+        ServerConnection.getInstance().setChatUpdateListener(msg -> {
+            if (msg.getLobbyId() == lobbyId) {
+                Gdx.app.postRunnable(() -> {
+                    hud.updateChat(msg.getMessages());
+                });
+            }
+        });
+    }
+
+    @Override
+    public void hide() {
+        ServerConnection.getInstance().setChatUpdateListener(null);
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override

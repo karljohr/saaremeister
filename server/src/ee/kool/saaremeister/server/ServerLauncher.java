@@ -19,9 +19,9 @@ public class ServerLauncher {
         try {
             Server server = new Server();
             registerClasses(server.getKryo());
+            server.addListener(new ServerListener());
             server.start();
             server.bind(TCP_PORT, UDP_PORT);
-            server.addListener(new ServerListener());
 
         } catch (IOException e) {
             Log.error("Server failed to start.", e);

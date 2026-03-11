@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -76,7 +75,7 @@ public class TitleScreen extends ScreenAdapter {
         Log.info("Attempting to join lobby " + lobbyId + " with username " + username);
         ServerConnection.getInstance().joinLobby(lobbyId, username, msg -> {
             if (msg.getPlayerCount() >= 0 && !msg.isStarted()) {
-                game.setScreen(new LobbyScreen(game, lobbyId, msg.getPlayerCount(), msg.getUsernames()));
+                game.setScreen(new LobbyScreen(game, lobbyId, msg.getPlayerCount(), msg.getUsernames(), username));
                 this.dispose();
             } else {
                 Log.info("Failed to join lobby " + lobbyId);

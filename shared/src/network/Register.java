@@ -22,5 +22,8 @@ public class Register {
         kryo.register(Direction.class);
         kryo.register(message.LobbyUpdateMessage.class);
         kryo.register(message.LobbyExitMessage.class);
+        kryo.register(message.StartGameMessage.class);
+        kryo.register(message.ChatMessage.class);
+        kryo.register(message.ChatUpdateMessage.class);
     }
 }

@@ -5,22 +5,30 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.component.LabelComponent;
+import lombok.Getter;
 import message.GameStateMessage;
 
+import java.util.List;
+
 public class Hud implements Disposable {
+
+    @Getter
     private final Stage stage;
     private final Label moneyLabel;
     private final Label livesLabel;
     private final Texture coinTexture;
+    private final ChatTable chatTable;
 
-    public Hud(SpriteBatch spriteBatch) {
+    public Hud(SpriteBatch spriteBatch, int lobbyId, String username) {
         Viewport viewport = new FitViewport(800, 600); // Fikseeritud suurus HUD-i jaoks
         stage = new Stage(viewport, spriteBatch);
 
@@ -32,6 +40,8 @@ public class Hud implements Disposable {
         livesLabel = LabelComponent.createLabel("Lives: 3", Color.RED, 20);
 
         Table table = new Table();
+        table.setFillParent(true);
+        table.setTouchable(Touchable.childrenOnly);
         table.top().left();
         table.setFillParent(true);
 
@@ -44,8 +54,18 @@ public class Hud implements Disposable {
         table.add(livesLabel).colspan(2).padTop(5).padLeft(10).left();
 
         stage.addActor(table);
+
+        // Chat table positioning.
+        chatTable = new ChatTable(lobbyId, username);
+        table.row();
+        table.add(chatTable).colspan(2).padTop(10).padRight(10).right();
     }
 
+    /**
+     * Updates the HUD with the given GameStateMessage.
+     * @param msg
+     * @param myId
+     */
     public void update(GameStateMessage msg, int myId) {
         msg.getPlayerStates().stream()
                 .filter(p -> p.getId() == myId)
@@ -56,7 +76,15 @@ public class Hud implements Disposable {
                 });
     }
 
-    public void render() {
+    /**
+     * Updates the HUD chat.
+     */
+    public void updateChat(List<String> messages) {
+        chatTable.updateMessages(messages);
+    }
+
+    public void render(float delta) {
+        stage.act(delta);
         stage.draw();
     }
 

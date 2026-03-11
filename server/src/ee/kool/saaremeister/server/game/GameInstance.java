@@ -2,6 +2,7 @@ package ee.kool.saaremeister.server.game;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+import ee.kool.saaremeister.server.chat.Chat;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
@@ -28,12 +29,13 @@ public class GameInstance extends Thread {
     private final List<Player> players = new ArrayList<>();
     private List<Bullet> bullets = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
+    private final Chat chat;
 
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
-
+        this.chat = new Chat(lobbyId, connections);
     }
 
     public boolean hasEnoughPlayers() {

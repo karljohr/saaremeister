@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.network.ServerConnection;
+import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
 import message.LobbyExitMessage;
 import message.StartGameMessage;
 
@@ -66,6 +67,14 @@ public class LobbyScreen extends ScreenAdapter {
             ServerConnection.getInstance().getClient().sendTCP(exitMessage);
         });
 
+        var tutorial = new TutorialOverlay();
+
+        // Create tutorial button
+        var helpButton = getButton(20, "Juhend", () -> {
+            tutorial.setVisible(true);
+            tutorial.toFront();
+        });
+
         // Positioning the buttons.
         var table = new Table();
         table.setFillParent(true);
@@ -77,9 +86,12 @@ public class LobbyScreen extends ScreenAdapter {
         table.row();
         table.add(startButton).padBottom(20);
         table.row();
+        table.add(helpButton).padBottom(20);
+        table.row();
         table.add(leaveButton);
 
         stage.addActor(table);
+        stage.addActor(tutorial);
 
         // Creating and positioning the chat table.
         chatTable = new ChatTable(lobbyId, username);

@@ -37,8 +37,8 @@ public class Player {
                 Sprites.playerTexture,
                 x - w / 2f,
                 y - h / 2f,
-                PLAYER_PIXEL_WIDTH / PPM,
-                PLAYER_PIXEL_HEIGHT / PPM
+                w,
+                h
         );
     }
 

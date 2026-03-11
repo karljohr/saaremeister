@@ -1,5 +1,6 @@
 package ee.kool.saaremeister.server.game;
 
+import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.Bullet;
@@ -7,6 +8,7 @@ import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
+import com.badlogic.gdx.physics.box2d.World;
 
 import java.time.Duration;
 import java.util.*;
@@ -28,11 +30,16 @@ public class GameInstance extends Thread {
     private final List<Player> players = new ArrayList<>();
     private List<Bullet> bullets = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
+    private final World world;
 
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
+        this.world = new World(new Vector2(0, 0), true);
+
+        Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
+        box2dWorldGenerator.initializeWorld(world);
 
     }
 
@@ -46,7 +53,7 @@ public class GameInstance extends Thread {
             return;
         }
 
-        Player newPlayer = new Player(connection, this);
+        Player newPlayer = new Player(connection, this, world);
         newPlayer.setUsername(lobbyManager.getUsername(connection));
         players.add(newPlayer);
         activePlayers.put(connection.getID(), newPlayer);
@@ -87,7 +94,13 @@ public class GameInstance extends Thread {
         System.out.println("Game is running: " + isGameRunning);
         while (isGameRunning) {
             gameStateHandler.incrementGameTimeIfPlayersPresent();
+
+            // Step Box2D simulation so bodies move.
+            // Timestep based on tick rate; velocity/position iterations are standard defaults.
+            world.step(1f / GAME_TICK_RATE, 6, 2);
+
             bullets.forEach(Bullet::update);
+            players.forEach(Player::updateFromPhysics);
             var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
             connections.forEach(connection -> connection.sendUDP(gameStateMessage));
 

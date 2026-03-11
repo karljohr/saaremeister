@@ -7,9 +7,14 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import ee.kool.saaremeister.game.Arena;
 import ee.kool.saaremeister.game.GameStateManager;
@@ -18,7 +23,7 @@ import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import message.GameStateMessage;
 
-import static constant.Constants.PPM;
+import static constant.Constants.*;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -51,14 +56,16 @@ public class GameScreen extends ScreenAdapter {
         arena = new Arena();  // manages players and bullets
         // TODO: hud = new Hud(spriteBatch);  // info overlay
         box2dWorldGenerator();
+
     }
 
     public void box2dWorldGenerator() {
         // Set up camera
         camera = new OrthographicCamera();
+        camera.setToOrtho(false, 85, 45);
 
         // Viewport
-        this.viewport = new FitViewport(10, 5, camera);
+        this.viewport = new FitViewport(80, 45, camera);
 
         // Load tiled map
         TmxMapLoader mapLoader = new TmxMapLoader();

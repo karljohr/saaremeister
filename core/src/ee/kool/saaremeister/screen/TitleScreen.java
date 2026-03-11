@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.network.ServerConnection;
+import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
 
 import static ee.kool.saaremeister.component.ButtonComponent.getButton;
 import static ee.kool.saaremeister.component.LabelComponent.createLabel;
@@ -46,6 +47,14 @@ public class TitleScreen extends ScreenAdapter {
         });
         var exitButton = getButton(20, "Exit", () -> Gdx.app.exit());
 
+        var tutorial = new TutorialOverlay();
+
+        // Tutorial button
+        var helpButton = getButton(20, "Juhend", () -> {
+            tutorial.setVisible(true);
+            tutorial.toFront(); // Brings window on top
+        });
+
         // positioning the buttons. you can think of the following as a table (or flexbox) in HTML
         var table = new Table();
         table.setFillParent(true);
@@ -55,9 +64,13 @@ public class TitleScreen extends ScreenAdapter {
         table.row();
         table.add(startButton).padBottom(20);
         table.row();
+        table.add(helpButton).padBottom(20);
+        table.row();
         table.add(exitButton).padBottom(20);
 
         stage.addActor(table);
+        stage.addActor(tutorial);
+
         // Record the input in the nameField.
         stage.setKeyboardFocus(nameField);
     }

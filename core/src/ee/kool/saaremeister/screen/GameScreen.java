@@ -21,7 +21,10 @@ import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
+import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
+
+import java.util.Arrays;
 
 import static constant.Constants.*;
 
@@ -41,6 +44,9 @@ public class GameScreen extends ScreenAdapter {
     private TiledMap map;
     private IsometricTiledMapRenderer renderer;
 
+    private boolean debugMode;
+    private DebugRenderer debugRenderer;
+
     /**
      * Initialize new GameScreen, where the main gameplay happens.
      *
@@ -57,25 +63,34 @@ public class GameScreen extends ScreenAdapter {
         // TODO: hud = new Hud(spriteBatch);  // info overlay
         box2dWorldGenerator();
 
+        debugRenderer = new DebugRenderer();
+        debugMode = false;
+
+        ServerConnection.getInstance().setStaticBodiesListener(bodies -> {
+            Gdx.app.postRunnable(() -> debugRenderer.loadStaticBodies(Arrays.asList(bodies)));
+        });
     }
 
     public void box2dWorldGenerator() {
         // Set up camera
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 85, 45);
-
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         // Viewport
-        this.viewport = new FitViewport(80, 45, camera);
+        this.viewport = new FitViewport(1600, 900, camera);
 
         // Load tiled map
         TmxMapLoader mapLoader = new TmxMapLoader();
         this.map = mapLoader.load("shared/src/TMXAssets/map.tmx");
-        this.renderer = new IsometricTiledMapRenderer(map, 1f / PPM);
+        this.renderer = new IsometricTiledMapRenderer(map, 1f);
     }
 
     private void update(float delta) {
         playerInputManager.handleMovementInput();
         handleScreenNavigation(game);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
+            debugMode = !debugMode;
+        }
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
         arena.update(currentGameState);
@@ -122,6 +137,10 @@ public class GameScreen extends ScreenAdapter {
         spriteBatch.begin();
         arena.render(spriteBatch);
         spriteBatch.end();
+
+        if (debugMode) {
+            debugRenderer.render(camera);
+        }
 
         // TODO: hud.render(); // render the HUD last to ensure it appears on top of all other content
     }

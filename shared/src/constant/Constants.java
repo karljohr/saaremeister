@@ -4,6 +4,8 @@ public class Constants {
 
     // Box2D
     public static final float PPM = 100f;
+    public static final int TILE_WIDTH = 32;
+    public static final int TILE_HEIGHT = 16;
 
     // Networking
     public static final int TCP_PORT = 8080;
@@ -15,7 +17,7 @@ public class Constants {
     public static final int PLAYER_COUNT_INGAME_LIMIT = 10;
 
     // Player
-    public static final float PLAYER_SPEED = 5.0f;
+    public static final float PLAYER_SPEED = 500.0f;
     public static final int PLAYER_LIVES = 1;
     public static final int PLAYER_PIXEL_HEIGHT = 32;
     public static final int PLAYER_PIXEL_WIDTH = 32;

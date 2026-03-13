@@ -17,7 +17,7 @@ public class ServerLauncher {
 
     public static void main(String[] args) {
         try {
-            Server server = new Server();
+            Server server = new Server(65536, 65536);
             registerClasses(server.getKryo());
             server.start();
             server.bind(TCP_PORT, UDP_PORT);

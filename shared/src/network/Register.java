@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import message.dto.BulletState;
 import message.dto.Direction;
 import message.dto.PlayerState;
+import message.dto.StaticBodyState;
 
 import java.util.ArrayList;
 
@@ -22,5 +23,8 @@ public class Register {
         kryo.register(Direction.class);
         kryo.register(message.LobbyUpdateMessage.class);
         kryo.register(message.LobbyExitMessage.class);
+        kryo.register(StaticBodyState.class);
+        kryo.register(StaticBodyState[].class);
+        kryo.register(float[].class);
     }
 }

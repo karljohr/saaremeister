@@ -31,8 +31,8 @@ public class Player {
 
     public void render(SpriteBatch spriteBatch) {
         // x/y are in world units (pixels/PPM). Draw sprite centered with size also in world units.
-        float w = PLAYER_PIXEL_WIDTH / PPM;
-        float h = PLAYER_PIXEL_HEIGHT / PPM;
+        float w = PLAYER_PIXEL_WIDTH;
+        float h = PLAYER_PIXEL_HEIGHT;
         spriteBatch.draw(
                 Sprites.playerTexture,
                 x - w / 2f,

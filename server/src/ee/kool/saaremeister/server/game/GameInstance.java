@@ -9,6 +9,7 @@ import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
+import message.dto.StaticBodyState;
 
 import java.time.Duration;
 import java.util.*;
@@ -31,6 +32,7 @@ public class GameInstance extends Thread {
     private List<Bullet> bullets = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
     private final World world;
+    List<StaticBodyState> staticBodyData;
 
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
@@ -39,7 +41,7 @@ public class GameInstance extends Thread {
         this.world = new World(new Vector2(0, 0), true);
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
-        box2dWorldGenerator.initializeWorld(world);
+        staticBodyData = box2dWorldGenerator.initializeWorld(world);
 
     }
 
@@ -58,6 +60,9 @@ public class GameInstance extends Thread {
         players.add(newPlayer);
         activePlayers.put(connection.getID(), newPlayer);
         connections.add(connection);
+
+        StaticBodyState[] arr = staticBodyData.toArray(new StaticBodyState[0]);
+        connection.sendTCP(arr);
 
         if (hasEnoughPlayers()) {
             gameStateHandler.setAllPlayersHaveJoined(true);
@@ -114,6 +119,8 @@ public class GameInstance extends Thread {
                 disposeGame();
                 isGameRunning = false;
             }
+
+            players.forEach(player -> System.out.println(player.getUsername() + ": " + player.getX() + " ; " + player.getY()));
 
             try {
                 Thread.sleep(Duration.ofMillis(1000 / GAME_TICK_RATE));

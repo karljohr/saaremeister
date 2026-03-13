@@ -3,12 +3,14 @@ package ee.kool.saaremeister.network;
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Client;
 import ee.kool.saaremeister.network.listener.LobbyListener;
+import ee.kool.saaremeister.network.listener.debugListener;
 import lombok.Getter;
 import lombok.Setter;
 import message.GameJoinMessage;
 import message.LobbyExitMessage;
 import message.LobbyUpdateMessage;
 import message.StartGameMessage;
+import message.dto.StaticBodyState;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,12 +29,16 @@ public class ServerConnection {
     private Consumer<LobbyUpdateMessage> lobbyUpdateListener;
     private Consumer<LobbyExitMessage> lobbyExitListener;
     private final Map<Integer, Consumer<LobbyUpdateMessage>> pendingJoinCallbacks = new ConcurrentHashMap<>();
+    private Consumer<StaticBodyState[]> staticBodiesListener;
+
+    private StaticBodyState[] cachedStaticBodies;
 
     private ServerConnection() {
-        client = new Client();
+        client = new Client(65536, 65536);
         registerClasses(client.getKryo());
         lobbyListener = new LobbyListener(this);
         client.addListener(lobbyListener);
+        client.addListener(new debugListener(this));
         client.start();
     }
 
@@ -100,6 +106,20 @@ public class ServerConnection {
             } catch (Exception e) {
                 Gdx.app.error("ServerConnection", "Error in lobby exit listener", e);
             }
+        }
+    }
+
+    public void handleStaticBodies(StaticBodyState[] bodies) {
+        this.cachedStaticBodies = bodies;
+        if (staticBodiesListener != null) {
+            staticBodiesListener.accept(bodies);
+        }
+    }
+
+    public void setStaticBodiesListener(Consumer<StaticBodyState[]> listener) {
+        this.staticBodiesListener = listener;
+        if (cachedStaticBodies != null) {
+            listener.accept(cachedStaticBodies);
         }
     }
 

@@ -36,7 +36,6 @@ public class Player {
     private final World world;
     private Body body;
 
-
     /**
      * Initializes a new server/side representation of a player.
      */
@@ -65,7 +64,7 @@ public class Player {
 
         PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes etc.
         // Adjust hit-box size as needed.
-        shape.setAsBox(PLAYER_PIXEL_HEIGHT / PPM / PPM, PLAYER_PIXEL_WIDTH / PPM / PPM);
+        shape.setAsBox(10 / PPM, 15 / PPM);
 
         fdef.shape = shape;
         body.createFixture(fdef);

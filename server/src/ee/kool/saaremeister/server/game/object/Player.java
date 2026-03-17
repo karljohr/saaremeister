@@ -45,22 +45,22 @@ public class Player {
     /**
      * Moves the player in the given direction.
      */
-    public void move(Direction direction) {
-        if (direction == null) {
+    public void move(Direction directionX, Direction directionY) {
+        if (directionX == null && directionY == null) {
             return;
         }
 
-        switch (direction) {
-            case UP -> y += 1 * PLAYER_SPEED / PPM;
-            case DOWN -> y -= 1 * PLAYER_SPEED / PPM;
-            case LEFT -> x -= 1 * PLAYER_SPEED / PPM;
-            case RIGHT -> x += 1 * PLAYER_SPEED / PPM;
-        }
 
-        // TODO: Remove and add bounds to the map
-        // Limit the player's movement to the arena bounds.
-        x = Math.max(ARENA_LOWER_BOUND_X, Math.min(x, ARENA_UPPER_BOUND_X - PLAYER_PIXEL_WIDTH));
-        y = Math.max(ARENA_LOWER_BOUND_Y, Math.min(y, ARENA_UPPER_BOUND_Y - PLAYER_PIXEL_HEIGHT));
+        switch (directionX) {
+            case LEFT -> body.setLinearVelocity(-PLAYER_SPEED / PPM, body.getLinearVelocity().y);
+            case RIGHT ->  body.setLinearVelocity(PLAYER_SPEED / PPM, body.getLinearVelocity().y);
+            case null, default -> {}
+        }
+        switch (directionY) {
+            case UP -> body.setLinearVelocity(body.getLinearVelocity().x, PLAYER_SPEED / PPM);
+            case DOWN -> body.setLinearVelocity(body.getLinearVelocity().x, -PLAYER_SPEED / PPM);
+            case null, default -> {}
+        }
     }
 
     /**

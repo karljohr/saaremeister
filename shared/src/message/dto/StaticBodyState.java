@@ -1,16 +1,15 @@
 package message.dto;
 
+import com.badlogic.gdx.math.Vector2;
+
 public class StaticBodyState {
-    public float x, y;
-    public float width;
-    public float height;
+    public Vector2 worldPosition;
+    public float[] vertices;
 
     public StaticBodyState() {}
 
-    public StaticBodyState(float x, float y, float width, float height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    public StaticBodyState(Vector2 worldPosition, float[] vertices) {
+        this.worldPosition = worldPosition;
+        this.vertices = vertices;
     }
 }

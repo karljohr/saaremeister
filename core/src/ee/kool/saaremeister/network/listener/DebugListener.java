@@ -5,10 +5,10 @@ import com.esotericsoftware.kryonet.Listener;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.dto.StaticBodyState;
 
-public class debugListener extends Listener {
+public class DebugListener extends Listener {
     private final ServerConnection serverConnection;
 
-    public debugListener(ServerConnection serverConnection) {
+    public DebugListener(ServerConnection serverConnection) {
         this.serverConnection = serverConnection;
     }
 

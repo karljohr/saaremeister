@@ -28,11 +28,11 @@ public class DebugRenderer {
         def.type = BodyDef.BodyType.StaticBody;
 
         for (StaticBodyState data: bodies) {
-            def.position.set(data.x, data.y);
+            def.position.set(data.worldPosition);
             Body body = mirrorWorld.createBody(def);
 
             PolygonShape shape = new PolygonShape();
-            shape.setAsBox(data.width, data.height);
+            shape.set(data.vertices);
             body.createFixture(shape, 0f);
             shape.dispose();
         }

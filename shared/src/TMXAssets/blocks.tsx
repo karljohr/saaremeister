@@ -3,9 +3,7 @@
  <image source="blocks.png" width="128" height="128"/>
  <tile id="5">
   <objectgroup draworder="index" id="5">
-   <object id="8" x="0" y="0" width="32" height="32"/>
-   <object id="12" x="0" y="0" width="32" height="32"/>
-   <object id="15" x="0" y="0" width="32" height="32"/>
+   <object id="15" x="0" y="16" width="32" height="16"/>
   </objectgroup>
  </tile>
 </tileset>

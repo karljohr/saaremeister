@@ -3,7 +3,7 @@ package ee.kool.saaremeister.network;
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Client;
 import ee.kool.saaremeister.network.listener.LobbyListener;
-import ee.kool.saaremeister.network.listener.debugListener;
+import ee.kool.saaremeister.network.listener.DebugListener;
 import lombok.Getter;
 import lombok.Setter;
 import message.GameJoinMessage;
@@ -38,7 +38,7 @@ public class ServerConnection {
         registerClasses(client.getKryo());
         lobbyListener = new LobbyListener(this);
         client.addListener(lobbyListener);
-        client.addListener(new debugListener(this));
+        client.addListener(new DebugListener(this));
         client.start();
     }
 

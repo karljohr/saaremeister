@@ -76,7 +76,7 @@ public class GameScreen extends ScreenAdapter {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         // Viewport
-        this.viewport = new FitViewport(1600, 900, camera);
+        this.viewport = new FitViewport(800, 450, camera);
 
         // Load tiled map
         TmxMapLoader mapLoader = new TmxMapLoader();
@@ -130,13 +130,18 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Render isometric map
-        renderer.render();
+        int overLayIndex = map.getLayers().getIndex("Overlay");
+        int groundIndex = map.getLayers().getIndex("ground");
+        renderer.render(new int[]{groundIndex});
 
         // Render players and items
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         arena.render(spriteBatch);
         spriteBatch.end();
+
+        // Render the isometric map overlay layers
+        renderer.render(new int[]{overLayIndex});
 
         if (debugMode) {
             debugRenderer.render(camera);

@@ -1,5 +1,6 @@
 package network;
 
+import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import message.dto.BulletState;
 import message.dto.Direction;
@@ -23,8 +24,11 @@ public class Register {
         kryo.register(Direction.class);
         kryo.register(message.LobbyUpdateMessage.class);
         kryo.register(message.LobbyExitMessage.class);
+
+        // Box2D debug
         kryo.register(StaticBodyState.class);
         kryo.register(StaticBodyState[].class);
         kryo.register(float[].class);
+        kryo.register(Vector2.class);
     }
 }

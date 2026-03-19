@@ -1,6 +1,9 @@
 package ee.kool.saaremeister.screen;
 
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,9 +16,11 @@ import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
+import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
+import com.badlogic.gdx.InputMultiplexer;
 
-import static constant.Constants.PPM;
+import java.util.Arrays;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -34,6 +39,9 @@ public class GameScreen extends ScreenAdapter {
     private TiledMap map;
     private IsometricTiledMapRenderer renderer;
 
+    private boolean debugMode;
+    private DebugRenderer debugRenderer;
+
     /**
      * Initialize a new GameScreen, where the main gameplay happens.
      *
@@ -51,24 +59,35 @@ public class GameScreen extends ScreenAdapter {
         this.hud = new Hud(spriteBatch, lobbyId, username);  // info overlay
 
         box2dWorldGenerator();
+
+        debugRenderer = new DebugRenderer();
+        debugMode = false;
+
+        ServerConnection.getInstance().setStaticBodiesListener(bodies -> {
+            Gdx.app.postRunnable(() -> debugRenderer.loadStaticBodies(Arrays.asList(bodies)));
+        });
     }
 
     public void box2dWorldGenerator() {
         // Set up camera
         camera = new OrthographicCamera();
-
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         // Viewport
-        this.viewport = new FitViewport(30, 20, camera);
+        this.viewport = new FitViewport(800, 450, camera);
 
         // Load tiled map
         TmxMapLoader mapLoader = new TmxMapLoader();
         this.map = mapLoader.load("shared/src/TMXAssets/map.tmx");
-        this.renderer = new IsometricTiledMapRenderer(map, 1f / PPM);
+        this.renderer = new IsometricTiledMapRenderer(map, 1f);
     }
 
     private void update(float delta) {
         playerInputManager.handleMovementInput();
         handleScreenNavigation(game);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
+            debugMode = !debugMode;
+        }
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
 
@@ -110,7 +129,9 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Render isometric map
-        renderer.render();
+        int overLayIndex = map.getLayers().getIndex("Overlay");
+        int groundIndex = map.getLayers().getIndex("ground");
+        renderer.render(new int[]{groundIndex});
 
         // Render players and items
         spriteBatch.setProjectionMatrix(camera.combined);
@@ -119,6 +140,9 @@ public class GameScreen extends ScreenAdapter {
         spriteBatch.end();
 
         hud.render(delta); // render the HUD last to ensure it appears on top of all other content
+
+        // Render the isometric map overlay layers
+        renderer.render(new int[]{overLayIndex});
     }
 
     /**
@@ -143,6 +167,13 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         ServerConnection.getInstance().setChatUpdateListener(null);
         Gdx.input.setInputProcessor(null);
+
+
+        if (debugMode) {
+            debugRenderer.render(camera);
+        }
+
+        // TODO: hud.render(); // render the HUD last to ensure it appears on top of all other content
     }
 
     @Override

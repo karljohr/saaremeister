@@ -37,7 +37,8 @@ public class GameScreen extends ScreenAdapter {
     private final SpriteBatch spriteBatch;
     private final Arena arena;
     private final int lobbyId;
-    // TODO: private final Hud hud;
+    private final String username;
+    private final Hud hud;
 
     private OrthographicCamera camera;
     private FitViewport viewport;
@@ -48,19 +49,21 @@ public class GameScreen extends ScreenAdapter {
     private DebugRenderer debugRenderer;
 
     /**
-     * Initialize new GameScreen, where the main gameplay happens.
+     * Initialize a new GameScreen, where the main gameplay happens.
      *
-     * @param game Current game instance, used for navigating between screens, for example GameScreen -> TitleScreen
+     * @param game Current game instance, used for navigating between screens, for example, GameScreen -> TitleScreen
      */
-    public GameScreen(Game game, int lobbyId) {
+    public GameScreen(Game game, int lobbyId, String username) {
         this.game = game;
         this.lobbyId = lobbyId;
-        gameStateManager = new GameStateManager();  // receives game state from the server
-        playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
+        this.username = username;
+        this.gameStateManager = new GameStateManager();  // receives game state from the server
+        this.playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
 
-        spriteBatch = new SpriteBatch();  // where all the content is rendered
-        arena = new Arena();  // manages players and bullets
-        // TODO: hud = new Hud(spriteBatch);  // info overlay
+        this.spriteBatch = new SpriteBatch();  // where all the content is rendered
+        this.arena = new Arena();  // manages players and bullets
+        this.hud = new Hud(spriteBatch, lobbyId, username);  // info overlay
+
         box2dWorldGenerator();
 
         debugRenderer = new DebugRenderer();
@@ -93,6 +96,8 @@ public class GameScreen extends ScreenAdapter {
         }
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
+
+        if (currentGameState == null) return;
         arena.update(currentGameState);
 
         int myId = ServerConnection.getInstance().getClient().getID();
@@ -112,7 +117,7 @@ public class GameScreen extends ScreenAdapter {
 
         // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
 
-        // TODO: hud.update(currentGameState);  // update info overlay time, lives etc
+        hud.update(currentGameState, myId);  // update info overlay time, lives etc
     }
 
     /**
@@ -140,6 +145,31 @@ public class GameScreen extends ScreenAdapter {
         arena.render(spriteBatch);
         spriteBatch.end();
 
+        hud.render(delta); // render the HUD last to ensure it appears on top of all other content
+    }
+
+    /**
+     * Allows the chat to be accessed in the HUD.
+     */
+    @Override
+    public void show() {
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(hud.getStage());
+        Gdx.input.setInputProcessor(multiplexer);
+
+        ServerConnection.getInstance().setChatUpdateListener(msg -> {
+            if (msg.getLobbyId() == lobbyId) {
+                Gdx.app.postRunnable(() -> {
+                    hud.updateChat(msg.getMessages());
+                });
+            }
+        });
+    }
+
+    @Override
+    public void hide() {
+        ServerConnection.getInstance().setChatUpdateListener(null);
+        Gdx.input.setInputProcessor(null);
         // Render the isometric map overlay layers
         renderer.render(new int[]{overLayIndex});
 
@@ -161,6 +191,7 @@ public class GameScreen extends ScreenAdapter {
         spriteBatch.dispose();
         map.dispose();
         renderer.dispose();
+        hud.dispose();
     }
 
     private void handleScreenNavigation(Game game) {

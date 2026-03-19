@@ -2,6 +2,7 @@ package ee.kool.saaremeister.network;
 
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Client;
+import ee.kool.saaremeister.network.listener.ChatListener;
 import ee.kool.saaremeister.network.listener.LobbyListener;
 import ee.kool.saaremeister.network.listener.DebugListener;
 import lombok.Getter;
@@ -25,9 +26,11 @@ public class ServerConnection {
     private static ServerConnection instance;
     private final Client client;
     private final LobbyListener lobbyListener;
+    private final ChatListener chatListener;
     private Consumer<StartGameMessage> startGameListener;
     private Consumer<LobbyUpdateMessage> lobbyUpdateListener;
     private Consumer<LobbyExitMessage> lobbyExitListener;
+    private Consumer<ChatUpdateMessage> chatUpdateListener;
     private final Map<Integer, Consumer<LobbyUpdateMessage>> pendingJoinCallbacks = new ConcurrentHashMap<>();
     private Consumer<StaticBodyState[]> staticBodiesListener;
 
@@ -37,7 +40,9 @@ public class ServerConnection {
         client = new Client(65536, 65536);
         registerClasses(client.getKryo());
         lobbyListener = new LobbyListener(this);
+        chatListener = new ChatListener(this);
         client.addListener(lobbyListener);
+        client.addListener(chatListener);
         client.addListener(new DebugListener(this));
         client.start();
     }
@@ -106,6 +111,19 @@ public class ServerConnection {
             } catch (Exception e) {
                 Gdx.app.error("ServerConnection", "Error in lobby exit listener", e);
             }
+        }
+    }
+
+    public void handleChatUpdate(ChatUpdateMessage msg) {
+        System.out.println("[CLIENT] Received ChatUpdateMessage from server! Messages count: " + msg.getMessages().size());
+        if (chatUpdateListener != null) {
+            try {
+                chatUpdateListener.accept(msg);
+            } catch (Exception e) {
+                Gdx.app.error("ServerConnection", "Error in chat update listener", e);
+            }
+        } else {
+            System.out.println("[CLIENT] ERROR: chatUpdateListener is NULL!");
         }
     }
 

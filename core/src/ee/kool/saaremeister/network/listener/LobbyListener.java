@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import ee.kool.saaremeister.network.ServerConnection;
+import message.ChatUpdateMessage;
 import message.LobbyExitMessage;
 import message.LobbyUpdateMessage;
 import message.StartGameMessage;
@@ -23,12 +24,12 @@ public class LobbyListener extends Listener {
         }
 
         Gdx.app.postRunnable(() -> {
-            if (object instanceof LobbyUpdateMessage lobbyUpdateMessage) {
-                serverConnection.handleLobbyUpdate(lobbyUpdateMessage);
-            } else if (object instanceof StartGameMessage startGameMessage) {
-                serverConnection.handleStartGame(startGameMessage);
-            } else if (object instanceof LobbyExitMessage lobbyExitMessage) {
-                serverConnection.handleLobbyExit(lobbyExitMessage);
+            switch (object) {
+                case LobbyUpdateMessage lobbyUpdateMessage -> serverConnection.handleLobbyUpdate(lobbyUpdateMessage);
+                case StartGameMessage startGameMessage -> serverConnection.handleStartGame(startGameMessage);
+                case LobbyExitMessage lobbyExitMessage -> serverConnection.handleLobbyExit(lobbyExitMessage);
+                default -> {
+                }
             }
         });
     }

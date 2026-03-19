@@ -2,6 +2,8 @@ package ee.kool.saaremeister.server.lobby;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+import ee.kool.saaremeister.server.chat.Chat;
+import ee.kool.saaremeister.server.chat.ChatManager;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
 import lombok.Data;
@@ -34,6 +36,15 @@ public class LobbyManager {
 
         removePlayerFromAllLobbies(connection);
         Lobby lobby = lobbies.computeIfAbsent(lobbyId, Lobby::new);     // Stores lobbies as <lobbyID, Lobby> map.
+
+        ChatManager chatManager = (ChatManager) serverListener.getChatManager();
+        if (!chatManager.getChats().containsKey(lobbyId)) {
+            // Loo uus Chat. Eeldame, et Lobby klassis on meetod getConnections()
+            Chat newChat = new Chat(lobbyId, lobby.getConnections());
+            chatManager.getChats().put(lobbyId, newChat);
+            Log.info("Chat initialized for lobby " + lobbyId);
+        }
+
         boolean success = lobby.addPlayer(connection, gameJoinMessage.getUsername());
         Log.info("Player joined with username: '" + gameJoinMessage.getUsername() + "'");
 
@@ -80,24 +91,17 @@ public class LobbyManager {
     }
 
     public void removePlayerFromAllLobbies(Connection connection) {
-        for (Map.Entry<Integer, Lobby> entry : lobbies.entrySet()) {
-            int lobbyId = entry.getKey();
-            Lobby lobby = entry.getValue();
-
-            if (lobby.removePlayer(connection, usernames.get(connection.getID()))) {
-                Log.info("Removed disconnected player from lobby " + lobbyId);
-
+        // Kasutame eemaldamiseks turvalisemat viisi
+        lobbies.values().removeIf(lobby -> {
+            boolean removed = lobby.removePlayer(connection, usernames.get(connection.getID()));
+            if (removed) {
+                Log.info("Removed player from lobby: " + lobby.getLobbyId());
                 if (lobby.getGameInstance() != null) {
                     lobby.getGameInstance().removeConnection(connection);
                 }
-
-                if (lobby.isEmpty()) {
-                    lobbies.remove(lobbyId);
-                    Log.info("Lobby " + lobbyId + " removed (empty)");
-                }
-                break;
             }
-        }
+            return lobby.isEmpty(); // Kui lobby on tühi, eemaldatakse see map-ist
+        });
     }
 
     public void storeUsername(Connection connection, String username) {

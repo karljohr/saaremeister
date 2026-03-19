@@ -95,7 +95,7 @@ public class Player {
         if (body == null) return;
         this.x = body.getPosition().x * PPM;
         this.y = body.getPosition().y * PPM;
-        move(null);
+        body.setLinearVelocity(0f, 0f);
     }
 
     /**

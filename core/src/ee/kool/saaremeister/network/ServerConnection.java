@@ -12,6 +12,7 @@ import message.LobbyExitMessage;
 import message.LobbyUpdateMessage;
 import message.StartGameMessage;
 import message.dto.StaticBodyState;
+import message.ChatUpdateMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

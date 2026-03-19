@@ -7,14 +7,9 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import ee.kool.saaremeister.game.Arena;
 import ee.kool.saaremeister.game.GameStateManager;
@@ -23,10 +18,9 @@ import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
+import com.badlogic.gdx.InputMultiplexer;
 
 import java.util.Arrays;
-
-import static constant.Constants.*;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -146,6 +140,9 @@ public class GameScreen extends ScreenAdapter {
         spriteBatch.end();
 
         hud.render(delta); // render the HUD last to ensure it appears on top of all other content
+
+        // Render the isometric map overlay layers
+        renderer.render(new int[]{overLayIndex});
     }
 
     /**
@@ -170,8 +167,7 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         ServerConnection.getInstance().setChatUpdateListener(null);
         Gdx.input.setInputProcessor(null);
-        // Render the isometric map overlay layers
-        renderer.render(new int[]{overLayIndex});
+
 
         if (debugMode) {
             debugRenderer.render(camera);

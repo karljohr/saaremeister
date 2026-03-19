@@ -27,8 +27,7 @@ public class Player {
 
     private final int id;
     private final GameInstance gameInstance;
-    private float x = 0f;
-    private float y = 0f;
+    private float x, y = 0f;
     private int lives = PLAYER_LIVES;
     @Getter @Setter
     private String username = "Player";
@@ -74,17 +73,21 @@ public class Player {
     /**
      * Moves the player in the given direction.
      */
-    public void move(Direction direction) {
-        if (direction == null) {
-            body.setLinearVelocity(0, 0);
+    public void move(Direction directionX, Direction directionY) {
+        if (directionX == null && directionY == null) {
             return;
         }
 
-        switch (direction) {
+
+        switch (directionX) {
+            case LEFT -> body.setLinearVelocity(-PLAYER_SPEED / PPM, body.getLinearVelocity().y);
+            case RIGHT ->  body.setLinearVelocity(PLAYER_SPEED / PPM, body.getLinearVelocity().y);
+            case null, default -> {}
+        }
+        switch (directionY) {
             case UP -> body.setLinearVelocity(body.getLinearVelocity().x, PLAYER_SPEED / PPM);
             case DOWN -> body.setLinearVelocity(body.getLinearVelocity().x, -PLAYER_SPEED / PPM);
-            case LEFT -> body.setLinearVelocity(-PLAYER_SPEED / PPM, body.getLinearVelocity().y);
-            case RIGHT -> body.setLinearVelocity(PLAYER_SPEED / PPM, body.getLinearVelocity().y);
+            case null, default -> {}
         }
     }
 
@@ -92,7 +95,7 @@ public class Player {
         if (body == null) return;
         this.x = body.getPosition().x * PPM;
         this.y = body.getPosition().y * PPM;
-        move(null);
+        body.setLinearVelocity(0f, 0f);
     }
 
     /**

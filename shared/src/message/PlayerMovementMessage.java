@@ -5,5 +5,6 @@ import message.dto.Direction;
 
 @Data
 public class PlayerMovementMessage {
-    private Direction direction;
+    private Direction directionX;
+    private Direction directionY;
 }

@@ -1,5 +1,6 @@
 package ee.kool.saaremeister.server.game.object;
 
+import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.listener.PlayerMovementListener;
@@ -31,15 +32,42 @@ public class Player {
     @Getter @Setter
     private String username = "Player";
 
+    private final World world;
+    private Body body;
+
     /**
      * Initializes a new server/side representation of a player.
      */
-    public Player(Connection connection, GameInstance gameInstance) {
+    public Player(Connection connection, GameInstance gameInstance, World world) {
         this.connection = connection;
         this.id = connection.getID();
         this.gameInstance = gameInstance;
         this.connection.addListener(movementListener);
         this.connection.addListener(shootingListener);
+        this.world = world;
+        definePlayer();
+    }
+
+    private void definePlayer() {
+        BodyDef bdef = new BodyDef();
+        bdef.position.set(x / PPM, y / PPM); // Starts at a visible position and not in a collision box
+        bdef.type = BodyDef.BodyType.DynamicBody; // Dynamic body not static
+        bdef.fixedRotation = true; // don't tip / rotate when colliding
+
+        body = world.createBody(bdef);
+
+        FixtureDef fdef = new FixtureDef();
+        // Keep player friction low to avoid grabbing onto vertical walls.
+        fdef.friction = 0.0f;
+        fdef.density = 1.0f;
+
+        PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes etc.
+        // Adjust hit-box size as needed.
+        shape.setAsBox(10 / PPM, 15 / PPM);
+
+        fdef.shape = shape;
+        body.createFixture(fdef);
+        shape.dispose();
     }
 
     /**
@@ -63,14 +91,21 @@ public class Player {
         }
     }
 
+    public void updateFromPhysics() {
+        if (body == null) return;
+        this.x = body.getPosition().x * PPM;
+        this.y = body.getPosition().y * PPM;
+        move(null);
+    }
+
     /**
      * Returns the player's state.
      */
     public PlayerState getPlayerState() {
         PlayerState playerState = new PlayerState();
         playerState.setId(connection.getID());
-        playerState.setX(x);
-        playerState.setY(y);
+        playerState.setX(body.getPosition().x * PPM);
+        playerState.setY(body.getPosition().y * PPM);
         playerState.setLives(lives);
         playerState.setUsername(username);
         return playerState;

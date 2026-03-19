@@ -4,9 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Client;
 import ee.kool.saaremeister.network.listener.ChatListener;
 import ee.kool.saaremeister.network.listener.LobbyListener;
+import ee.kool.saaremeister.network.listener.DebugListener;
 import lombok.Getter;
 import lombok.Setter;
-import message.*;
+import message.GameJoinMessage;
+import message.LobbyExitMessage;
+import message.LobbyUpdateMessage;
+import message.StartGameMessage;
+import message.dto.StaticBodyState;
+import message.ChatUpdateMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,14 +33,18 @@ public class ServerConnection {
     private Consumer<LobbyExitMessage> lobbyExitListener;
     private Consumer<ChatUpdateMessage> chatUpdateListener;
     private final Map<Integer, Consumer<LobbyUpdateMessage>> pendingJoinCallbacks = new ConcurrentHashMap<>();
+    private Consumer<StaticBodyState[]> staticBodiesListener;
+
+    private StaticBodyState[] cachedStaticBodies;
 
     private ServerConnection() {
-        client = new Client();
+        client = new Client(65536, 65536);
         registerClasses(client.getKryo());
         lobbyListener = new LobbyListener(this);
         chatListener = new ChatListener(this);
         client.addListener(lobbyListener);
         client.addListener(chatListener);
+        client.addListener(new DebugListener(this));
         client.start();
     }
 
@@ -115,6 +125,20 @@ public class ServerConnection {
             }
         } else {
             System.out.println("[CLIENT] ERROR: chatUpdateListener is NULL!");
+        }
+    }
+
+    public void handleStaticBodies(StaticBodyState[] bodies) {
+        this.cachedStaticBodies = bodies;
+        if (staticBodiesListener != null) {
+            staticBodiesListener.accept(bodies);
+        }
+    }
+
+    public void setStaticBodiesListener(Consumer<StaticBodyState[]> listener) {
+        this.staticBodiesListener = listener;
+        if (cachedStaticBodies != null) {
+            listener.accept(cachedStaticBodies);
         }
     }
 

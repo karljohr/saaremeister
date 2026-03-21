@@ -36,6 +36,16 @@ public class Chat {
     }
 
     /**
+     * Sends the chat history to the given player when they join a lobby or a game instance.
+     */
+    public void sendChatHistory(Connection connection) {
+        ChatUpdateMessage chatUpdateMessage = new ChatUpdateMessage();
+        chatUpdateMessage.setLobbyId(lobbyId);
+        chatUpdateMessage.setMessages(messages);
+        connection.sendTCP(chatUpdateMessage);
+    }
+
+    /**
      * Updates the current chat for all players in the lobby or game instance.
      */
     private void broadcastChatUpdate() {

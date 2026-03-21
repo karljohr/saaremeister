@@ -4,7 +4,6 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.chat.ChatManager;
-import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import lombok.Getter;
 import message.ChatMessage;
@@ -67,7 +66,7 @@ public class ServerListener extends Listener {
         switch (object) {
             case GameJoinMessage gameJoinMessage -> lobbyManager.handleJoinRequest(connection, gameJoinMessage);
             case ChatMessage chatMessage -> {
-                chatManager.handleNewMessage(chatMessage);
+                chatManager.handleNewMessage(connection, chatMessage);
                 System.out.println("[SERVER] Received chat from " + chatMessage.getUsername() + ": " + chatMessage.getText());
             }
             case StartGameMessage startGameMessage -> lobbyManager.handleStartGameRequest(connection, startGameMessage);

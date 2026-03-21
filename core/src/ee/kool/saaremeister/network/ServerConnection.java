@@ -34,6 +34,7 @@ public class ServerConnection {
     private Consumer<ChatUpdateMessage> chatUpdateListener;
     private final Map<Integer, Consumer<LobbyUpdateMessage>> pendingJoinCallbacks = new ConcurrentHashMap<>();
     private Consumer<StaticBodyState[]> staticBodiesListener;
+    private final Map<Integer, ChatUpdateMessage> cachedChatUpdates = new ConcurrentHashMap<>();
 
     private StaticBodyState[] cachedStaticBodies;
 
@@ -117,6 +118,7 @@ public class ServerConnection {
 
     public void handleChatUpdate(ChatUpdateMessage msg) {
         System.out.println("[CLIENT] Received ChatUpdateMessage from server! Messages count: " + msg.getMessages().size());
+        cachedChatUpdates.put(msg.getLobbyId(), msg);
         if (chatUpdateListener != null) {
             try {
                 chatUpdateListener.accept(msg);
@@ -125,6 +127,21 @@ public class ServerConnection {
             }
         } else {
             System.out.println("[CLIENT] ERROR: chatUpdateListener is NULL!");
+        }
+    }
+
+    /**
+     * Replays the cached chat updates for the given lobby ID, so that when a player joins a lobby or a game, they
+     * see the previous chat history.
+     */
+    public void replayCachedChatUpdates(int lobbyId) {
+        ChatUpdateMessage cachedUpdate = cachedChatUpdates.get(lobbyId);
+        if (cachedUpdate != null && chatUpdateListener != null) {
+            try {
+                chatUpdateListener.accept(cachedUpdate);
+            } catch (Exception e) {
+                Gdx.app.error("ServerConnection", "Error in chat update listener", e);
+            }
         }
     }
 

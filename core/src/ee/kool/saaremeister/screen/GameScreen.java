@@ -24,7 +24,7 @@ import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
-import message.PlayerMovementMessage;
+import message.LobbyExitMessage;
 
 import java.util.Arrays;
 

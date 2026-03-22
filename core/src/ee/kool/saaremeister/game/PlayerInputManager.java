@@ -10,6 +10,9 @@ import message.dto.Direction;
  */
 public class PlayerInputManager {
 
+    /**
+     * Handles the player movement input.
+     */
     public void handleMovementInput() {
         var movementMessage = new PlayerMovementMessage();
 
@@ -40,6 +43,14 @@ public class PlayerInputManager {
                 .getInstance()
                 .getClient()
                 .sendUDP(movementMessage);
+    }
+
+    /**
+     * Stops the player from moving when something else is focused on.
+     */
+    public void stopMovement() {
+        var movementMessage = new PlayerMovementMessage();
+        ServerConnection.getInstance().getClient().sendUDP(movementMessage);
     }
 
     // public void handleShootingInput

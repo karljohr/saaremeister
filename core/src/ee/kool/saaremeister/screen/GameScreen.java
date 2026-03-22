@@ -218,7 +218,6 @@ public class GameScreen extends ScreenAdapter {
         });
 
         Gdx.input.setInputProcessor(multiplexer);
-        resize(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 
         ServerConnection connection = ServerConnection.getInstance();
         connection.setChatUpdateListener(msg -> {

@@ -4,16 +4,19 @@ import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.Bullet;
+import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
+import message.dto.CaptureZoneState;
 import message.dto.StaticBodyState;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static constant.Constants.GAME_TICK_RATE;
 import static constant.Constants.PLAYER_COUNT_INGAME_LIMIT;
@@ -23,25 +26,27 @@ import static constant.Constants.PLAYER_COUNT_INGAME_LIMIT;
  */
 public class GameInstance extends Thread {
 
-    private final ServerListener serverListener;
     private final LobbyManager lobbyManager;
     private final int lobbyId;
     private final GameStateHandler gameStateHandler = new GameStateHandler();
     private final Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
     private final List<Player> players = new ArrayList<>();
     private List<Bullet> bullets = new ArrayList<>();
+    private final List<CaptureZone> captureZones = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
     private final World world;
     List<StaticBodyState> staticBodyData;
 
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
-        this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
         this.world = new World(new Vector2(0, 0), true);
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         staticBodyData = box2dWorldGenerator.initializeWorld(world);
+
+        CaptureZoneLoader captureZoneLoader = new CaptureZoneLoader();
+        captureZones.addAll(captureZoneLoader.loadCaptureZones());
 
     }
 
@@ -72,7 +77,10 @@ public class GameInstance extends Thread {
     public void removeConnection(com.esotericsoftware.kryonet.Connection connection) {
         this.connections.remove(connection);
         Player p = activePlayers.remove(connection.getID());
-        if (p != null) players.remove(p);
+        if (p != null) {
+            players.remove(p);
+            captureZones.forEach(zone -> zone.clearPlayer(p.getId()));
+        }
 
         var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
         connections.forEach(c -> c.sendTCP(gameStateMessage));
@@ -98,30 +106,46 @@ public class GameInstance extends Thread {
         boolean isGameRunning = true;
         System.out.println("Game is running: " + isGameRunning);
         while (isGameRunning) {
+            float deltaTime = 1f / GAME_TICK_RATE;
             gameStateHandler.incrementGameTimeIfPlayersPresent();
 
             // Step Box2D simulation so bodies move.
             // Timestep based on tick rate; velocity/position iterations are standard defaults.
-            world.step(1f / GAME_TICK_RATE, 6, 2);
+            world.step(deltaTime, 6, 2);
 
+            // Update game objects.
             bullets.forEach(Bullet::update);
             players.forEach(Player::updateFromPhysics);
+
+            // Capture Zone updates according to the players (not) inside it.
+            captureZones.forEach(zone -> zone.update(players, deltaTime));
+            ArrayList<CaptureZoneState> zoneStates = captureZones.stream()
+                    .map(CaptureZone::toState)
+                    .collect(Collectors.toCollection(ArrayList::new));
+            gameStateHandler.setCaptureZoneStates(zoneStates);
+
+            // Send the game state to all clients.
             var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
             connections.forEach(connection -> connection.sendUDP(gameStateMessage));
 
+            // If any player has no lives, game is over.
             if (players.stream().anyMatch(x -> x.getLives() == 0)) {
                 connections.forEach(connection -> connection.sendTCP(gameStateMessage));
                 disposeGame();
                 isGameRunning = false;
             }
+
+            // If no players are connected, the game is over and get rid of the game instance.
             if (connections.isEmpty()) {
                 Log.info("No players connected, stopping game.");
                 disposeGame();
                 isGameRunning = false;
             }
 
+            // Print player positions in the console log.
             players.forEach(player -> System.out.println(player.getUsername() + ": " + player.getX() + " ; " + player.getY()));
 
+            // Sleep for 1 second to maintain a constant tick rate.
             try {
                 Thread.sleep(Duration.ofMillis(1000 / GAME_TICK_RATE));
             } catch (InterruptedException e) {

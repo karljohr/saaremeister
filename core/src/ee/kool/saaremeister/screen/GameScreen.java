@@ -7,6 +7,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
@@ -24,7 +25,7 @@ import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
-import message.PlayerMovementMessage;
+import message.LobbyExitMessage;
 
 import java.util.Arrays;
 
@@ -35,10 +36,9 @@ public class GameScreen extends ScreenAdapter {
     private final PlayerInputManager playerInputManager;
 
     private final SpriteBatch spriteBatch;
+    private ShapeRenderer shapeRenderer;
     private final Arena arena;
     private final int lobbyId;
-    private final Skin skin;
-    private final String username;
     private final Hud hud;
 
     private boolean wasChatFocused;
@@ -49,7 +49,7 @@ public class GameScreen extends ScreenAdapter {
     private IsometricTiledMapRenderer renderer;
 
     private boolean debugMode;
-    private DebugRenderer debugRenderer;
+    private final DebugRenderer debugRenderer;
 
     /**
      * Initialize a new GameScreen, where the main gameplay happens.
@@ -59,12 +59,12 @@ public class GameScreen extends ScreenAdapter {
     public GameScreen(Game game, int lobbyId, String username) {
         this.game = game;
         this.lobbyId = lobbyId;
-        this.username = username;
-        this.skin = ((Main) game).getSkin();
+        Skin skin = ((Main) game).getSkin();
         this.gameStateManager = new GameStateManager();  // receives game state from the server
         this.playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
 
         this.spriteBatch = new SpriteBatch();  // where all the content is rendered
+        this.shapeRenderer = new ShapeRenderer();
         this.arena = new Arena();  // manages players and bullets
         this.hud = new Hud(spriteBatch, lobbyId, username, skin);  // info overlay
 
@@ -73,9 +73,8 @@ public class GameScreen extends ScreenAdapter {
         debugRenderer = new DebugRenderer();
         debugMode = false;
 
-        ServerConnection.getInstance().setStaticBodiesListener(bodies -> {
-            Gdx.app.postRunnable(() -> debugRenderer.loadStaticBodies(Arrays.asList(bodies)));
-        });
+        ServerConnection.getInstance().setStaticBodiesListener(bodies -> Gdx.app.postRunnable(() ->
+                debugRenderer.loadStaticBodies(Arrays.asList(bodies))));
     }
 
     /**
@@ -159,9 +158,12 @@ public class GameScreen extends ScreenAdapter {
         renderer.render(new int[]{groundIndex});
 
         // Render players and items
+        shapeRenderer.setProjectionMatrix(camera.combined);
         spriteBatch.setProjectionMatrix(camera.combined);
+        renderer.render(new int[]{groundIndex});
+        arena.renderCaptureZones(shapeRenderer);
         spriteBatch.begin();
-        arena.render(spriteBatch);
+        arena.renderPlayers(spriteBatch);
         spriteBatch.end();
 
         hud.render(delta); // render the HUD last to ensure it appears on top of all other content
@@ -195,9 +197,7 @@ public class GameScreen extends ScreenAdapter {
         ServerConnection connection = ServerConnection.getInstance();
         connection.setChatUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
-                Gdx.app.postRunnable(() -> {
-                    hud.updateChat(msg.getMessages());
-                });
+                Gdx.app.postRunnable(() -> hud.updateChat(msg.getMessages()));
             }
         });
 
@@ -235,6 +235,7 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void dispose() {
+        shapeRenderer.dispose();
         spriteBatch.dispose();
         map.dispose();
         renderer.dispose();

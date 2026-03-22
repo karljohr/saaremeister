@@ -2,18 +2,18 @@ package network;
 
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
-import message.dto.BulletState;
-import message.dto.Direction;
-import message.dto.PlayerState;
-import message.dto.StaticBodyState;
+import message.dto.*;
 
 import java.util.ArrayList;
 
 public class Register {
 
+    /**
+     // Register classes sent over the network.
+     */
     public static void registerClasses(Kryo kryo) {
-        // Register classes sent over the network.
         kryo.register(ArrayList.class);
+        kryo.register(String.class);
         kryo.register(message.GameJoinMessage.class);
         kryo.register(message.GameStateMessage.class);
         kryo.register(message.PlayerMovementMessage.class);
@@ -27,6 +27,7 @@ public class Register {
         kryo.register(message.StartGameMessage.class);
         kryo.register(message.ChatMessage.class);
         kryo.register(message.ChatUpdateMessage.class);
+        kryo.register(CaptureZoneState.class);
 
         // Box2D debug
         kryo.register(StaticBodyState.class);

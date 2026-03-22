@@ -25,6 +25,12 @@ public class GameStateManager {
         latestGameStateMessage.setBulletStates(new ArrayList<>());
         latestGameStateMessage.setGameTime(0);
         latestGameStateMessage.setAllPlayersHaveJoined(false);
+        latestGameStateMessage.setCaptureZones(new ArrayList<>());
+        latestGameStateMessage.setRemainingTimeSeconds(0);
+        latestGameStateMessage.setGameOver(false);
+        latestGameStateMessage.setDraw(false);
+        latestGameStateMessage.setWinnerPlayerId(-1);
+        latestGameStateMessage.setWinningReason(null);
     }
 
 }

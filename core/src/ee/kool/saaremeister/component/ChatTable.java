@@ -1,12 +1,13 @@
 package ee.kool.saaremeister.component;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.ChatMessage;
+
 import java.util.List;
 
 /**
@@ -15,31 +16,30 @@ import java.util.List;
 public class ChatTable extends Table {
 
     private final int lobbyId;
+    private final Skin skin;
     private final Table messagesTable;
     private final ScrollPane scrollPane;
     private final TextField inputField;
-    private final Label.LabelStyle labelStyle = new Label.LabelStyle(new BitmapFont(), Color.BLACK);
 
-    public ChatTable(int lobbyId, String username) {
+    /**
+     * Creates a new ChatTable instance.
+     */
+    public ChatTable(int lobbyId, String username, Skin skin) {
         this.lobbyId = lobbyId;
-
-        BitmapFont font = new BitmapFont();
-        TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
-        textFieldStyle.font = font;
-        textFieldStyle.fontColor = Color.BLACK;
-        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
-        buttonStyle.font = font;
-        buttonStyle.fontColor = Color.BLACK;
+        this.skin = skin;
 
         messagesTable = new Table();
-        messagesTable.top().right();
+        messagesTable.top().left();
 
-        scrollPane = new ScrollPane(messagesTable);
+        scrollPane = new ScrollPane(messagesTable, skin);
         scrollPane.setFadeScrollBars(false);
 
-        inputField = new TextField("", textFieldStyle);
+        TextField.TextFieldStyle inputStyle =
+                new TextField.TextFieldStyle(skin.get(TextField.TextFieldStyle.class));
+        inputStyle.font = skin.getFont("button");
+        inputField = new TextField("", inputStyle);
 
-        TextButton sendButton = new TextButton("Send", buttonStyle);
+        TextButton sendButton = new TextButton("->", skin);
         sendButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -47,12 +47,15 @@ public class ChatTable extends Table {
             }
         });
 
-        add(scrollPane).width(300).height(200).colspan(2);
+        add(scrollPane).width(450).height(300).colspan(2);
         row();
-        add(inputField).width(240).padTop(5);
-        add(sendButton).width(55).padTop(5);
+        add(inputField).width(350).padTop(8);
+        add(sendButton).width(80).padTop(8);
     }
 
+    /**
+     * Sends a chat message to the server, when written in the designated input field and pressed the send button.
+     */
     private void sendMessage(String username) {
         String text = inputField.getText().trim();
         if (text.isEmpty()) return;
@@ -65,16 +68,45 @@ public class ChatTable extends Table {
         inputField.setText("");
     }
 
+    /**
+     * Updates the chat messages displayed in the table.
+     */
     public void updateMessages(List<String> messages) {
         messagesTable.clearChildren();
         for (String message : messages) {
-            Label label = new Label(message, labelStyle);
+            Label label = new Label(message, skin);
             label.setWrap(true);
-            messagesTable.add(label).width(280).left().padBottom(2);
+            messagesTable.add(label).width(350).left().padBottom(4);
+            label.setFontScale(2f);
             messagesTable.row();
         }
         messagesTable.layout();
         scrollPane.layout();
         scrollPane.setScrollPercentY(1f);
+    }
+
+    /**
+     * Checks if the input field is focused and determines if the user can type a message.
+     */
+    public boolean isInputFocused() {
+        Stage stage = getStage();
+        return stage != null && stage.getKeyboardFocus() == inputField;
+    }
+
+    /**
+     * Clears the focus from the input field, aka moves the focus back to movement.
+     */
+    public void clearInputFocus() {
+        Stage stage = getStage();
+        if (stage != null && stage.getKeyboardFocus() == inputField) {
+            stage.setKeyboardFocus(null);
+        }
+    }
+
+    /**
+     * Checks if the user clicked inside the input field.
+     */
+    public boolean clickedInsideInput(Actor target) {
+        return target == inputField;
     }
 }

@@ -10,7 +10,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.game.Arena;
 import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
@@ -19,7 +24,7 @@ import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
-import message.LobbyExitMessage;
+import message.PlayerMovementMessage;
 
 import java.util.Arrays;
 
@@ -32,8 +37,11 @@ public class GameScreen extends ScreenAdapter {
     private final SpriteBatch spriteBatch;
     private final Arena arena;
     private final int lobbyId;
+    private final Skin skin;
     private final String username;
     private final Hud hud;
+
+    private boolean wasChatFocused;
 
     private OrthographicCamera camera;
     private FitViewport viewport;
@@ -52,12 +60,13 @@ public class GameScreen extends ScreenAdapter {
         this.game = game;
         this.lobbyId = lobbyId;
         this.username = username;
+        this.skin = ((Main) game).getSkin();
         this.gameStateManager = new GameStateManager();  // receives game state from the server
         this.playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
 
         this.spriteBatch = new SpriteBatch();  // where all the content is rendered
         this.arena = new Arena();  // manages players and bullets
-        this.hud = new Hud(spriteBatch, lobbyId, username);  // info overlay
+        this.hud = new Hud(spriteBatch, lobbyId, username, skin);  // info overlay
 
         box2dWorldGenerator();
 
@@ -69,6 +78,9 @@ public class GameScreen extends ScreenAdapter {
         });
     }
 
+    /**
+     * Generates the Box2D world.
+     */
     public void box2dWorldGenerator() {
         // Set up camera
         camera = new OrthographicCamera();
@@ -82,8 +94,20 @@ public class GameScreen extends ScreenAdapter {
         this.renderer = new IsometricTiledMapRenderer(map, 1f);
     }
 
+    /**
+     * Update the game state.
+     */
     private void update(float delta) {
-        playerInputManager.handleMovementInput();
+
+        // Stops movement if the chat is focused and vice versa.
+        boolean chatFocused = hud.isChatInputFocused();
+        if (!chatFocused) {
+            playerInputManager.handleMovementInput();
+        } else if (!wasChatFocused) {
+            playerInputManager.stopMovement();
+        }
+        wasChatFocused = chatFocused;
+
         handleScreenNavigation(game);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
@@ -153,6 +177,19 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(hud.getStage());
+
+        // Determines should the focus be on chat or movement.
+        hud.getStage().addCaptureListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                Actor target = event.getTarget();
+                if (!hud.clickedInsideChatInput(target)) {
+                    hud.clearChatInputFocus();
+                }
+                return false;
+            }
+        });
+
         Gdx.input.setInputProcessor(multiplexer);
 
         ServerConnection connection = ServerConnection.getInstance();
@@ -167,6 +204,9 @@ public class GameScreen extends ScreenAdapter {
         connection.replayCachedChatUpdates(lobbyId);
     }
 
+    /**
+     * Removes the chat from the HUD.
+     */
     @Override
     public void hide() {
         ServerConnection.getInstance().setChatUpdateListener(null);
@@ -180,12 +220,19 @@ public class GameScreen extends ScreenAdapter {
         // TODO: hud.render(); // render the HUD last to ensure it appears on top of all other content
     }
 
+    /**
+     * Resizes the viewport when the window is resized.
+     */
     @Override
     public void resize(int width, int height) {
-        // See on hädavajalik, et FitViewport teaks uusi akna mõõte
+        // It is necessary so that the FitViewport knows the size of the window.
         viewport.update(width, height);
+        hud.getStage().getViewport().update(width, height, true);
     }
 
+    /**
+     * Disposes of the resources used by the game.
+     */
     @Override
     public void dispose() {
         spriteBatch.dispose();
@@ -194,6 +241,9 @@ public class GameScreen extends ScreenAdapter {
         hud.dispose();
     }
 
+    /**
+     * Handles screen navigation, for example, GameScreen -> TitleScreen.
+     */
     private void handleScreenNavigation(Game game) {
         // navigate to TitleScreen and leave the game instance
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

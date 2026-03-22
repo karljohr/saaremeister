@@ -108,15 +108,24 @@ public class TitleScreen extends ScreenAdapter {
         String username = nameField.getText().trim();
         Log.info("Attempting to join lobby " + lobbyId + " with username " + username);
         ServerConnection.getInstance().joinLobby(lobbyId, username, msg -> {
-            if (msg.getPlayerCount() >= 0 && !msg.isStarted()) {
-                game.setScreen(new LobbyScreen(game, lobbyId, msg.getPlayerCount(), msg.getUsernames(), username));
-                this.dispose();
-            } else {
-                Log.info("Failed to join lobby " + lobbyId);
-                pendingLobbyId = 0;
-                tryJoiningLobby(lobbyId + 1);
-            }
+            Gdx.app.postRunnable(() -> {
+                if (msg.getPlayerCount() >= 0 && !msg.isStarted()) {
+                    game.setScreen(new LobbyScreen(game, lobbyId, msg.getPlayerCount(), msg.getUsernames(), username));
+                    this.dispose();
+                } else {
+                    Log.info("Failed to join lobby " + lobbyId);
+                    pendingLobbyId = 0;
+                    tryJoiningLobby(lobbyId + 1);
+                }
+            });
         });
+    }
+
+    @Override
+    public void show() {
+        // NB! an important line - will make the stage listen for user input,
+        // For example, when this is not set, no hover or click events will be triggered
+        Gdx.input.setInputProcessor(stage);
     }
 
     /**

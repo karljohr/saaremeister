@@ -41,6 +41,7 @@ public class Lobby {
             players.add(connection);
             usernames.add(username);
             broadcastLobbyUpdate();
+            chat.sendChatHistory(connection);
             Log.info("Player joined lobby " + lobbyId + ", player count: " + players.size());
             return true;
         } else {
@@ -92,6 +93,7 @@ public class Lobby {
         StartGameMessage startMessage = new StartGameMessage();
         startMessage.setLobbyId(lobbyId);
         players.forEach(player -> player.sendTCP(startMessage));
+        players.forEach(chat::sendChatHistory);
         started = true;
         Log.info("Game started for lobby: " + lobbyId + " with " + players.size() + " players");
     }

@@ -76,7 +76,7 @@ public class LobbyScreen extends ScreenAdapter {
             if (!leaveButton.isPressed()) {
                 return false;
             }
-            game.setScreen(new TitleScreen(game));
+            Gdx.app.postRunnable(() -> game.setScreen(new TitleScreen(game)));
             LobbyExitMessage exitMessage = new LobbyExitMessage();
             exitMessage.setLobbyId(lobbyId);
             ServerConnection.getInstance().getClient().sendTCP(exitMessage);
@@ -126,6 +126,7 @@ public class LobbyScreen extends ScreenAdapter {
      */
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(stage);
         ServerConnection connection = ServerConnection.getInstance();
         connection.setLobbyUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
@@ -133,18 +134,25 @@ public class LobbyScreen extends ScreenAdapter {
                 updatePlayerNames(msg.getUsernames());
             }
         });
+
         connection.setStartGameListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
-                game.setScreen(new GameScreen(game, lobbyId, username));
-                this.dispose();
+                Gdx.app.postRunnable(() -> {
+                    game.setScreen(new GameScreen(game, lobbyId, username));
+                    this.dispose();
+                });
             }
         });
+
         connection.setLobbyExitListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
-                game.setScreen(new TitleScreen(game));
-                this.dispose();
+                Gdx.app.postRunnable(() -> {
+                    game.setScreen(new TitleScreen(game));
+                    this.dispose();
+                });
             }
         });
+
         connection.setChatUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
                 Gdx.app.postRunnable(() -> {
@@ -153,6 +161,8 @@ public class LobbyScreen extends ScreenAdapter {
                 });
             }
         });
+
+        connection.replayCachedChatUpdates(lobbyId);
     }
 
     /**

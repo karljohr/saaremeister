@@ -192,13 +192,16 @@ public class GameScreen extends ScreenAdapter {
 
         Gdx.input.setInputProcessor(multiplexer);
 
-        ServerConnection.getInstance().setChatUpdateListener(msg -> {
+        ServerConnection connection = ServerConnection.getInstance();
+        connection.setChatUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
                 Gdx.app.postRunnable(() -> {
                     hud.updateChat(msg.getMessages());
                 });
             }
         });
+
+        connection.replayCachedChatUpdates(lobbyId);
     }
 
     /**
@@ -242,9 +245,12 @@ public class GameScreen extends ScreenAdapter {
      * Handles screen navigation, for example, GameScreen -> TitleScreen.
      */
     private void handleScreenNavigation(Game game) {
-        // navigate to TitleScreen
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+        // navigate to TitleScreen and leave the game instance
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.setScreen(new TitleScreen(game));
+            LobbyExitMessage exitMessage = new LobbyExitMessage();
+            exitMessage.setLobbyId(lobbyId);
+            ServerConnection.getInstance().getClient().sendTCP(exitMessage);
         }
     }
 }

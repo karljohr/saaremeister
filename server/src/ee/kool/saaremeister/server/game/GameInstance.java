@@ -1,13 +1,15 @@
 package ee.kool.saaremeister.server.game;
 
+import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
-import ee.kool.saaremeister.server.chat.Chat;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
+import com.badlogic.gdx.physics.box2d.World;
+import message.dto.StaticBodyState;
 
 import java.time.Duration;
 import java.util.*;
@@ -29,13 +31,18 @@ public class GameInstance extends Thread {
     private final List<Player> players = new ArrayList<>();
     private List<Bullet> bullets = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
-    private final Chat chat;
+    private final World world;
+    List<StaticBodyState> staticBodyData;
 
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
-        this.chat = new Chat(lobbyId, connections);
+        this.world = new World(new Vector2(0, 0), true);
+
+        Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
+        staticBodyData = box2dWorldGenerator.initializeWorld(world);
+
     }
 
     public boolean hasEnoughPlayers() {
@@ -48,11 +55,14 @@ public class GameInstance extends Thread {
             return;
         }
 
-        Player newPlayer = new Player(connection, this);
+        Player newPlayer = new Player(connection, this, world);
         newPlayer.setUsername(lobbyManager.getUsername(connection));
         players.add(newPlayer);
         activePlayers.put(connection.getID(), newPlayer);
         connections.add(connection);
+
+        StaticBodyState[] arr = staticBodyData.toArray(new StaticBodyState[0]);
+        connection.sendTCP(arr);
 
         if (hasEnoughPlayers()) {
             gameStateHandler.setAllPlayersHaveJoined(true);
@@ -89,7 +99,13 @@ public class GameInstance extends Thread {
         System.out.println("Game is running: " + isGameRunning);
         while (isGameRunning) {
             gameStateHandler.incrementGameTimeIfPlayersPresent();
+
+            // Step Box2D simulation so bodies move.
+            // Timestep based on tick rate; velocity/position iterations are standard defaults.
+            world.step(1f / GAME_TICK_RATE, 6, 2);
+
             bullets.forEach(Bullet::update);
+            players.forEach(Player::updateFromPhysics);
             var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
             connections.forEach(connection -> connection.sendUDP(gameStateMessage));
 
@@ -103,6 +119,8 @@ public class GameInstance extends Thread {
                 disposeGame();
                 isGameRunning = false;
             }
+
+            players.forEach(player -> System.out.println(player.getUsername() + ": " + player.getX() + " ; " + player.getY()));
 
             try {
                 Thread.sleep(Duration.ofMillis(1000 / GAME_TICK_RATE));

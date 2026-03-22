@@ -1,5 +1,6 @@
 package ee.kool.saaremeister.server.game.object;
 
+import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.listener.PlayerMovementListener;
@@ -31,36 +32,70 @@ public class Player {
     @Getter @Setter
     private String username = "Player";
 
+    private final World world;
+    private Body body;
+
     /**
      * Initializes a new server/side representation of a player.
      */
-    public Player(Connection connection, GameInstance gameInstance) {
+    public Player(Connection connection, GameInstance gameInstance, World world) {
         this.connection = connection;
         this.id = connection.getID();
         this.gameInstance = gameInstance;
         this.connection.addListener(movementListener);
         this.connection.addListener(shootingListener);
+        this.world = world;
+        definePlayer();
+    }
+
+    private void definePlayer() {
+        BodyDef bdef = new BodyDef();
+        bdef.position.set(x / PPM, y / PPM); // Starts at a visible position and not in a collision box
+        bdef.type = BodyDef.BodyType.DynamicBody; // Dynamic body not static
+        bdef.fixedRotation = true; // don't tip / rotate when colliding
+
+        body = world.createBody(bdef);
+
+        FixtureDef fdef = new FixtureDef();
+        // Keep player friction low to avoid grabbing onto vertical walls.
+        fdef.friction = 0.0f;
+        fdef.density = 1.0f;
+
+        PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes etc.
+        // Adjust hit-box size as needed.
+        shape.setAsBox(10 / PPM, 15 / PPM);
+
+        fdef.shape = shape;
+        body.createFixture(fdef);
+        shape.dispose();
     }
 
     /**
      * Moves the player in the given direction.
      */
-    public void move(Direction direction) {
-        if (direction == null) {
+    public void move(Direction directionX, Direction directionY) {
+        if (directionX == null && directionY == null) {
             return;
         }
 
-        switch (direction) {
-            case UP -> y += 1 * PLAYER_SPEED / PPM;
-            case DOWN -> y -= 1 * PLAYER_SPEED / PPM;
-            case LEFT -> x -= 1 * PLAYER_SPEED / PPM;
-            case RIGHT -> x += 1 * PLAYER_SPEED / PPM;
-        }
 
-        // TODO: Remove and add bounds to the map
-        // Limit the player's movement to the arena bounds.
-        x = Math.max(ARENA_LOWER_BOUND_X, Math.min(x, ARENA_UPPER_BOUND_X - PLAYER_PIXEL_WIDTH));
-        y = Math.max(ARENA_LOWER_BOUND_Y, Math.min(y, ARENA_UPPER_BOUND_Y - PLAYER_PIXEL_HEIGHT));
+        switch (directionX) {
+            case LEFT -> body.setLinearVelocity(-PLAYER_SPEED / PPM, body.getLinearVelocity().y);
+            case RIGHT ->  body.setLinearVelocity(PLAYER_SPEED / PPM, body.getLinearVelocity().y);
+            case null, default -> {}
+        }
+        switch (directionY) {
+            case UP -> body.setLinearVelocity(body.getLinearVelocity().x, PLAYER_SPEED / PPM);
+            case DOWN -> body.setLinearVelocity(body.getLinearVelocity().x, -PLAYER_SPEED / PPM);
+            case null, default -> {}
+        }
+    }
+
+    public void updateFromPhysics() {
+        if (body == null) return;
+        this.x = body.getPosition().x * PPM;
+        this.y = body.getPosition().y * PPM;
+        body.setLinearVelocity(0f, 0f);
     }
 
     /**
@@ -69,8 +104,8 @@ public class Player {
     public PlayerState getPlayerState() {
         PlayerState playerState = new PlayerState();
         playerState.setId(connection.getID());
-        playerState.setX(x);
-        playerState.setY(y);
+        playerState.setX(body.getPosition().x * PPM);
+        playerState.setY(body.getPosition().y * PPM);
         playerState.setLives(lives);
         playerState.setUsername(username);
         return playerState;

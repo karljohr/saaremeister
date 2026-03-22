@@ -3,22 +3,18 @@ package ee.kool.saaremeister.screen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.esotericsoftware.minlog.Log;
+import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.network.ServerConnection;
-
-import static ee.kool.saaremeister.component.ButtonComponent.getButton;
-import static ee.kool.saaremeister.component.LabelComponent.createLabel;
-import static ee.kool.saaremeister.component.TextFieldComponent.getTextField;
+import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
 
 public class TitleScreen extends ScreenAdapter {
     private final Game game;
     private final Stage stage;
+    private final Skin skin;
     private int pendingLobbyId = 0;
     private final TextField nameField;
     private final Label createUsernameLabel;
@@ -29,35 +25,73 @@ public class TitleScreen extends ScreenAdapter {
      */
     public TitleScreen(Game game) {
         this.game = game;
+        this.skin = ((Main) game).getSkin();
         stage = new Stage();
 
         // NB! an important line - will make the stage listen for user input,
         // For example, when this is not set, no hover or click events will be triggered
         Gdx.input.setInputProcessor(stage);
 
+        // Game title label
+        Label titleLabel = new Label("Saaremeister", skin, "title");
+
         // Creates a text field to enter or change the username.
-        nameField = getTextField(20);
-        createUsernameLabel = createLabel("Enter your username:", Color.BLACK, 20);
+        TextField.TextFieldStyle inputStyle =
+                new TextField.TextFieldStyle(skin.get(TextField.TextFieldStyle.class));
+        inputStyle.font = skin.getFont("button");
+        nameField = new TextField("", inputStyle);
+        createUsernameLabel = new Label("Sisesta oma nimi:", skin, "big");
 
         // menu buttons
-        var startButton = getButton(20, "Join a Lobby", () -> {
-            // Send a message to the server that the player wants to join a lobby.
+        TextButton startButton = new TextButton("Liitu lobbysse", skin);
+        startButton.addListener(event -> {
+            if (!startButton.isPressed()) {
+                return false;
+            }
             tryJoiningLobby(1);
+            return true;
         });
-        var exitButton = getButton(20, "Exit", () -> Gdx.app.exit());
+
+        TextButton exitButton = new TextButton("Lahku", skin);
+        exitButton.addListener(event -> {
+            if (!exitButton.isPressed()) {
+                return false;
+            }
+            Gdx.app.exit();
+            return true;
+        });
+
+        var tutorial = new TutorialOverlay(skin);
+
+        // Tutorial button
+        TextButton helpButton = new TextButton("Juhend", skin);
+        helpButton.addListener(event -> {
+            if (!helpButton.isPressed()) {
+                return false;
+            }
+            tutorial.setVisible(true);
+            tutorial.toFront(); // Brings the window on top
+            return true;
+        });
 
         // positioning the buttons. you can think of the following as a table (or flexbox) in HTML
         var table = new Table();
         table.setFillParent(true);
+        table.add(titleLabel).padBottom(20);
+        table.row();
         table.add(createUsernameLabel).padBottom(20);
         table.row();
-        table.add(nameField).padBottom(20);
+        table.add(nameField).width(260).padBottom(20);
         table.row();
         table.add(startButton).padBottom(20);
+        table.row();
+        table.add(helpButton).padBottom(20);
         table.row();
         table.add(exitButton).padBottom(20);
 
         stage.addActor(table);
+        stage.addActor(tutorial);
+
         // Record the input in the nameField.
         stage.setKeyboardFocus(nameField);
     }
@@ -74,15 +108,24 @@ public class TitleScreen extends ScreenAdapter {
         String username = nameField.getText().trim();
         Log.info("Attempting to join lobby " + lobbyId + " with username " + username);
         ServerConnection.getInstance().joinLobby(lobbyId, username, msg -> {
-            if (msg.getPlayerCount() >= 0 && !msg.isStarted()) {
-                game.setScreen(new LobbyScreen(game, lobbyId, msg.getPlayerCount(), msg.getUsernames(), username));
-                this.dispose();
-            } else {
-                Log.info("Failed to join lobby " + lobbyId);
-                pendingLobbyId = 0;
-                tryJoiningLobby(lobbyId + 1);
-            }
+            Gdx.app.postRunnable(() -> {
+                if (msg.getPlayerCount() >= 0 && !msg.isStarted()) {
+                    game.setScreen(new LobbyScreen(game, lobbyId, msg.getPlayerCount(), msg.getUsernames(), username));
+                    this.dispose();
+                } else {
+                    Log.info("Failed to join lobby " + lobbyId);
+                    pendingLobbyId = 0;
+                    tryJoiningLobby(lobbyId + 1);
+                }
+            });
         });
+    }
+
+    @Override
+    public void show() {
+        // NB! an important line - will make the stage listen for user input,
+        // For example, when this is not set, no hover or click events will be triggered
+        Gdx.input.setInputProcessor(stage);
     }
 
     /**

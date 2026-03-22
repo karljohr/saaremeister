@@ -18,6 +18,7 @@ dependencies {
     api "com.badlogicgames.gdx:gdx:1.12.1"
     api "com.esotericsoftware:kryonet:2.22.0-RC1"
     implementation project(':shared')
+    implementation "com.badlogicgames.gdx:gdx-box2d:1.12.1"
 
     compileOnly 'org.projectlombok:lombok:1.18.42'
     annotationProcessor 'org.projectlombok:lombok:1.18.42'

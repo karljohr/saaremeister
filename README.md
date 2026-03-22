@@ -33,19 +33,34 @@ olla nii päris mängijad kui ka AI, kuid saaremeister on alati päris mängija.
 
 ### Mängujuhend
 
-- **Liikumine**: klahvid W, A, S ja D.
-- **Eesmärk**: liigutada enda ruut (rohelist värvi) musta ruutu.
+- **Liitumine**: 
+  - Sisestada soovitud kasutajanimi ja vajutada nuppu "Join a lobby"
+  - Oodata lobbys kuni kõik mängijad on sisenenud
+  - Vajutada nuppu "Start Game", et siseneda mängu
+- **Liikumine**: klahvid W, A, S ja D
+- **Vestlusakna kasutus**: 
+  - Hiirega vajutada vestlusakna peale
+  - Kirjutada sõnum
+  - Vajutada hiireklahviga "Send" nuppu
+- **Lahkumine**: "esc" klahv või mänguakna sulgemine
+- **Eesmärk**: puudub
 
 ---
 
 ### Käivitamine
 
-1. Kloonida projekti repo oma IDE-sse (https://gitlab.cs.taltech.ee/chrito/iti0301-2026.git)
-2. Panna tööle fail iti0301-2026 -> server -> src -> ee.kool.server -> ChatServer.java
-3. Panna tööle fail iti0301-2026 -> server -> src -> ee.kool.server -> GameServer.java
-4. Panna tööle fail iti0301-2026 -> desktop -> src -> ee.kool.saaremeister -> DesktopLauncher.java
+1. Kloonida projekti repo oma IDE-sse (soovitatavalt IntelliJ) (https://gitlab.cs.taltech.ee/chrito/iti0301-2026.git)
+2. **SERVER**: 
+   1. Teha kindlaks, et serveri kataloog on moodul 
+   2. Minna server → src → ee.kool.saaremeister.server → ServerLauncher.java
+   3. Käivitada see fail
+3. **KLIENT**:
+   1. Teha kindlaks, et desktopi kataloog on moodul
+   2. Minna desktop → src → ee.kool.saaremeister → DesktopLauncher.java
+   3. Käivitada see fail
 
-DesktopLauncher.java võib käivitada mitu korda, et mängida mitme mängijaga.
+**Lisaks**: DesktopLauncher.java faili võib käivitada üheaegselt mitu eksemplari, et mängida mitme mängijaga.
+
 
 ---
 
@@ -60,9 +75,13 @@ DesktopLauncher.java võib käivitada mitu korda, et mängida mitme mängijaga.
 
 ### Mängu funktsioonid (*features*)
 
-| Funktsioon        | Kirjeldus                 |
-|-------------------|---------------------------|
-| Mitmikmäng        | Mängijate arv sõltub kasutaja masina võimsusest |
+| Funktsioon                     | Kirjeldus                                                                                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| Mitmikmäng                     | Mängijate koguarv sõltub kasutaja masina võimsusest.<br/>Lobbysse ja ühte mängu mahub korraga kuni 10 mängijat, täitumisel luuakse uus lobby. |
+| Lobby süsteem                  | Mängijad suunatakse algselt lobbysse, kust nad saavad koos mänguga liituda.                                                                   |
+| Paralleelsed mängu eksemplarid | Mitu mängu saavad toimuda samaaegselt.                                                                                                        |
+| Vestlusaken                    | Mängus saab vestlusaknas suhelda teiste mängijatega.                                                                                          |
+
 
 ---
 
@@ -76,4 +95,6 @@ DesktopLauncher.java võib käivitada mitu korda, et mängida mitme mängijaga.
 
 ### Ühendus TalTechi serveriga
 
-Hetkel puudub.
+1. Minna shared → src → constant → Constants.java
+2. Asendada rida `public static final String SERVER_IP = "localhost";` </br> selle vastu `public static final String SERVER_IP = "193.40.157.179";`
+3. Käivitada DesktopLauncher.java eelneva juhendi järgi

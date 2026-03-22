@@ -13,6 +13,7 @@ import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
+import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import message.GameStateMessage;
 
 import static constant.Constants.PPM;
@@ -28,12 +29,13 @@ public class GameScreen extends ScreenAdapter {
     private final int lobbyId;
     private final String username;
     private final Hud hud;
+    private final ShopOverlay shopOverlay;
+    private boolean shopOpen;
 
     private OrthographicCamera camera;
     private FitViewport viewport;
     private TiledMap map;
     private IsometricTiledMapRenderer renderer;
-
     /**
      * Initialize a new GameScreen, where the main gameplay happens.
      *
@@ -49,9 +51,27 @@ public class GameScreen extends ScreenAdapter {
         this.spriteBatch = new SpriteBatch();  // where all the content is rendered
         this.arena = new Arena();  // manages players and bullets
         this.hud = new Hud(spriteBatch, lobbyId, username);  // info overlay
+        this.shopOverlay = new ShopOverlay(spriteBatch);
 
         box2dWorldGenerator();
     }
+
+    private void toggleShop() {
+        shopOpen = !shopOpen;
+        shopOverlay.setOpen(shopOpen);
+    }
+
+    // Handles B before Scene2D so the shop toggles reliably (and chat does not eat the key).
+    private final InputProcessor shopHotkeyProcessor = new InputAdapter() {
+        @Override
+        public boolean keyDown(int keycode) {
+            if (keycode == Input.Keys.B) {
+                toggleShop();
+                return true;
+            }
+            return false;
+        }
+    };
 
     public void box2dWorldGenerator() {
         // Set up camera
@@ -67,7 +87,9 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void update(float delta) {
-        playerInputManager.handleMovementInput();
+        if (!shopOpen) {
+            playerInputManager.handleMovementInput();
+        }
         handleScreenNavigation(game);
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
@@ -118,7 +140,8 @@ public class GameScreen extends ScreenAdapter {
         arena.render(spriteBatch);
         spriteBatch.end();
 
-        hud.render(delta); // render the HUD last to ensure it appears on top of all other content
+        hud.render(delta);
+        shopOverlay.render(delta);
     }
 
     /**
@@ -127,8 +150,11 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(shopHotkeyProcessor);
+        multiplexer.addProcessor(shopOverlay.getStage());
         multiplexer.addProcessor(hud.getStage());
         Gdx.input.setInputProcessor(multiplexer);
+        resize(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 
         ServerConnection.getInstance().setChatUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
@@ -147,8 +173,9 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
-        // See on hädavajalik, et FitViewport teaks uusi akna mõõte
         viewport.update(width, height);
+        hud.getStage().getViewport().update(width, height, true);
+        shopOverlay.resize(width, height);
     }
 
     @Override
@@ -157,6 +184,7 @@ public class GameScreen extends ScreenAdapter {
         map.dispose();
         renderer.dispose();
         hud.dispose();
+        shopOverlay.dispose();
     }
 
     private void handleScreenNavigation(Game game) {

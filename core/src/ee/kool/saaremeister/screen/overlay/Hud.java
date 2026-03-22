@@ -43,22 +43,23 @@ public class Hud implements Disposable {
         table.setFillParent(true);
         table.setTouchable(Touchable.childrenOnly);
         table.top().left();
-        table.setFillParent(true);
 
-        // Lisa raha ikoon ja tekst samale reale
-        table.add(moneyIcon).size(24, 24).padTop(10).padLeft(10);
-        table.add(moneyLabel).padTop(10).padLeft(5).left();
+        // Üks veerg: elud ja mündid sama vasaku servaga (mitte 2 veergu, mis nihutas münti paremale)
+        Table topLeft = new Table();
+        topLeft.top().left();
+        float edge = 10f;
+        topLeft.add(livesLabel).left().padTop(10).padLeft(edge).row();
+        Table moneyRow = new Table();
+        moneyRow.left();
+        moneyRow.add(moneyIcon).size(24, 24);
+        moneyRow.add(moneyLabel).left().padLeft(4);
+        topLeft.add(moneyRow).left().padTop(5).padLeft(edge).row();
 
-        // Liigume uuele reale elude jaoks
-        table.row();
-        table.add(livesLabel).colspan(2).padTop(5).padLeft(10).left();
+        table.add(topLeft).colspan(2).left().top().row();
+        chatTable = new ChatTable(lobbyId, username);
+        table.add(chatTable).colspan(2).padTop(10).padRight(10).right();
 
         stage.addActor(table);
-
-        // Chat table positioning.
-        chatTable = new ChatTable(lobbyId, username);
-        table.row();
-        table.add(chatTable).colspan(2).padTop(10).padRight(10).right();
     }
 
     /**

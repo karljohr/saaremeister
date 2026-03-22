@@ -15,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ee.kool.saaremeister.component.LabelComponent;
 import lombok.Getter;
@@ -27,8 +27,6 @@ import static ee.kool.saaremeister.utility.Font.getPixelFont;
  */
 public class ShopOverlay implements Disposable {
 
-    private static final float HUD_VIEWPORT_W = 800f;
-    private static final float HUD_VIEWPORT_H = 600f;
 
     private static final float SLOT_SIZE = 72f;
     private static final int GRID_COLS = 5;
@@ -45,7 +43,8 @@ public class ShopOverlay implements Disposable {
     private final Texture shopButtonOverTexture;
 
     public ShopOverlay(SpriteBatch spriteBatch) {
-        Viewport viewport = new FitViewport(HUD_VIEWPORT_W, HUD_VIEWPORT_H);
+        ScreenViewport viewport = new ScreenViewport();
+        viewport.setUnitsPerPixel(0.5f);
         this.stage = new Stage(viewport, spriteBatch);
 
         panelBgTexture = createPanelTexture();

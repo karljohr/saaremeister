@@ -126,7 +126,6 @@ public class LobbyScreen extends ScreenAdapter {
      */
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(stage);
         ServerConnection connection = ServerConnection.getInstance();
         connection.setLobbyUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
@@ -134,25 +133,18 @@ public class LobbyScreen extends ScreenAdapter {
                 updatePlayerNames(msg.getUsernames());
             }
         });
-
         connection.setStartGameListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
-                Gdx.app.postRunnable(() -> {
-                    game.setScreen(new GameScreen(game, lobbyId, username));
-                    this.dispose();
-                });
+                game.setScreen(new GameScreen(game, lobbyId, username));
+                this.dispose();
             }
         });
-
         connection.setLobbyExitListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
-                Gdx.app.postRunnable(() -> {
-                    game.setScreen(new TitleScreen(game));
-                    this.dispose();
-                });
+                game.setScreen(new TitleScreen(game));
+                this.dispose();
             }
         });
-
         connection.setChatUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
                 Gdx.app.postRunnable(() -> {
@@ -161,8 +153,6 @@ public class LobbyScreen extends ScreenAdapter {
                 });
             }
         });
-
-        connection.replayCachedChatUpdates(lobbyId);
     }
 
     /**

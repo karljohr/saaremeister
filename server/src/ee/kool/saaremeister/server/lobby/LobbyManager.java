@@ -24,21 +24,57 @@ public class LobbyManager {
     }
 
     public void handleJoinRequest(Connection connection, GameJoinMessage gameJoinMessage) {
-        int lobbyId = gameJoinMessage.getLobbyId();
-        if (lobbyId <= 0) {
-            Log.warn("Invalid lobby id: " + lobbyId);
-            return;
-        }
         storeUsername(connection, gameJoinMessage.getUsername());
-
         removePlayerFromAllLobbies(connection);
-        Lobby lobby = lobbies.computeIfAbsent(lobbyId, Lobby::new);     // Stores lobbies as <lobbyID, Lobby> map.
+
+        int targetLobbyId = -1;
+        Lobby bestLobby = null;
+        int maxPlayers = -1;
+
+        // Find the fullest lobby to join
+        for (Lobby lobby : lobbies.values()) {
+            if (!lobby.isStarted() && lobby.getPlayers().size() < constant.Constants.LOBBY_MAX_PLAYERS) {
+                int currentPlayers = lobby.getPlayers().size();
+
+                if (currentPlayers > maxPlayers) {
+                    maxPlayers = currentPlayers;
+                    bestLobby = lobby;
+                }
+
+                else if (currentPlayers == maxPlayers && bestLobby != null) {
+                    if (lobby.getLobbyId() < bestLobby.getLobbyId()) {
+                        bestLobby = lobby;
+                    }
+                }
+            }
+        }
+
+        if (bestLobby != null) {
+            targetLobbyId = bestLobby.getLobbyId();
+        } else {
+            // If no lobby, then create one
+            targetLobbyId = 1;
+            while (lobbies.containsKey(targetLobbyId)) {
+                targetLobbyId++;
+            }
+        }
+
+        Lobby lobby = lobbies.computeIfAbsent(targetLobbyId, Lobby::new);
 
         boolean success = lobby.addPlayer(connection, gameJoinMessage.getUsername());
         Log.info("Player joined with username: '" + gameJoinMessage.getUsername() + "'");
 
-        if (!success) {
-            Log.info("Failed to add player to lobby: " + lobbyId);
+        if (success) {
+            GameJoinMessage response = new GameJoinMessage();
+            response.setLobbyId(targetLobbyId);
+            response.setUsername(gameJoinMessage.getUsername());
+            connection.sendTCP(response);
+
+            lobby.broadcastLobbyUpdate();
+
+            Log.info("Player '" + gameJoinMessage.getUsername() + "' joined lobby: " + targetLobbyId);
+        } else {
+            Log.info("Failed to add player to lobby: " + targetLobbyId);
         }
     }
 

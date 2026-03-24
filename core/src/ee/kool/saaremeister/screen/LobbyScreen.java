@@ -127,29 +127,39 @@ public class LobbyScreen extends ScreenAdapter {
     @Override
     public void show() {
         ServerConnection connection = ServerConnection.getInstance();
-        connection.setLobbyUpdateListener(msg -> {
-            if (msg.getLobbyId() == lobbyId) {
-                updatePlayerCount(msg.getPlayerCount());
-                updatePlayerNames(msg.getUsernames());
-            }
-        });
-        connection.setStartGameListener(msg -> {
-            if (msg.getLobbyId() == lobbyId) {
-                game.setScreen(new GameScreen(game, lobbyId, username));
-                this.dispose();
-            }
-        });
-        connection.setLobbyExitListener(msg -> {
-            if (msg.getLobbyId() == lobbyId) {
-                game.setScreen(new TitleScreen(game));
-                this.dispose();
-            }
-        });
+
         connection.setChatUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
                 Gdx.app.postRunnable(() -> {
                     System.out.println("[UI] Updating ChatTable with " + msg.getMessages().size() + " messages.");
                     chatTable.updateMessages(msg.getMessages());
+                });
+            }
+        });
+
+        connection.replayCachedChatUpdates(lobbyId);
+
+        connection.setLobbyUpdateListener(msg -> {
+            if (msg.getLobbyId() == lobbyId) {
+                Gdx.app.postRunnable(() -> {
+                    updatePlayerCount(msg.getPlayerCount());
+                    updatePlayerNames(msg.getUsernames());
+                });
+            }
+        });
+        connection.setStartGameListener(msg -> {
+            if (msg.getLobbyId() == lobbyId) {
+                Gdx.app.postRunnable(() -> {
+                    game.setScreen(new GameScreen(game, lobbyId, username));
+                    this.dispose();
+                });
+            }
+        });
+        connection.setLobbyExitListener(msg -> {
+            if (msg.getLobbyId() == lobbyId) {
+                Gdx.app.postRunnable(() -> {
+                    game.setScreen(new TitleScreen(game));
+                    this.dispose();
                 });
             }
         });
@@ -160,7 +170,9 @@ public class LobbyScreen extends ScreenAdapter {
      */
     public void updatePlayerCount(int playerCount) {
         currentPlayerCount = playerCount;
-        playerCountLabel.setText("Players: " + currentPlayerCount);
+        Gdx.app.postRunnable(() -> {
+            playerCountLabel.setText("Players: " + currentPlayerCount);
+        });
         Log.info("Player count updated to " + currentPlayerCount);
     }
 

@@ -110,7 +110,7 @@ public class TitleScreen extends ScreenAdapter {
         ServerConnection.getInstance().joinLobby(lobbyId, username, msg -> {
             Gdx.app.postRunnable(() -> {
                 if (msg.getPlayerCount() >= 0 && !msg.isStarted()) {
-                    game.setScreen(new LobbyScreen(game, lobbyId, msg.getPlayerCount(), msg.getUsernames(), username));
+                    game.setScreen(new LobbyScreen(game, msg.getLobbyId(), msg.getPlayerCount(), msg.getUsernames(), username));
                     this.dispose();
                 } else {
                     Log.info("Failed to join lobby " + lobbyId);

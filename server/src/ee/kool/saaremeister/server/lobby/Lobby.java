@@ -101,7 +101,7 @@ public class Lobby {
     /**
      * Sends a lobby update message to all players in the lobby.
      */
-    private void broadcastLobbyUpdate() {
+    public void broadcastLobbyUpdate() {
         LobbyUpdateMessage updateMessage = new LobbyUpdateMessage();
         updateMessage.setLobbyId(lobbyId);
         updateMessage.setPlayerCount(players.size());

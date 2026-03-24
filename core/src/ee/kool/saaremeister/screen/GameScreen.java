@@ -24,6 +24,7 @@ import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
+import message.LobbyExitMessage;
 import message.PlayerMovementMessage;
 
 import java.util.Arrays;
@@ -168,6 +169,11 @@ public class GameScreen extends ScreenAdapter {
 
         // Render the isometric map overlay layers
         renderer.render(new int[]{overLayIndex});
+
+        // Render debug
+        if (debugMode) {
+            debugRenderer.render(camera);
+        }
     }
 
     /**

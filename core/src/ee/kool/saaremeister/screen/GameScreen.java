@@ -165,10 +165,10 @@ public class GameScreen extends ScreenAdapter {
         arena.render(spriteBatch);
         spriteBatch.end();
 
-        hud.render(delta); // render the HUD last to ensure it appears on top of all other content
-
         // Render the isometric map overlay layers
         renderer.render(new int[]{overLayIndex});
+
+        hud.render(delta); // render the HUD last to ensure it appears on top of all other content
 
         // Render debug
         if (debugMode) {
@@ -217,13 +217,6 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         ServerConnection.getInstance().setChatUpdateListener(null);
         Gdx.input.setInputProcessor(null);
-
-
-        if (debugMode) {
-            debugRenderer.render(camera);
-        }
-
-        // TODO: hud.render(); // render the HUD last to ensure it appears on top of all other content
     }
 
     /**

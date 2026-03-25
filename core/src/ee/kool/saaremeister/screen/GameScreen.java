@@ -21,6 +21,7 @@ import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
+import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
@@ -41,6 +42,8 @@ public class GameScreen extends ScreenAdapter {
     private final Skin skin;
     private final String username;
     private final Hud hud;
+    private final ShopOverlay shopOverlay;
+    private boolean shopOpen;
 
     private boolean wasChatFocused;
 
@@ -68,6 +71,7 @@ public class GameScreen extends ScreenAdapter {
         this.spriteBatch = new SpriteBatch();  // where all the content is rendered
         this.arena = new Arena();  // manages players and bullets
         this.hud = new Hud(spriteBatch, lobbyId, username, skin);  // info overlay
+        this.shopOverlay = new ShopOverlay(spriteBatch);
 
         box2dWorldGenerator();
 
@@ -78,6 +82,26 @@ public class GameScreen extends ScreenAdapter {
             Gdx.app.postRunnable(() -> debugRenderer.loadStaticBodies(Arrays.asList(bodies)));
         });
     }
+
+    /**
+     * Generates the Box2D world.
+     */
+    private void toggleShop() {
+        shopOpen = !shopOpen;
+        shopOverlay.setOpen(shopOpen);
+    }
+
+    // Handles B before Scene2D so the shop toggles reliably (and chat does not eat the key).
+    private final InputProcessor shopHotkeyProcessor = new InputAdapter() {
+        @Override
+        public boolean keyDown(int keycode) {
+            if (keycode == Input.Keys.B) {
+                toggleShop();
+                return true;
+            }
+            return false;
+        }
+    };
 
     /**
      * Generates the Box2D world.
@@ -109,6 +133,9 @@ public class GameScreen extends ScreenAdapter {
         }
         wasChatFocused = chatFocused;
 
+        if (!shopOpen) {
+            playerInputManager.handleMovementInput();
+        }
         handleScreenNavigation(game);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
@@ -168,6 +195,8 @@ public class GameScreen extends ScreenAdapter {
         // Render the isometric map overlay layers
         renderer.render(new int[]{overLayIndex});
 
+        shopOverlay.render(delta);
+
         hud.render(delta); // render the HUD last to ensure it appears on top of all other content
 
         // Render debug
@@ -182,6 +211,8 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(shopHotkeyProcessor);
+        multiplexer.addProcessor(shopOverlay.getStage());
         multiplexer.addProcessor(hud.getStage());
 
         // Determines should the focus be on chat or movement.
@@ -227,6 +258,7 @@ public class GameScreen extends ScreenAdapter {
         // It is necessary so that the FitViewport knows the size of the window.
         viewport.update(width, height);
         hud.getStage().getViewport().update(width, height, true);
+        shopOverlay.resize(width, height);
     }
 
     /**
@@ -238,6 +270,7 @@ public class GameScreen extends ScreenAdapter {
         map.dispose();
         renderer.dispose();
         hud.dispose();
+        shopOverlay.dispose();
     }
 
     /**

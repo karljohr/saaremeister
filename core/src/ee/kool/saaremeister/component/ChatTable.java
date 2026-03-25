@@ -49,8 +49,8 @@ public class ChatTable extends Table {
 
         add(scrollPane).width(450).height(300).colspan(2);
         row();
-        add(inputField).width(350).padTop(8);
-        add(sendButton).width(80).padTop(8);
+        add(inputField).width(350).padTop(8).padBottom(8);
+        add(sendButton).width(80).padTop(8).padBottom(8);
     }
 
     /**

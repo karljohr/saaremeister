@@ -32,7 +32,7 @@ public class ServerConnection {
     private Consumer<LobbyUpdateMessage> lobbyUpdateListener;
     private Consumer<LobbyExitMessage> lobbyExitListener;
     private Consumer<ChatUpdateMessage> chatUpdateListener;
-    private final Map<Integer, Consumer<LobbyUpdateMessage>> pendingJoinCallbacks = new ConcurrentHashMap<>();
+    private Consumer<LobbyUpdateMessage> pendingJoinCallback;
     private Consumer<StaticBodyState[]> staticBodiesListener;
     private final Map<Integer, ChatUpdateMessage> cachedChatUpdates = new ConcurrentHashMap<>();
 
@@ -67,14 +67,15 @@ public class ServerConnection {
     }
 
     public void joinLobby(int lobbyId, String username, Consumer<LobbyUpdateMessage> callback) {
-        pendingJoinCallbacks.put(lobbyId, callback);
+        this.pendingJoinCallback = callback;
         GameJoinMessage joinMessage = new GameJoinMessage();
         joinMessage.setLobbyId(lobbyId);
         joinMessage.setUsername(username);
         try {
             client.sendTCP(joinMessage);
+            Gdx.app.log("ServerConnection", "Join request sent for lobby " + lobbyId);
         } catch (Exception e) {
-            pendingJoinCallbacks.remove(lobbyId);
+            this.pendingJoinCallback = null;
             Gdx.app.error("ServerConnection", "Failed to join lobby", e);
         }
     }
@@ -90,10 +91,12 @@ public class ServerConnection {
     }
 
     public void handleLobbyUpdate(LobbyUpdateMessage msg) {
-        Consumer<LobbyUpdateMessage> callBack = pendingJoinCallbacks.remove(msg.getLobbyId());
-        if (callBack != null) {
+        if (pendingJoinCallback != null) {
             try {
-                callBack.accept(msg);
+                Consumer<LobbyUpdateMessage> callback = this.pendingJoinCallback;
+                this.pendingJoinCallback = null;
+                callback.accept(msg);
+                Gdx.app.log("ServerConnection", "Joined lobby: " + msg.getLobbyId());
             } catch (Exception e) {
                 Gdx.app.error("ServerConnection", "Error in callback", e);
             }

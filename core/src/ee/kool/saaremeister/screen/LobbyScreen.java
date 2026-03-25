@@ -171,7 +171,7 @@ public class LobbyScreen extends ScreenAdapter {
     public void updatePlayerCount(int playerCount) {
         currentPlayerCount = playerCount;
         Gdx.app.postRunnable(() -> {
-            playerCountLabel.setText("Players: " + currentPlayerCount);
+            playerCountLabel.setText("Osalejad: " + currentPlayerCount);
         });
         Log.info("Player count updated to " + currentPlayerCount);
     }

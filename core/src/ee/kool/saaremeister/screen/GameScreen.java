@@ -127,16 +127,13 @@ public class GameScreen extends ScreenAdapter {
 
         // Stops movement if the chat is focused and vice versa.
         boolean chatFocused = hud.isChatInputFocused();
-        if (!chatFocused) {
+        if (!chatFocused && !shopOpen) {
             playerInputManager.handleMovementInput();
         } else if (!wasChatFocused) {
             playerInputManager.stopMovement();
         }
         wasChatFocused = chatFocused;
 
-        if (!shopOpen) {
-            playerInputManager.handleMovementInput();
-        }
         handleScreenNavigation(game);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {

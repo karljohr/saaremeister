@@ -3,10 +3,8 @@ package ee.kool.saaremeister.server.TMXLoaders;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 
-import java.io.File;
-
 /**
- * THIS IS AN EXAMPLE CLASS
+ * Server-side file resolution for map assets.
  */
 public class MyServer {
 
@@ -17,10 +15,9 @@ public class MyServer {
     public static class MyFileHandleResolver implements FileHandleResolver {
         @Override
         public FileHandle resolve(String fileName) {
-            System.out.println("Trying to resolve map: " + fileName);
-            // Resolve file using Java's File class
-            File file = new File(fileName);
-            return new FileHandle(file); // Use FileHandle directly
+            FileHandle fileHandle = new FileHandle(ServerAssetPaths.resolve(fileName).toFile());
+            System.out.println("Trying to resolve map: " + fileHandle.path());
+            return fileHandle;
         }
     }
 

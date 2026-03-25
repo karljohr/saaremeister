@@ -93,7 +93,7 @@ public class Box2dWorldGenerator {
 
     public TiledMap getMap() {
         return new HijackedTmxLoader(new MyServer.MyFileHandleResolver())
-                .load("shared/src/TMXAssets/map.tmx");
+                .load("TMXAssets/map.tmx");
     }
 
     private void buildIsometricDebugTransform(TiledMap tiledMap) {
@@ -148,4 +148,3 @@ public class Box2dWorldGenerator {
         vertices[index + 1] = transformed.y - center.y;
     }
 }
-

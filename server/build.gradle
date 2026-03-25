@@ -1,12 +1,11 @@
 plugins {
     id 'application'
+    id 'java-library'
 }
 
 application {
     mainClass = 'ee.kool.saaremeister.server.ServerLauncher'
 }
-
-apply plugin: "java-library"
 
 repositories {
     mavenCentral()
@@ -21,6 +20,16 @@ java {
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
+
+distributions {
+    main {
+        contents {
+            from("$rootDir/shared/src/TMXAssets") {
+                into "assets/TMXAssets"
+            }
+        }
+    }
+}
 
 dependencies {
     api "com.badlogicgames.gdx:gdx:1.12.1"

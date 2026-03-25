@@ -1,6 +1,11 @@
 package ee.kool.saaremeister.screen;
 
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,6 +26,7 @@ import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
+import com.badlogic.gdx.InputMultiplexer;
 import message.LobbyExitMessage;
 
 import java.util.Arrays;
@@ -187,12 +193,17 @@ public class GameScreen extends ScreenAdapter {
         arena.render(spriteBatch);
         spriteBatch.end();
 
-        hud.render(delta); // render the HUD last to ensure it appears on top of all other content
-
         // Render the isometric map overlay layers
         renderer.render(new int[]{overLayIndex});
 
         shopOverlay.render(delta);
+
+        hud.render(delta); // render the HUD last to ensure it appears on top of all other content
+
+        // Render debug
+        if (debugMode) {
+            debugRenderer.render(camera);
+        }
     }
 
     /**
@@ -238,13 +249,6 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         ServerConnection.getInstance().setChatUpdateListener(null);
         Gdx.input.setInputProcessor(null);
-
-
-        if (debugMode) {
-            debugRenderer.render(camera);
-        }
-
-        // TODO: hud.render(); // render the HUD last to ensure it appears on top of all other content
     }
 
     /**

@@ -24,8 +24,8 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 distributions {
     main {
         contents {
-            from("$rootDir/shared/src/TMXAssets") {
-                into "assets/TMXAssets"
+            from("$rootDir/assets") {
+                into "assets"
             }
         }
     }

@@ -20,6 +20,8 @@ import message.GameStateMessage;
 
 import java.util.List;
 
+import static constant.Constants.MATCH_DURATION_SECONDS;
+
 /**
  * HUD (Heads-Up Display) for the game stats, player stats, and chat.
  */
@@ -103,7 +105,7 @@ public class Hud implements Disposable {
                     livesLabel.setText("Elud: " + me.getLives());
                 });
 
-        timerLabel.setText("Aeg: " + msg.getRemainingTimeSeconds());
+        timerLabel.setText("Aeg: " + (MATCH_DURATION_SECONDS - msg.getGameTime()));
 
         int ownedZones = 0;
         if (msg.getCaptureZones() != null) {

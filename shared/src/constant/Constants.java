@@ -10,12 +10,12 @@ public class Constants {
     // Networking
     public static final int TCP_PORT = 8080;
     public static final int UDP_PORT = 8081;
-    public static final String SERVER_IP = "193.40.157.179";     // TalTech serveri IP: 193.40.157.179
+    public static final String SERVER_IP = "localhost";     // TalTech serveri IP: 193.40.157.179
 
     // Game
     public static final int GAME_TICK_RATE = 60;
-    public static final int PLAYER_COUNT_INGAME_LIMIT = 10;
-    public static final int MATCH_DURATION_SECONDS = 120;
+    public static final int PLAYER_COUNT_INGAME_LIMIT = 2;
+    public static final int MATCH_DURATION_SECONDS = 10;
 
     // Player
     public static final float PLAYER_SPEED = 500.0f;
@@ -27,10 +27,10 @@ public class Constants {
     public static final float BULLET_SPEED = 10.0f;
 
     // Lobby
-    public static final int LOBBY_MAX_PLAYERS = 4;
+    public static final int LOBBY_MAX_PLAYERS = 2;
 
     // Capture Zone
-    public static final int CAPTURE_SECONDS_REQUIRED = 5;
+    public static final int CAPTURE_SECONDS_REQUIRED = 2;
     public static final int ZONE_COUNT = 4;
     public static final int NEUTRAL_OWNER_ID = -1;
 

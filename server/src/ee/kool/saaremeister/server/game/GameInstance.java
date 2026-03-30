@@ -18,8 +18,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static constant.Constants.GAME_TICK_RATE;
-import static constant.Constants.PLAYER_COUNT_INGAME_LIMIT;
+import static constant.Constants.*;
 
 /**
  * Represents the management and game logic of a single game instance on the server.
@@ -128,9 +127,25 @@ public class GameInstance extends Thread {
             var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
             connections.forEach(connection -> connection.sendUDP(gameStateMessage));
 
-            // If any player has no lives, game is over.
-            if (players.stream().anyMatch(x -> x.getLives() == 0)) {
+            // If one player has captured all the capture zones, the game is over.
+            int test = 0;
+            for (int i = 0; i < captureZones.size() - 1; i++) {
+                if (captureZones.get(i).getOwnerPlayerId() == captureZones.get(i + 1).getOwnerPlayerId()
+                && captureZones.get(i).getOwnerPlayerId() != -1) {
+                    test++;
+                }
+            }
+            if (test == captureZones.size() - 1) {
                 connections.forEach(connection -> connection.sendTCP(gameStateMessage));
+                Log.info("Game over, stopping game.");
+                disposeGame();
+                isGameRunning = false;
+            }
+
+            // If game time is up, the game is over.
+            if (gameStateHandler.getGameTime() >= MATCH_DURATION_SECONDS) {
+                connections.forEach(connection -> connection.sendTCP(gameStateMessage));
+                Log.info("Game time over, stopping game.");
                 disposeGame();
                 isGameRunning = false;
             }
@@ -143,7 +158,9 @@ public class GameInstance extends Thread {
             }
 
             // Print player positions in the console log.
-            players.forEach(player -> System.out.println(player.getUsername() + ": " + player.getX() + " ; " + player.getY()));
+            players.forEach(player -> System.out.println(
+                    player.getUsername() + ": " + player.getX() + " ; " + player.getY()
+            ));
 
             // Sleep for 1 second to maintain a constant tick rate.
             try {

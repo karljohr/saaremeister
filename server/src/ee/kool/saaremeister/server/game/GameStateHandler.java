@@ -19,7 +19,7 @@ import static constant.Constants.GAME_TICK_RATE;
 @Setter
 public class GameStateHandler {
 
-    private int gameTime = 0;
+    private float gameTime = 0;
     private boolean allPlayersHaveJoined = false;
     private boolean gameOver = false;
     private List<CaptureZoneState> captureZoneStates = new ArrayList<>();

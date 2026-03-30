@@ -12,8 +12,7 @@ public class GameStateMessage {
     private List<PlayerState> playerStates;
     private List<BulletState> bulletStates;
     private List<CaptureZoneState> captureZones;
-    private int gameTime;
-    private int remainingTimeSeconds;
+    private float gameTime;
     private boolean allPlayersHaveJoined;
     private boolean gameOver;
     private boolean draw;

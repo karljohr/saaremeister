@@ -116,7 +116,7 @@ public class GameScreen extends ScreenAdapter {
 
         // Load tiled map
         TmxMapLoader mapLoader = new TmxMapLoader();
-        this.map = mapLoader.load("shared/src/TMXAssets/map.tmx");
+        this.map = mapLoader.load("TMXAssets/map.tmx");
         this.renderer = new IsometricTiledMapRenderer(map, 1f);
     }
 

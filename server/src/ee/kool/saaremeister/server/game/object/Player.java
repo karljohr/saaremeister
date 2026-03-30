@@ -29,7 +29,7 @@ public class Player {
     private final GameInstance gameInstance;
     private float x, y = 0f;
     private int lives = PLAYER_LIVES;
-    private int money = PLAYER_MONEY;
+    private int money;
     @Getter @Setter
     private String username = "Player";
 
@@ -46,6 +46,7 @@ public class Player {
         this.connection.addListener(movementListener);
         this.connection.addListener(shootingListener);
         this.world = world;
+        this.money = PLAYER_MONEY;
         definePlayer();
     }
 
@@ -109,7 +110,7 @@ public class Player {
         playerState.setY(body.getPosition().y * PPM);
         playerState.setLives(lives);
         playerState.setUsername(username);
-        playerState.setMoney(money);
+        playerState.setMoney(this.money);
         return playerState;
     }
 

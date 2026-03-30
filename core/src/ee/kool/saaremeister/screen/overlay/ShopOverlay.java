@@ -1,10 +1,12 @@
 package ee.kool.saaremeister.screen.overlay;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -16,10 +18,18 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import ee.kool.saaremeister.component.LabelComponent;
+import common.ShopRegistry;
+import message.dto.ShopItem;
+import constant.Category;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static constant.Constants.MAX_SLOTS;
 import static ee.kool.saaremeister.utility.Font.getPixelFont;
 
 /**
@@ -27,20 +37,35 @@ import static ee.kool.saaremeister.utility.Font.getPixelFont;
  */
 public class ShopOverlay implements Disposable {
 
-
-    private static final float SLOT_SIZE = 72f;
+    private static final float SLOT_SIZE = 84f;
     private static final int GRID_COLS = 5;
     private static final int GRID_ROWS = 3;
 
-    @Getter
-    private final Stage stage;
-    private final Table root;
-    private final Texture panelBgTexture;
-    private final Texture dividerTexture;
-    private final Texture slotTexture;
+    // Custom UI Colors
+    private static final Color PANEL_DARK      = new Color(0.1f, 0.1f, 0.12f, 1f);
+    private static final Color PANEL_BORDER    = new Color(0.25f, 0.25f, 0.28f, 1f);
+    private static final Color GOLDEN_DIVIDER  = new Color(0.85f, 0.70f, 0.45f, 1f);
 
-    private final Texture shopButtonUpTexture;
-    private final Texture shopButtonOverTexture;
+    // Slot/Wood Colors
+    private static final Color WOOD_NORMAL     = new Color(0.44f, 0.30f, 0.20f, 1f);
+    private static final Color WOOD_HOVER      = new Color(0.54f, 0.40f, 0.30f, 1f);
+    private static final Color WOOD_GRAIN      = new Color(0.40f, 0.27f, 0.18f, 1f);
+    private static final Color WOOD_BORDER     = new Color(0.18f, 0.11f, 0.07f, 1f);
+
+    // Button Colors
+    private static final Color BTN_NORMAL      = new Color(0.12f, 0.12f, 0.14f, 1f);
+    private static final Color BTN_HOVER       = new Color(0.2f, 0.2f, 0.25f, 1f);
+
+    @Getter private final Stage stage;
+    private final Table root;
+    private final Table itemGrid;
+    private final TextureRegionDrawable slotDrawableNormal;
+    private final TextureRegionDrawable slotDrawableHover;
+
+    private final Texture panelBgTexture, dividerTexture, slotTextureNormal, slotTextureHover, shopButtonUpTexture, shopButtonOverTexture;
+
+    private final Map<String, Texture> iconCache = new HashMap<>();
+    private Category currentCategory = Category.KOIK;
 
     public ShopOverlay(SpriteBatch spriteBatch) {
         ScreenViewport viewport = new ScreenViewport();
@@ -48,58 +73,119 @@ public class ShopOverlay implements Disposable {
         this.stage = new Stage(viewport, spriteBatch);
 
         panelBgTexture = createPanelTexture();
-        panelBgTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        TextureRegionDrawable panelBg = new TextureRegionDrawable(new TextureRegion(panelBgTexture));
+        dividerTexture = createDividerTexture();
 
-        slotTexture = createSlotTexture();
-        slotTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        TextureRegionDrawable slotDrawable = new TextureRegionDrawable(new TextureRegion(slotTexture));
+        slotTextureNormal = createSlotTexture(false);
+        slotTextureHover = createSlotTexture(true);
 
         shopButtonUpTexture = createShopButtonTexture(false);
         shopButtonOverTexture = createShopButtonTexture(true);
-        shopButtonUpTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        shopButtonOverTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        slotDrawableNormal = new TextureRegionDrawable(new TextureRegion(slotTextureNormal));
+        slotDrawableHover = new TextureRegionDrawable(new TextureRegion(slotTextureHover));
 
         root = new Table();
         root.setFillParent(true);
         root.top();
         root.setVisible(false);
-        root.setTouchable(Touchable.childrenOnly);
 
         Table panel = new Table();
-        panel.setBackground(panelBg);
+        panel.setBackground(new TextureRegionDrawable(new TextureRegion(panelBgTexture)));
         panel.pad(14, 18, 16, 18);
 
-        Label title = LabelComponent.createLabel("Pood", Color.LIGHT_GRAY, 22);
-        panel.add(title).left().padBottom(2).row();
-
-        Label subtitle = LabelComponent.createLabel("Varustus vastavalt rollile", Color.LIGHT_GRAY, 13);
-        panel.add(subtitle).left().padBottom(6).row();
-
-        dividerTexture = createDividerTexture();
-        dividerTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        panel.add(LabelComponent.createLabel("Pood", Color.LIGHT_GRAY, 22)).left().row();
         panel.add(new Image(dividerTexture)).height(2).growX().padBottom(10).row();
 
-        // Category buttons
         Table categoryRow = new Table();
-
-        categoryRow.defaults().pad(2).uniformX();
-        categoryRow.add(shopCategoryButton(13, "Kõik", () -> { }));
-        categoryRow.add(shopCategoryButton(13, "Relvad", () -> { }));
-        categoryRow.add(shopCategoryButton(13, "Ehitised", () -> { }));
-        categoryRow.add(shopCategoryButton(13, "Tarvikud", () -> { }));
+        categoryRow.defaults().pad(4);
+        for (Category cat : Category.values()) {
+            TextButton btn = shopCategoryButton(13, cat.getDisplayName(), () -> {
+                currentCategory = cat;
+                refreshGrid();
+            });
+            categoryRow.add(btn).padLeft(5).padRight(5);
+        }
         panel.add(categoryRow).growX().padBottom(10).row();
 
-        Table grid = buildItemGrid(slotDrawable);
-        panel.add(grid).padBottom(10).row();
+        itemGrid = new Table();
+        panel.add(itemGrid).padBottom(10).row();
 
         Label closeHint = LabelComponent.createLabel("Klahv B | sulge / ava", Color.LIGHT_GRAY, 13);
         panel.add(closeHint).center().padTop(10).row();
 
-        root.add(panel).width(600f).padTop(12f).padBottom(56f).expandX().center();
-
+        root.add(panel).width(650f).padTop(12f).center();
         stage.addActor(root);
-        setOpen(false);
+
+        refreshGrid();
+    }
+
+    private void refreshGrid() {
+        itemGrid.clearChildren();
+
+        // Filter the items first based on category
+        List<ShopItem> filteredItems = new ArrayList<>();
+        for (ShopItem item : ShopRegistry.ITEMS) {
+            if (currentCategory == Category.KOIK || item.getCategory() == currentCategory) {
+                filteredItems.add(item);
+            }
+        }
+
+        // 15 slots
+        for (int i = 0; i < MAX_SLOTS; i++) {
+            Table slotContainer = new Table();
+            slotContainer.setBackground(slotDrawableNormal);
+
+            // If we have an item for this index, fill the slot
+            if (i < filteredItems.size()) {
+                ShopItem item = filteredItems.get(i);
+
+                Texture iconTex = getIconTexture(item.getTextureName());
+                Image icon = new Image(iconTex);
+                slotContainer.add(icon).size(48, 48).pad(4).row();
+
+                Label nameLabel = LabelComponent.createLabel(item.getName(), Color.WHITE, 9);
+                Label priceLabel = LabelComponent.createLabel(item.getPrice() + "€", Color.GOLD, 10);
+                slotContainer.add(nameLabel).padTop(2).row();
+                slotContainer.add(priceLabel);
+
+                slotContainer.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        sendPurchaseRequest(item.getId());
+                    }
+
+                    @Override
+                    public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                        slotContainer.setBackground(slotDrawableHover);
+                    }
+
+                    @Override
+                    public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                        slotContainer.setBackground(slotDrawableNormal);
+                    }
+                });
+            }
+
+            // Add the slot (filled or empty) to the grid
+            itemGrid.add(slotContainer).size(SLOT_SIZE, SLOT_SIZE + 20).pad(4);
+
+            // New row every 5 columns
+            if ((i + 1) % GRID_COLS == 0) {
+                itemGrid.row();
+            }
+        }
+    }
+
+    private Texture getIconTexture(String name) {
+        if (!iconCache.containsKey(name)) {
+            try {
+                iconCache.put(name, new Texture(Gdx.files.internal("shop/" + name + ".png")));
+            } catch (Exception e) {
+                // Fallback to a blank texture if file is missing
+                return panelBgTexture;
+            }
+        }
+        return iconCache.get(name);
     }
 
     private TextButton shopCategoryButton(int fontSize, String text, Runnable onClick) {
@@ -109,11 +195,8 @@ public class ShopOverlay implements Disposable {
         style.up = new TextureRegionDrawable(new TextureRegion(shopButtonUpTexture));
         style.over = new TextureRegionDrawable(new TextureRegion(shopButtonOverTexture));
         style.down = style.over;
-        TextButton button = new TextButton(text, style);
 
-        // All buttons same width
-        button.getLabelCell().width(100f);
-        button.pad(4, 8, 4, 8);
+        TextButton button = new TextButton(text, style);
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -123,31 +206,19 @@ public class ShopOverlay implements Disposable {
         return button;
     }
 
-    private static Table buildItemGrid(TextureRegionDrawable slotDrawable) {
-        Table grid = new Table();
-        for (int row = 0; row < GRID_ROWS; row++) {
-            for (int col = 0; col < GRID_COLS; col++) {
-                Image slot = new Image(slotDrawable);
-                grid.add(slot).size(SLOT_SIZE, SLOT_SIZE).pad(0);
-            }
-            grid.row();
-        }
-        return grid;
+    private void sendPurchaseRequest(int itemId) {
+        message.ShopPurchaseMessage msg = new message.ShopPurchaseMessage();
+        msg.setItemId(itemId);
+        ee.kool.saaremeister.network.ServerConnection.getInstance().getClient().sendTCP(msg);
     }
 
     private static Texture createShopButtonTexture(boolean hover) {
         // Darkgray buttons
         Pixmap pm = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
-        if (hover) {
-            // Darkblue hover
-            pm.setColor(0.2f, 0.2f, 0.25f, 1f);
-        } else {
-            // Darkgray like panel
-            pm.setColor(0.12f, 0.12f, 0.14f, 1f);
-        }
+        pm.setColor(hover ? BTN_HOVER : BTN_NORMAL);
         pm.fill();
         // Dark border
-        pm.setColor(0.4f, 0.4f, 0.42f, 1f);
+        pm.setColor(Color.GRAY);
         pm.drawRectangle(0, 0, 32, 32);
         Texture tex = new Texture(pm);
         pm.dispose();
@@ -156,14 +227,12 @@ public class ShopOverlay implements Disposable {
 
     private static Texture createPanelTexture() {
         Pixmap pm = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
-
-        pm.setColor(0.1f, 0.1f, 0.12f, 1f);
+        pm.setColor(PANEL_DARK);
         pm.fill();
 
         // Dark border
-        pm.setColor(0.25f, 0.25f, 0.28f, 1f);
+        pm.setColor(PANEL_BORDER);
         pm.drawRectangle(0, 0, 32, 32);
-
         Texture tex = new Texture(pm);
         pm.dispose();
         return tex;
@@ -171,29 +240,34 @@ public class ShopOverlay implements Disposable {
 
     private static Texture createDividerTexture() {
         Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        // Separationline which is thin and golden
-        pm.setColor(0.85f, 0.70f, 0.45f, 1f);
+        pm.setColor(GOLDEN_DIVIDER);
         pm.fill();
         Texture tex = new Texture(pm);
         pm.dispose();
         return tex;
     }
 
-    private static Texture createSlotTexture() {
+    private static Texture createSlotTexture(boolean hover) {
         int s = 72;
         Pixmap pm = new Pixmap(s, s, Pixmap.Format.RGBA8888);
-        pm.setColor(0.44f, 0.30f, 0.20f, 1f);
+
+        // Background color (Lighter if hover)
+        pm.setColor(hover ? WOOD_HOVER : WOOD_NORMAL);
         pm.fill();
+
         for (int i = 0; i < s; i += 3) {
-            pm.setColor(0.40f, 0.27f, 0.18f, 1f);
+            pm.setColor(WOOD_GRAIN);
             pm.drawLine(i, 0, i, s);
         }
-        pm.setColor(0.18f, 0.11f, 0.07f, 1f);
+
+        // Borders
+        pm.setColor(WOOD_BORDER);
         pm.drawRectangle(0, 0, s, s);
-        pm.setColor(0.52f, 0.38f, 0.26f, 1f);
+
+        // Inner highlighting borders
+        pm.setColor(hover ? Color.ORANGE : Color.BROWN);
         pm.drawRectangle(2, 2, s - 4, s - 4);
-        pm.setColor(0.58f, 0.46f, 0.34f, 1f);
-        pm.drawRectangle(4, 4, s - 8, s - 8);
+
         Texture tex = new Texture(pm);
         pm.dispose();
         return tex;
@@ -204,14 +278,10 @@ public class ShopOverlay implements Disposable {
         root.setTouchable(open ? Touchable.childrenOnly : Touchable.disabled);
     }
 
-    public boolean isOpen() {
-        return root.isVisible();
-    }
+    public boolean isOpen() { return root.isVisible(); }
 
     public void render(float delta) {
-        if (!root.isVisible()) {
-            return;
-        }
+        if (!root.isVisible()) return;
         stage.act(delta);
         stage.draw();
     }
@@ -225,8 +295,11 @@ public class ShopOverlay implements Disposable {
         stage.dispose();
         panelBgTexture.dispose();
         dividerTexture.dispose();
-        slotTexture.dispose();
+        slotTextureNormal.dispose();
+        slotTextureHover.dispose();
         shopButtonUpTexture.dispose();
         shopButtonOverTexture.dispose();
+        for (Texture t : iconCache.values()) t.dispose();
+        iconCache.clear();
     }
 }

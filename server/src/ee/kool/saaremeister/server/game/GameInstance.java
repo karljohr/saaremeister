@@ -57,9 +57,39 @@ public class GameInstance extends Thread {
 
         Player newPlayer = new Player(connection, this, world);
         newPlayer.setUsername(lobbyManager.getUsername(connection));
-        players.add(newPlayer);
         activePlayers.put(connection.getID(), newPlayer);
+        players.add(newPlayer);
         connections.add(connection);
+
+        connection.addListener(new com.esotericsoftware.kryonet.Listener() {
+            @Override
+            public void received(com.esotericsoftware.kryonet.Connection conn, Object object) {
+                if (object instanceof message.ShopPurchaseMessage) {
+                    message.ShopPurchaseMessage msg = (message.ShopPurchaseMessage) object;
+
+                    Player p = activePlayers.get(conn.getID());
+                    if (p != null) {
+                        message.dto.ShopItem item = common.ShopRegistry.getItemById(msg.getItemId());
+
+                        if (item != null) {
+                            // Use the price defined in the ShopItem
+                            boolean success = p.attemptPurchase(item.getPrice());
+
+                            if (success) {
+                                Log.info("Purchased " + item.getName() + " for " + p.getUsername() + ". New balance: " + p.getMoney());
+                                // TODO: Give the item/benefit to the player here (to the hotbar)
+                            } else {
+                                Log.info(p.getUsername() + " didn't have enough money for " + item.getName());
+                            }
+                        } else {
+                            Log.error("Received purchase request for non-existent item ID: " + msg.getItemId());
+                        }
+                    } else {
+                        Log.error("Player object not found for ID " + conn.getID());
+                    }
+                }
+            }
+        });
 
         StaticBodyState[] arr = staticBodyData.toArray(new StaticBodyState[0]);
         connection.sendTCP(arr);
@@ -119,8 +149,6 @@ public class GameInstance extends Thread {
                 disposeGame();
                 isGameRunning = false;
             }
-
-            players.forEach(player -> System.out.println(player.getUsername() + ": " + player.getX() + " ; " + player.getY()));
 
             try {
                 Thread.sleep(Duration.ofMillis(1000 / GAME_TICK_RATE));

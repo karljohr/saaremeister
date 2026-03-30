@@ -41,7 +41,7 @@ olla nii päris mängijad kui ka AI, kuid saaremeister on alati päris mängija.
 - **Vestlusakna kasutus**: 
   - Hiirega vajutada vestlusakna peale
   - Kirjutada sõnum
-  - Vajutada hiireklahviga "Send" nuppu
+  - Vajutada hiireklahviga "->" nuppu
 - **Lahkumine**: "esc" klahv või mänguakna sulgemine
 - **Eesmärk**: puudub
 
@@ -78,9 +78,9 @@ olla nii päris mängijad kui ka AI, kuid saaremeister on alati päris mängija.
 | Funktsioon                     | Kirjeldus                                                                                                                                     |
 |--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
 | Mitmikmäng                     | Mängijate koguarv sõltub kasutaja masina võimsusest.<br/>Lobbysse ja ühte mängu mahub korraga kuni 10 mängijat, täitumisel luuakse uus lobby. |
-| Lobby süsteem                  | Mängijad suunatakse algselt lobbysse, kust nad saavad koos mänguga liituda.                                                                   |
+| Lobby süsteem                  | Mängijad liituvad algselt lobbyga, kust nad saavad koos mängu liituda.                                                                        |
 | Paralleelsed mängu eksemplarid | Mitu mängu saavad toimuda samaaegselt.                                                                                                        |
-| Vestlusaken                    | Mängus saab vestlusaknas suhelda teiste mängijatega.                                                                                          |
+| Tekstipõhine vestlus           | Mängus saab vestlusaknas tekstipõhiselt suhelda teiste mängijatega.                                                                           |
 
 
 ---

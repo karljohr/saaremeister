@@ -32,7 +32,8 @@ public class GameInstance extends Thread {
     private List<Bullet> bullets = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
     private final World world;
-    List<StaticBodyState> staticBodyData;
+    private List<StaticBodyState> staticBodyData;
+    private final BuildHandler buildHandler;
 
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
@@ -42,6 +43,8 @@ public class GameInstance extends Thread {
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         staticBodyData = box2dWorldGenerator.initializeWorld(world);
+
+        buildHandler = new BuildHandler();
 
     }
 
@@ -55,12 +58,13 @@ public class GameInstance extends Thread {
             return;
         }
 
-        Player newPlayer = new Player(connection, this, world);
+        Player newPlayer = new Player(connection, this, world, buildHandler);
         newPlayer.setUsername(lobbyManager.getUsername(connection));
         players.add(newPlayer);
         activePlayers.put(connection.getID(), newPlayer);
         connections.add(connection);
 
+        // Debug hitbox info
         StaticBodyState[] arr = staticBodyData.toArray(new StaticBodyState[0]);
         connection.sendTCP(arr);
 

@@ -2,12 +2,14 @@ package ee.kool.saaremeister.server.game.object;
 
 import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.kryonet.Connection;
+import ee.kool.saaremeister.server.game.BuildHandler;
 import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.listener.PlayerMovementListener;
 import ee.kool.saaremeister.server.listener.PlayerShootingListener;
 import lombok.Getter;
 import lombok.Setter;
 
+import message.PlayerBuildMessage;
 import message.dto.Direction;
 import message.dto.PlayerState;
 
@@ -35,10 +37,12 @@ public class Player {
     private final World world;
     private Body body;
 
+    private final BuildHandler buildHandler;
+
     /**
      * Initializes a new server/side representation of a player.
      */
-    public Player(Connection connection, GameInstance gameInstance, World world) {
+    public Player(Connection connection, GameInstance gameInstance, World world, BuildHandler buildHandler) {
         this.connection = connection;
         this.id = connection.getID();
         this.gameInstance = gameInstance;
@@ -46,8 +50,12 @@ public class Player {
         this.connection.addListener(shootingListener);
         this.world = world;
         definePlayer();
+        this.buildHandler = buildHandler;
     }
 
+    /**
+     * Creates a Box2D body for player.
+     */
     private void definePlayer() {
         BodyDef bdef = new BodyDef();
         bdef.position.set(x / PPM, y / PPM); // Starts at a visible position and not in a collision box
@@ -91,11 +99,26 @@ public class Player {
         }
     }
 
+    /**
+     * Converts player location from Box2D to simple coordinates.
+     */
     public void updateFromPhysics() {
         if (body == null) return;
         this.x = body.getPosition().x * PPM;
         this.y = body.getPosition().y * PPM;
         body.setLinearVelocity(0f, 0f);
+    }
+
+    /**
+     *
+     * TODO: This function must be unique to the tax officer.
+     * @param message info about the building object to be built. Sent by player.
+     */
+    public void build(PlayerBuildMessage message) {
+        buildHandler.build(
+                this,
+                new Building(message.id, message.tileX, message.tileY, world)
+        );
     }
 
     /**

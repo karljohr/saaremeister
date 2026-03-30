@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -28,6 +29,7 @@ import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
 import message.LobbyExitMessage;
+import ee.kool.saaremeister.game.BuildManager;
 
 import java.util.Arrays;
 
@@ -53,6 +55,9 @@ public class GameScreen extends ScreenAdapter {
     private TiledMap map;
     private IsometricTiledMapRenderer renderer;
 
+    private BuildManager buildManager;
+    private boolean buildMode;
+
     private boolean debugMode;
     private DebugRenderer debugRenderer;
 
@@ -75,6 +80,8 @@ public class GameScreen extends ScreenAdapter {
         this.shopOverlay = new ShopOverlay(spriteBatch);
 
         box2dWorldGenerator();
+        this.buildManager = new BuildManager(map);
+        buildMode = false;
 
         debugRenderer = new DebugRenderer();
         debugMode = false;
@@ -139,6 +146,16 @@ public class GameScreen extends ScreenAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             debugMode = !debugMode;
         }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
+            buildMode = !buildMode;
+        }
+        if (buildMode) {
+            Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(mouse);
+            buildManager.renderProjection(mouse.x, mouse.y);
+            buildManager.handleInput(mouse.x, mouse.y);
+        }
+
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
 
@@ -182,7 +199,8 @@ public class GameScreen extends ScreenAdapter {
         // Render isometric map
         int overLayIndex = map.getLayers().getIndex("Overlay");
         int groundIndex = map.getLayers().getIndex("ground");
-        renderer.render(new int[]{groundIndex});
+        int tempIndex = map.getLayers().getIndex("temp");
+        renderer.render(new int[]{groundIndex, tempIndex});
 
         // Render players and items
         spriteBatch.setProjectionMatrix(camera.combined);

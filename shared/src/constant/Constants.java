@@ -21,6 +21,7 @@ public class Constants {
     public static final int PLAYER_LIVES = 1;
     public static final int PLAYER_PIXEL_HEIGHT = 32;
     public static final int PLAYER_PIXEL_WIDTH = 32;
+    public static final int PLAYER_MONEY = 500;
 
     // Bullet
     public static final float BULLET_SPEED = 10.0f;

@@ -29,6 +29,7 @@ public class Player {
     private final GameInstance gameInstance;
     private float x, y = 0f;
     private int lives = PLAYER_LIVES;
+    private int money = PLAYER_MONEY;
     @Getter @Setter
     private String username = "Player";
 
@@ -108,7 +109,20 @@ public class Player {
         playerState.setY(body.getPosition().y * PPM);
         playerState.setLives(lives);
         playerState.setUsername(username);
+        playerState.setMoney(money);
         return playerState;
+    }
+
+    /**
+     * Attempts to buy an item.
+     * @return true if purchase successful
+     */
+    public boolean attemptPurchase(int cost) {
+        if (this.money >= cost) {
+            this.money -= cost;
+            return true;
+        }
+        return false;
     }
 
     /**

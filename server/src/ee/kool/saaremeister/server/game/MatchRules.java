@@ -3,8 +3,7 @@ package ee.kool.saaremeister.server.game;
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 
-import java.util.Set;
-import java.util.List;
+import java.util.*;
 
 import static constant.Constants.MATCH_DURATION_SECONDS;
 
@@ -18,19 +17,32 @@ public class MatchRules {
         NO_PLAYERS_CONNECTED
     }
 
+    /**
+     * Determines the reason why the game ended, which is used by GameInstance.
+     */
     public MatchEndReason determineEndReason(
             List<CaptureZone> captureZones,
             Set<Connection> players,
             float gameTime) {
+
         if (areAllZonesCapturedByOnePlayer(captureZones)) {
             return MatchEndReason.ALL_ZONES_CAPTURED;
         }
+
         if (isGameTimeOver(gameTime)) {
+            // If one player has captured more zones than others, then they win.
+            if (isDraw(captureZones) != -1) {
+                // TODO: Do something with the winner.
+                return MatchEndReason.TIME_LIMIT_REACHED_WITH_RESULT;
+            }
+            // Else, it's a complete draw and everyone loses.
             return MatchEndReason.TIME_LIMIT_REACHED_WITH_DRAW;
         }
+
         if (isLobbyEmpty(players)) {
             return MatchEndReason.NO_PLAYERS_CONNECTED;
         }
+
         return MatchEndReason.NONE;
     }
 
@@ -53,6 +65,29 @@ public class MatchRules {
      */
     private boolean isGameTimeOver(float gameTime) {
         return gameTime >= MATCH_DURATION_SECONDS;
+    }
+
+    /**
+     * Checks if the game ended in a complete draw or someone had more captured zones than others.
+     * Returns the winner's ID if someone wins, -1 if it's a draw.
+     */
+    private int isDraw(List<CaptureZone> captureZones) {
+        // Counts the number of captured zones per player.
+        Map<Integer, Integer> capturedZonesPerPlayer = new HashMap<>();
+        for (CaptureZone captureZone : captureZones) {
+            capturedZonesPerPlayer.merge(captureZone.getOwnerPlayerId(), 1, Integer::sum);
+        }
+
+        // Sorts the map by captured zones in descending order.
+        List<Map.Entry<Integer, Integer>> sorted = capturedZonesPerPlayer.entrySet()
+                .stream()
+                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+                .toList();
+
+        if (Objects.equals(sorted.get(0).getValue(), sorted.get(1).getValue())) {
+            return -1;
+        }
+        return sorted.get(0).getKey();
     }
 
     /**

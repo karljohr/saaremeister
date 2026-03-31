@@ -138,9 +138,14 @@ public class GameInstance extends Thread {
                         connections.forEach(connection -> connection.sendTCP(gameStateMessage));
                         Log.info("All zones captured, stopping game.");
                     }
+                    case TIME_LIMIT_REACHED_WITH_RESULT -> {
+                        connections.forEach(connection -> connection.sendTCP(gameStateMessage));
+                        // TODO: Special treatment for the winner.
+                        Log.info("Time limit reached, someone won, stopping game.");
+                    }
                     case TIME_LIMIT_REACHED_WITH_DRAW -> {
                         connections.forEach(connection -> connection.sendTCP(gameStateMessage));
-                        Log.info("Time limit reached, stopping game.");
+                        Log.info("Time limit reached, no one won, stopping game.");
                     }
                 }
                 disposeGame();

@@ -39,7 +39,7 @@ public class GameScreen extends ScreenAdapter {
     private final PlayerInputManager playerInputManager;
 
     private final SpriteBatch spriteBatch;
-    private ShapeRenderer shapeRenderer;
+    private final ShapeRenderer shapeRenderer;
     private final Arena arena;
     private final int lobbyId;
     private final Hud hud;

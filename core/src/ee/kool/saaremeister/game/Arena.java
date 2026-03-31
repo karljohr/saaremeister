@@ -102,9 +102,6 @@ public class Arena {
         if (captureZoneState.getOwnerPlayerId() == myId) {
             return new Color(0f, 1f, 0f, 0.30f);
         }
-        if (captureZoneState.getOwnerPlayerId() == 2) {
-            return new Color(0f, 0.4f, 1f, 0.30f);
-        }
         return new Color(1f, 0f, 0f, 0.30f);
     }
 

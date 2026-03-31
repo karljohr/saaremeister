@@ -63,7 +63,7 @@ public class CaptureZone {
             return;
         }
 
-        Player capturingPlayer = playersInZone.get(0);
+        Player capturingPlayer = playersInZone.getFirst();
         int playerId = capturingPlayer.getId();
 
         // Doesn't advance capture progress if the player already owns the zone.

@@ -97,6 +97,7 @@ public class Hud implements Disposable {
      * Updates the HUD with the given GameStateMessage.
      */
     public void update(GameStateMessage msg, int myId) {
+        // Updates the player's money and lives.
         msg.getPlayerStates().stream()
                 .filter(p -> p.getId() == myId)
                 .findFirst()
@@ -105,8 +106,10 @@ public class Hud implements Disposable {
                     livesLabel.setText("Elud: " + me.getLives());
                 });
 
-        timerLabel.setText("Aeg: " + (MATCH_DURATION_SECONDS - msg.getGameTime()));
+        // Updates the game timer.
+        timerLabel.setText("Aeg: " + ((int) (MATCH_DURATION_SECONDS - msg.getGameTime())));
 
+        // Updates the player's captured zones.
         int ownedZones = 0;
         if (msg.getCaptureZones() != null) {
             ownedZones = (int) msg.getCaptureZones().stream()
@@ -115,6 +118,7 @@ public class Hud implements Disposable {
         }
         zonesLabel.setText("Tsoonid: " + ownedZones + "/4");
 
+        // Updates the game result text.
         if (msg.isGameOver()) {
             if (msg.isDraw()) {
                 resultLabel.setText("Viik - kõik kaotasid");

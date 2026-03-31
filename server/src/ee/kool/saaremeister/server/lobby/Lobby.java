@@ -87,7 +87,7 @@ public class Lobby {
             return;
         }
 
-        gameInstance = new GameInstance(serverListener, lobbyManager, lobbyId);
+        gameInstance = new GameInstance(lobbyManager, lobbyId);
         players.forEach(player -> gameInstance.addConnection(player));
         gameInstance.start();
         StartGameMessage startMessage = new StartGameMessage();

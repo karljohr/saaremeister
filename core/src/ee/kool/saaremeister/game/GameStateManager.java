@@ -14,6 +14,9 @@ public class GameStateManager {
 
     private GameStateMessage latestGameStateMessage;
 
+    /**
+     * Creates a new instance of the game state manager.
+     */
     public GameStateManager() {
         ServerConnection
                 .getInstance()

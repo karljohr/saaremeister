@@ -6,7 +6,6 @@ import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
-import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
@@ -35,8 +34,9 @@ public class GameInstance extends Thread {
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
     private final World world;
     List<StaticBodyState> staticBodyData;
+    private final MatchRules matchRules = new MatchRules();
 
-    public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
+    public GameInstance(LobbyManager lobbyManager, int lobbyId) {
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
         this.world = new World(new Vector2(0, 0), true);
@@ -127,32 +127,22 @@ public class GameInstance extends Thread {
             var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
             connections.forEach(connection -> connection.sendUDP(gameStateMessage));
 
-            // If one player has captured all the capture zones, the game is over.
-            int test = 0;
-            for (int i = 0; i < captureZones.size() - 1; i++) {
-                if (captureZones.get(i).getOwnerPlayerId() == captureZones.get(i + 1).getOwnerPlayerId()
-                && captureZones.get(i).getOwnerPlayerId() != -1) {
-                    test++;
+            // If there is a match end reason, stop the game.
+            MatchRules.MatchEndReason endReason = matchRules.determineEndReason(
+                    captureZones, connections, gameStateHandler.getGameTime()
+            );
+            if (endReason != MatchRules.MatchEndReason.NONE) {
+                switch (endReason) {
+                    case NO_PLAYERS_CONNECTED -> Log.info("No players connected, stopping game.");
+                    case ALL_ZONES_CAPTURED -> {
+                        connections.forEach(connection -> connection.sendTCP(gameStateMessage));
+                        Log.info("All zones captured, stopping game.");
+                    }
+                    case TIME_LIMIT_REACHED_WITH_DRAW -> {
+                        connections.forEach(connection -> connection.sendTCP(gameStateMessage));
+                        Log.info("Time limit reached, stopping game.");
+                    }
                 }
-            }
-            if (test == captureZones.size() - 1) {
-                connections.forEach(connection -> connection.sendTCP(gameStateMessage));
-                Log.info("Game over, stopping game.");
-                disposeGame();
-                isGameRunning = false;
-            }
-
-            // If game time is up, the game is over.
-            if (gameStateHandler.getGameTime() >= MATCH_DURATION_SECONDS) {
-                connections.forEach(connection -> connection.sendTCP(gameStateMessage));
-                Log.info("Game time over, stopping game.");
-                disposeGame();
-                isGameRunning = false;
-            }
-
-            // If no players are connected, the game is over and get rid of the game instance.
-            if (connections.isEmpty()) {
-                Log.info("No players connected, stopping game.");
                 disposeGame();
                 isGameRunning = false;
             }

@@ -6,6 +6,7 @@ import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
@@ -24,6 +25,7 @@ import static constant.Constants.*;
  */
 public class GameInstance extends Thread {
 
+    private final ServerListener serverListener;
     private final LobbyManager lobbyManager;
     private final int lobbyId;
     private final GameStateHandler gameStateHandler = new GameStateHandler();
@@ -36,7 +38,8 @@ public class GameInstance extends Thread {
     List<StaticBodyState> staticBodyData;
     private final MatchRules matchRules = new MatchRules();
 
-    public GameInstance(LobbyManager lobbyManager, int lobbyId) {
+    public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
+        this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
         this.world = new World(new Vector2(0, 0), true);
@@ -132,24 +135,20 @@ public class GameInstance extends Thread {
                     captureZones, connections, gameStateHandler.getGameTime()
             );
             if (endReason != MatchRules.MatchEndReason.NONE) {
+                int winnerPlayerId = matchRules.getGameWinnerId();
+                gameStateHandler.setWinnerPlayerId(winnerPlayerId);
+                gameStateHandler.setGameOver(true);
+                var finalGameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
                 switch (endReason) {
                     case NO_PLAYERS_CONNECTED -> Log.info("No players connected, stopping game.");
-                    case ALL_ZONES_CAPTURED -> {
-                        connections.forEach(connection -> connection.sendTCP(gameStateMessage));
-                        Log.info("All zones captured, stopping game.");
-                    }
-                    case TIME_LIMIT_REACHED_WITH_RESULT -> {
-                        connections.forEach(connection -> connection.sendTCP(gameStateMessage));
-                        // TODO: Special treatment for the winner.
-                        Log.info("Time limit reached, someone won, stopping game.");
-                    }
-                    case TIME_LIMIT_REACHED_WITH_DRAW -> {
-                        connections.forEach(connection -> connection.sendTCP(gameStateMessage));
-                        Log.info("Time limit reached, no one won, stopping game.");
-                    }
+                    case ALL_ZONES_CAPTURED -> Log.info("All zones captured by one player, stopping game.");
+                    case TIME_LIMIT_REACHED_WITH_RESULT -> Log.info("Time limit reached, someone won, stopping game.");
+                    case TIME_LIMIT_REACHED_WITH_DRAW -> Log.info("Time limit reached, no one won, stopping game.");
                 }
+                connections.forEach(connection -> connection.sendTCP(finalGameStateMessage));
                 disposeGame();
                 isGameRunning = false;
+                lobbyManager.disposeLobby(lobbyId);
             }
 
             // Print player positions in the console log.

@@ -23,6 +23,7 @@ public class GameStateHandler {
     private boolean allPlayersHaveJoined = false;
     private boolean gameOver = false;
     private List<CaptureZoneState> captureZoneStates = new ArrayList<>();
+    private int winnerPlayerId = -1;
 
     /**
      * Increments the game time if all players have joined.
@@ -50,6 +51,7 @@ public class GameStateHandler {
         gameStateMessage.setAllPlayersHaveJoined(allPlayersHaveJoined);
         gameStateMessage.setGameOver(gameOver);
         gameStateMessage.setCaptureZones(captureZoneStates);
+        gameStateMessage.setWinnerPlayerId(winnerPlayerId);
 
         return gameStateMessage;
     }

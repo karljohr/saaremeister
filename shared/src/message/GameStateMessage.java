@@ -15,7 +15,5 @@ public class GameStateMessage {
     private float gameTime;
     private boolean allPlayersHaveJoined;
     private boolean gameOver;
-    private boolean draw;
     private int winnerPlayerId;
-    private String winningReason;
 }

@@ -41,6 +41,7 @@ public class GameScreen extends ScreenAdapter {
     private final SpriteBatch spriteBatch;
     private final ShapeRenderer shapeRenderer;
     private final Arena arena;
+    private final int myId;
     private final int lobbyId;
     private final Hud hud;
     private final ShopOverlay shopOverlay;
@@ -63,6 +64,7 @@ public class GameScreen extends ScreenAdapter {
      */
     public GameScreen(Game game, int lobbyId, String username) {
         this.game = game;
+        this.myId = ServerConnection.getInstance().getClient().getID();
         this.lobbyId = lobbyId;
         Skin skin = ((Main) game).getSkin();
         this.gameStateManager = new GameStateManager();  // receives game state from the server
@@ -141,10 +143,14 @@ public class GameScreen extends ScreenAdapter {
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
 
+        if (currentGameState.isGameOver()) {
+            int gameWinnerId = currentGameState.getWinnerPlayerId();
+            game.setScreen(new EndScreen(game, gameWinnerId, myId));
+            return;
+        }
+
         if (currentGameState == null) return;
         arena.update(currentGameState);
-
-        int myId = ServerConnection.getInstance().getClient().getID();
 
         // Dynamic camera
         arena.getPlayers().stream()
@@ -264,6 +270,7 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void dispose() {
+        gameStateManager.dispose();
         shapeRenderer.dispose();
         spriteBatch.dispose();
         map.dispose();

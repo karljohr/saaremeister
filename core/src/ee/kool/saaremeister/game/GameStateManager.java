@@ -1,5 +1,6 @@
 package ee.kool.saaremeister.game;
 
+import com.esotericsoftware.kryonet.Client;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.network.listener.GameStateMessageListener;
 import lombok.Getter;
@@ -12,16 +13,17 @@ import java.util.ArrayList;
 @Getter
 public class GameStateManager {
 
+    private Client client;
+    private final GameStateMessageListener gameStateMessageListener;
     private GameStateMessage latestGameStateMessage;
 
     /**
      * Creates a new instance of the game state manager.
      */
     public GameStateManager() {
-        ServerConnection
-                .getInstance()
-                .getClient()
-                .addListener(new GameStateMessageListener(this));
+        this.client = ServerConnection.getInstance().getClient();
+        this.gameStateMessageListener = new GameStateMessageListener(this);
+        this.client.addListener(gameStateMessageListener);
 
         latestGameStateMessage = new GameStateMessage();
         latestGameStateMessage.setPlayerStates(new ArrayList<>());
@@ -30,9 +32,10 @@ public class GameStateManager {
         latestGameStateMessage.setAllPlayersHaveJoined(false);
         latestGameStateMessage.setCaptureZones(new ArrayList<>());
         latestGameStateMessage.setGameOver(false);
-        latestGameStateMessage.setDraw(false);
         latestGameStateMessage.setWinnerPlayerId(-1);
-        latestGameStateMessage.setWinningReason(null);
     }
 
+    public void dispose() {
+        client.removeListener(gameStateMessageListener);
+    }
 }

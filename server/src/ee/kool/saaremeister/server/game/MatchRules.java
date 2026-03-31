@@ -2,12 +2,19 @@ package ee.kool.saaremeister.server.game;
 
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
+import lombok.Getter;
 
 import java.util.*;
 
 import static constant.Constants.MATCH_DURATION_SECONDS;
 
+/**
+ * Winning, drawing, and losing conditions for the game.
+ */
 public class MatchRules {
+
+    @Getter
+    private int gameWinnerId = -1;
 
     public enum MatchEndReason {
         NONE,
@@ -26,13 +33,15 @@ public class MatchRules {
             float gameTime) {
 
         if (areAllZonesCapturedByOnePlayer(captureZones)) {
+            gameWinnerId = captureZones.getFirst().getOwnerPlayerId();
             return MatchEndReason.ALL_ZONES_CAPTURED;
         }
 
         if (isGameTimeOver(gameTime)) {
             // If one player has captured more zones than others, then they win.
-            if (isDraw(captureZones) != -1) {
-                // TODO: Do something with the winner.
+            int drawResult = isDraw(captureZones);
+            if (drawResult != -1) {
+                gameWinnerId = drawResult;
                 return MatchEndReason.TIME_LIMIT_REACHED_WITH_RESULT;
             }
             // Else, it's a complete draw and everyone loses.
@@ -75,7 +84,9 @@ public class MatchRules {
         // Counts the number of captured zones per player.
         Map<Integer, Integer> capturedZonesPerPlayer = new HashMap<>();
         for (CaptureZone captureZone : captureZones) {
-            capturedZonesPerPlayer.merge(captureZone.getOwnerPlayerId(), 1, Integer::sum);
+            if (captureZone.getOwnerPlayerId() != -1) {
+                capturedZonesPerPlayer.merge(captureZone.getOwnerPlayerId(), 1, Integer::sum);
+            }
         }
 
         // Sorts the map by captured zones in descending order.
@@ -83,11 +94,16 @@ public class MatchRules {
                 .stream()
                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                 .toList();
-
-        if (Objects.equals(sorted.get(0).getValue(), sorted.get(1).getValue())) {
-            return -1;
+        if (sorted.size() == 1) {
+            return sorted.getFirst().getKey();
         }
-        return sorted.get(0).getKey();
+        if (sorted.size() > 1) {
+            if (Objects.equals(sorted.get(0).getValue(), sorted.get(1).getValue())) {
+                return -1;
+            }
+            return sorted.getFirst().getKey();
+        }
+        return -1;
     }
 
     /**

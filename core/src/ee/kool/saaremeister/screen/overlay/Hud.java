@@ -35,7 +35,6 @@ public class Hud implements Disposable {
     private final ChatTable chatTable;
     private final Label timerLabel;
     private final Label zonesLabel;
-    private final Label resultLabel;
 
     public Hud(SpriteBatch spriteBatch, int lobbyId, String username, Skin skin) {
         stage = new Stage(new ScreenViewport(), spriteBatch);
@@ -49,7 +48,6 @@ public class Hud implements Disposable {
         // HUD elements for the zone capturing.
         timerLabel = LabelComponent.createLabel("Aeg: 0", Color.WHITE, 20);
         zonesLabel = LabelComponent.createLabel("Tsoonid: 0", Color.CYAN, 20);
-        resultLabel = LabelComponent.createLabel("", Color.WHITE, 24);
 
         // HUD table for the stats of the player.
         Table statsTable = new Table();
@@ -76,11 +74,6 @@ public class Hud implements Disposable {
         statsTable.row();
         statsTable.add(zonesLabel).padTop(5).padLeft(10).left();
         zonesLabel.setFontScale(2f);
-
-        // A row for displaying the game result.
-        statsTable.row();
-        statsTable.add(resultLabel).padTop(10).padLeft(10).left();
-        resultLabel.setFontScale(2f);
 
         // HUD table for the chat.
         chatTable = new ChatTable(lobbyId, username, skin);
@@ -117,19 +110,6 @@ public class Hud implements Disposable {
                     .count();
         }
         zonesLabel.setText("Tsoonid: " + ownedZones + "/4");
-
-        // Updates the game result text.
-        if (msg.isGameOver()) {
-            if (msg.isDraw()) {
-                resultLabel.setText("Viik - kõik kaotasid");
-            } else if (msg.getWinnerPlayerId() == myId) {
-                resultLabel.setText("Võitsid");
-            } else {
-                resultLabel.setText("Kaotasid");
-            }
-        } else {
-            resultLabel.setText("");
-        }
     }
 
     /**

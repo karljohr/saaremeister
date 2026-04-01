@@ -14,8 +14,8 @@ import message.dto.PlayerState;
 import static constant.Constants.*;
 
 /**
- * The server-side representation of a player. Listens client input
- * and updates the players state accordingly.
+ * The server-side representation of a player. Listens to client input
+ * and updates the player state accordingly.
  */
 @Getter
 @Setter
@@ -63,7 +63,7 @@ public class Player {
         fdef.friction = 0.0f;
         fdef.density = 1.0f;
 
-        PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes etc.
+        PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes, etc.
         // Adjust hit-box size as needed.
         shape.setAsBox(10 / PPM, 15 / PPM);
 

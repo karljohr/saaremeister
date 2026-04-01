@@ -12,6 +12,7 @@ import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
 
 public class TitleScreen extends ScreenAdapter {
+
     private final Game game;
     private final Stage stage;
     private final Skin skin;

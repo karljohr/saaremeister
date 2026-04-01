@@ -140,4 +140,8 @@ public class LobbyManager {
     public Lobby getLobby(int lobbyId) {
         return lobbies.get(lobbyId);
     }
+
+    public void disposeLobby(int lobbyId) {
+        lobbies.remove(lobbyId);
+    }
 }

@@ -18,8 +18,6 @@ public class GameStateMessageListener extends Listener {
 
     /**
      * Determines what to do with the received message based on the message type.
-     * @param connection
-     * @param object
      */
     @Override
     public void received(Connection connection, Object object) {

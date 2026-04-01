@@ -2,6 +2,7 @@ package message;
 
 import lombok.Data;
 import message.dto.BulletState;
+import message.dto.CaptureZoneState;
 import message.dto.PlayerState;
 
 import java.util.List;
@@ -10,6 +11,9 @@ import java.util.List;
 public class GameStateMessage {
     private List<PlayerState> playerStates;
     private List<BulletState> bulletStates;
-    private int gameTime;
+    private List<CaptureZoneState> captureZones;
+    private float gameTime;
     private boolean allPlayersHaveJoined;
+    private boolean gameOver;
+    private int winnerPlayerId;
 }

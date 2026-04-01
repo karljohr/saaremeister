@@ -14,7 +14,8 @@ public class Constants {
 
     // Game
     public static final int GAME_TICK_RATE = 60;
-    public static final int PLAYER_COUNT_INGAME_LIMIT = 10;
+    public static final int PLAYER_COUNT_INGAME_LIMIT = 5;
+    public static final int MATCH_DURATION_SECONDS = 120;
     public static final int MAX_SLOTS = 15;
 
     // Player
@@ -28,5 +29,10 @@ public class Constants {
     public static final float BULLET_SPEED = 10.0f;
 
     // Lobby
-    public static final int LOBBY_MAX_PLAYERS = 10;
+    public static final int LOBBY_MAX_PLAYERS = 5;
+
+    // Capture Zone
+    public static final int CAPTURE_SECONDS_REQUIRED = 5;
+    public static final int NEUTRAL_OWNER_ID = -1;
+
 }

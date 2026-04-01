@@ -1,11 +1,13 @@
 package ee.kool.saaremeister.server.game;
 
 import ee.kool.saaremeister.server.game.object.Bullet;
+import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
 import lombok.Getter;
 import lombok.Setter;
 import message.GameStateMessage;
 import message.dto.BulletState;
+import message.dto.CaptureZoneState;
 import message.dto.PlayerState;
 
 import java.util.ArrayList;
@@ -17,15 +19,24 @@ import static constant.Constants.GAME_TICK_RATE;
 @Setter
 public class GameStateHandler {
 
+    private float gameTime = 0;
     private boolean allPlayersHaveJoined = false;
-    private int gameTime = 0;
+    private boolean gameOver = false;
+    private List<CaptureZoneState> captureZoneStates = new ArrayList<>();
+    private int winnerPlayerId = -1;
 
+    /**
+     * Increments the game time if all players have joined.
+     */
     public void incrementGameTimeIfPlayersPresent() {
         if (allPlayersHaveJoined) {
             gameTime += 1f / GAME_TICK_RATE;
         }
     }
 
+    /**
+     * Creates a game state message with the given player and bullet states.
+     */
     public Object getGameStateMessage(List<Player> players, List<Bullet> bullets) {
         var playerStates = new ArrayList<PlayerState>();
         players.forEach(player -> playerStates.add(player.getPlayerState()));
@@ -38,6 +49,9 @@ public class GameStateHandler {
         gameStateMessage.setBulletStates(bulletStates);
         gameStateMessage.setGameTime(Math.round(gameTime));
         gameStateMessage.setAllPlayersHaveJoined(allPlayersHaveJoined);
+        gameStateMessage.setGameOver(gameOver);
+        gameStateMessage.setCaptureZones(captureZoneStates);
+        gameStateMessage.setWinnerPlayerId(winnerPlayerId);
 
         return gameStateMessage;
     }

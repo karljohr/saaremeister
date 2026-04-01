@@ -40,6 +40,8 @@ public class ChatTable extends Table {
         inputField = new TextField("", inputStyle);
 
         TextButton sendButton = new TextButton("->", skin);
+
+        // Listens for the Send button to be clicked to send the message with the correct username.
         sendButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

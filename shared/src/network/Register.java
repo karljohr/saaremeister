@@ -2,10 +2,12 @@ package network;
 
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
+import constant.Category;
 import message.dto.BulletState;
 import message.dto.Direction;
 import message.dto.PlayerState;
 import message.dto.StaticBodyState;
+import message.dto.ShopItem;
 
 import java.util.ArrayList;
 
@@ -24,9 +26,11 @@ public class Register {
         kryo.register(Direction.class);
         kryo.register(message.LobbyUpdateMessage.class);
         kryo.register(message.LobbyExitMessage.class);
-        kryo.register(message.StartGameMessage.class);
         kryo.register(message.ChatMessage.class);
         kryo.register(message.ChatUpdateMessage.class);
+        kryo.register(message.ShopPurchaseMessage.class, 50);
+        kryo.register(ShopItem.class);
+        kryo.register(Category.class);
 
         // Box2D debug
         kryo.register(StaticBodyState.class);

@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import ee.kool.saaremeister.server.TMXLoaders.HijackedTmxLoader;
 import ee.kool.saaremeister.server.TMXLoaders.MyServer;
 import message.dto.StaticBodyState;
+import org.w3c.dom.css.Rect;
 
 
 import java.util.ArrayList;
@@ -71,7 +73,8 @@ public class Box2dWorldGenerator {
 
             staticBodies.add(new StaticBodyState(worldPosition, vertices));
 
-            System.out.println(worldPosition);
+            System.out.println(bdef.position.x + " " + bdef.position.y + "\n");
+
 
         }
 
@@ -136,9 +139,13 @@ public class Box2dWorldGenerator {
         vertices[index + 1] = transformed.y - center.y;
     }
 
-    public void buildBody(int x, int y, World world) {
+    public Body buildBody(int tileX, int tileY, World world, int id) {
         TiledMap tiledMap = getMap();
         buildIsometricDebugTransform(tiledMap);
+
+        TiledMapTile tile = tiledMap.getTileSets().getTileSet("offensive_buildings").getTile(148);
+
+        Rectangle rectangle = new Rectangle((tileX - 130) * 16, (tileY - 130) * 16, 16, 16);
 
         BodyDef bdef = new BodyDef(); // Definition for creating a physics body
         bdef.type = BodyDef.BodyType.StaticBody; // Make the body static (doesn't move)
@@ -146,17 +153,18 @@ public class Box2dWorldGenerator {
         FixtureDef fdef = new FixtureDef(); // Fixture configuration for the body
         Body body; // Reference to the created body
 
-        float width = TILE_WIDTH / PPM;
-        float height = TILE_WIDTH / PPM;
-        if (width <= 0 || height <= 0) return;
+        float width = rectangle.getWidth() / PPM;
+        float height = rectangle.getHeight() / PPM;
+        if (width <= 0 || height <= 0) return null;
 
         Vector2 rawCenter = tileToWorld(
                 tiledMap,
-                x + TILE_WIDTH / 2f,
-                y + TILE_WIDTH / 2f
+                rectangle.getX() + rectangle.getWidth() / 2f,
+                rectangle.getY() + rectangle.getHeight() / 2f
         );
         Vector2 worldPosition = applyIsometricTransform(rawCenter.x, rawCenter.y);
         bdef.position.set(worldPosition);
+
 
         float halfWidth = width / 2f;
         float halfHeight = height / 2f;
@@ -171,5 +179,9 @@ public class Box2dWorldGenerator {
         shape.set(vertices);
         fdef.shape = shape;
         body.createFixture(fdef);
+
+        System.out.println(body.getPosition());
+
+        return body;
     }
 }

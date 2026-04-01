@@ -3,10 +3,7 @@ package network;
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import message.PlayerBuildMessage;
-import message.dto.BulletState;
-import message.dto.Direction;
-import message.dto.PlayerState;
-import message.dto.StaticBodyState;
+import message.dto.*;
 
 import java.util.ArrayList;
 
@@ -37,5 +34,6 @@ public class Register {
 
         // Building
         kryo.register(PlayerBuildMessage.class);
+        kryo.register(BuildingState.class);
     }
 }

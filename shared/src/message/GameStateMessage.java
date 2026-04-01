@@ -1,6 +1,7 @@
 package message;
 
 import lombok.Data;
+import message.dto.BuildingState;
 import message.dto.BulletState;
 import message.dto.PlayerState;
 
@@ -12,4 +13,5 @@ public class GameStateMessage {
     private List<BulletState> bulletStates;
     private int gameTime;
     private boolean allPlayersHaveJoined;
+    private List<BuildingState>  buildingStates;
 }

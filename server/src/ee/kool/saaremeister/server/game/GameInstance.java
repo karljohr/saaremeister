@@ -78,7 +78,7 @@ public class GameInstance extends Thread {
         Player p = activePlayers.remove(connection.getID());
         if (p != null) players.remove(p);
 
-        var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
+        var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
         connections.forEach(c -> c.sendTCP(gameStateMessage));
 
         Log.info("Player left the game: " + connection.getID());
@@ -110,7 +110,7 @@ public class GameInstance extends Thread {
 
             bullets.forEach(Bullet::update);
             players.forEach(Player::updateFromPhysics);
-            var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
+            var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
             connections.forEach(connection -> connection.sendUDP(gameStateMessage));
 
             if (players.stream().anyMatch(x -> x.getLives() == 0)) {
@@ -124,7 +124,7 @@ public class GameInstance extends Thread {
                 isGameRunning = false;
             }
 
-            players.forEach(player -> System.out.println(player.getUsername() + ": " + player.getX() + " ; " + player.getY()));
+            // players.forEach(player -> System.out.println(player.getUsername() + ": " + player.getX() + " ; " + player.getY()));
 
             try {
                 Thread.sleep(Duration.ofMillis(1000 / GAME_TICK_RATE));

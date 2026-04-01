@@ -145,6 +145,12 @@ public class GameScreen extends ScreenAdapter {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             debugMode = !debugMode;
+            arena.getPlayers().stream()
+                    .filter(p -> p.getId() == ServerConnection.getInstance().getClient().getID())
+                    .findFirst()
+                    .ifPresent(me -> {
+                        System.out.println(me.getX() + ":" + me.getY());
+                    });
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
             buildMode = !buildMode;
@@ -177,6 +183,8 @@ public class GameScreen extends ScreenAdapter {
         camera.update();
         renderer.setView(camera);
 
+        buildManager.renderBatch(currentGameState.getBuildingStates());
+
         // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
 
         hud.update(currentGameState, myId);  // update info overlay time, lives etc
@@ -200,7 +208,7 @@ public class GameScreen extends ScreenAdapter {
         int overLayIndex = map.getLayers().getIndex("Overlay");
         int groundIndex = map.getLayers().getIndex("ground");
         int tempIndex = map.getLayers().getIndex("temp");
-        renderer.render(new int[]{groundIndex, tempIndex});
+        renderer.render(new int[]{groundIndex});
 
         // Render players and items
         spriteBatch.setProjectionMatrix(camera.combined);
@@ -209,7 +217,7 @@ public class GameScreen extends ScreenAdapter {
         spriteBatch.end();
 
         // Render the isometric map overlay layers
-        renderer.render(new int[]{overLayIndex});
+        renderer.render(new int[]{overLayIndex, tempIndex});
 
         shopOverlay.render(delta);
 
@@ -287,6 +295,7 @@ public class GameScreen extends ScreenAdapter {
         renderer.dispose();
         hud.dispose();
         shopOverlay.dispose();
+        debugRenderer.dispose();
     }
 
     /**

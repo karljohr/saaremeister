@@ -4,6 +4,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.BuildHandler;
 import ee.kool.saaremeister.server.game.GameInstance;
+import ee.kool.saaremeister.server.listener.BuildingListener;
 import ee.kool.saaremeister.server.listener.PlayerMovementListener;
 import ee.kool.saaremeister.server.listener.PlayerShootingListener;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class Player {
     private final Connection connection;
     private final PlayerMovementListener movementListener = new PlayerMovementListener(this);
     private final PlayerShootingListener shootingListener = new PlayerShootingListener(this);
+    private final BuildingListener buildingListener = new BuildingListener(this);
 
     private final int id;
     private final GameInstance gameInstance;
@@ -48,6 +50,7 @@ public class Player {
         this.gameInstance = gameInstance;
         this.connection.addListener(movementListener);
         this.connection.addListener(shootingListener);
+        this.connection.addListener(buildingListener);
         this.world = world;
         definePlayer();
         this.buildHandler = buildHandler;
@@ -97,6 +100,8 @@ public class Player {
             case DOWN -> body.setLinearVelocity(body.getLinearVelocity().x, -PLAYER_SPEED / PPM);
             case null, default -> {}
         }
+
+        System.out.println(body.getPosition());
     }
 
     /**
@@ -117,7 +122,7 @@ public class Player {
     public void build(PlayerBuildMessage message) {
         buildHandler.build(
                 this,
-                new Building(message.id, message.tileX, message.tileY, world)
+                new Building(message.id, message.tileX, message.tileY, message.worldX, message.worldY, world)
         );
     }
 

@@ -6,11 +6,12 @@ public class Constants {
     public static final float PPM = 100f;
     public static final int TILE_WIDTH = 32;
     public static final int TILE_HEIGHT = 16;
+    public static final int RENDER_OFFSETX = -4160;
 
     // Networking
     public static final int TCP_PORT = 8080;
     public static final int UDP_PORT = 8081;
-    public static final String SERVER_IP = "193.40.157.179";     // TalTech serveri IP: 193.40.157.179
+    public static final String SERVER_IP = "localhost";     // TalTech serveri IP: 193.40.157.179
 
     // Game
     public static final int GAME_TICK_RATE = 60;

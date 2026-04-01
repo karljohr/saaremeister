@@ -8,6 +8,9 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.PlayerBuildMessage;
+import message.dto.BuildingState;
+
+import java.util.List;
 
 public class BuildManager {
 
@@ -40,7 +43,6 @@ public class BuildManager {
      */
     public void renderProjection(float mouseX, float mouseY) {
         tile = map.getTileSets().getTileSet("offensive_buildings").getTile(148);
-        System.out.println(tile);
 
         if (lastTileX != null && lastTileY != null) {
             layer.setCell(lastTileX, lastTileY, null);
@@ -49,25 +51,37 @@ public class BuildManager {
         TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
         cell.setTile(tile);
 
-        int[] coordinates = mouseToWorldCoordinates(mouseX, mouseY);
+        int[] coordinates = mouseToIsoCoordinates(mouseX, mouseY);
         int tileX = coordinates[0];
         int tileY = coordinates[1];
 
         layer.setCell(tileX ,tileY, cell);
-        System.out.println("placed at: " + tileX+":"+tileY);
 
         lastTileX = tileX;
         lastTileY = tileY;
 
     }
 
+    public void renderBatch(List<BuildingState> buildingStates) {
+        for  (BuildingState building : buildingStates) {
+            tile = map.getTileSets().getTileSet("offensive_buildings").getTile(building.id);
+
+            TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+            cell.setTile(tile);
+
+            layer.setCell(building.x, building.y, cell);
+        }
+    }
+
     private void handlePlacement(float mouseX, float mouseY) {
         // TODO: Send Box2D body info to server
         PlayerBuildMessage message = new PlayerBuildMessage();
         message.id = 148;
-        int[] coordinates = mouseToWorldCoordinates(mouseX, mouseY);
+        int[] coordinates = mouseToIsoCoordinates(mouseX, mouseY);
         message.tileX = coordinates[0];
         message.tileY = coordinates[1];
+        message.worldX = (int) mouseX;
+        message.worldY = (int) mouseY;
 
         ServerConnection
                 .getInstance()
@@ -75,7 +89,7 @@ public class BuildManager {
                 .sendTCP(message);
     }
 
-    private int[] mouseToWorldCoordinates(float mouseX, float mouseY) {
+    private int[] mouseToIsoCoordinates(float mouseX, float mouseY) {
         float x = mouseX - layer.getRenderOffsetX() - 16;
         float y = -(mouseY - layer.getRenderOffsetY() - 16);
 

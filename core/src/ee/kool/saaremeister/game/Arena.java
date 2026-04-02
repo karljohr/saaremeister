@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import ee.kool.saaremeister.network.ServerConnection;
+import ee.kool.saaremeister.utility.Sprites;
 import lombok.Getter;
 import message.GameStateMessage;
 import message.dto.BulletState;
@@ -13,7 +14,7 @@ import message.dto.PlayerState;
 import java.util.ArrayList;
 import java.util.List;
 
-import static constant.Constants.NEUTRAL_OWNER_ID;
+import static constant.Constants.*;
 
 /**
  * Render the current arena of the game, based on the info from the server.
@@ -55,17 +56,6 @@ public class Arena {
                 : new ArrayList<>();
     }
 
-    /**
-     * Render map, players and bullets. This makes them visible on the screen.
-     *
-     * @param spriteBatch used for rendering (and scaling/resizing) all visual elements
-     */
-    public void render(SpriteBatch spriteBatch, ShapeRenderer shapeRenderer) {
-        renderCaptureZones(shapeRenderer);
-        renderPlayers(spriteBatch);
-        // TODO: renderBullets(spriteBatch);
-    }
-
     // TODO: private void renderMap()
 
     /**
@@ -89,6 +79,21 @@ public class Arena {
     }
 
     /**
+     * Render all bullets.
+     */
+    public void renderBullets(SpriteBatch spriteBatch) {
+        bullets.forEach(bullet -> {
+            spriteBatch.draw(
+                    Sprites.bulletTexture,
+                    bullet.getX(),
+                    bullet.getY(),
+                    BULLET_WIDTH_IN_PIXELS,
+                    BULLET_HEIGHT_IN_PIXELS
+            );
+        });
+    }
+
+    /**
      * Returns the color of the capture zone based on the capture zone owner.
      * Neutral zones are gray, owned zones are green, captured zones are red.
      */
@@ -104,7 +109,4 @@ public class Arena {
         }
         return new Color(1f, 0f, 0f, 0.30f);
     }
-
-
-    // TODO: private void renderBullets()
 }

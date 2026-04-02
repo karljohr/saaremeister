@@ -24,8 +24,8 @@ public class Bullet {
 
     public void update() {
         switch (direction) {
-            case UP -> y -= BULLET_SPEED;
-            case DOWN -> y += BULLET_SPEED;
+            case UP -> y += BULLET_SPEED;
+            case DOWN -> y -= BULLET_SPEED;
             case LEFT -> x -= BULLET_SPEED;
             case RIGHT -> x += BULLET_SPEED;
         }

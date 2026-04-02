@@ -9,7 +9,6 @@ import lombok.Setter;
 import static constant.Constants.PPM;
 import static constant.Constants.PLAYER_PIXEL_HEIGHT;
 import static constant.Constants.PLAYER_PIXEL_WIDTH;
-import static ee.kool.saaremeister.utility.Font.getArialFont;
 
 public class Player {
 

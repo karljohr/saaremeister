@@ -2,6 +2,7 @@ package ee.kool.saaremeister.server.game.object;
 
 import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.BuildHandler;
 import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.listener.BuildingListener;
@@ -34,7 +35,6 @@ public class Player {
     private float x, y = 0f;
     private int lives = PLAYER_LIVES;
     private int money;
-    @Getter @Setter
     private String username = "Player";
 
     private final World world;
@@ -84,6 +84,20 @@ public class Player {
     }
 
     /**
+     * Returns the player's state.
+     */
+    public PlayerState getPlayerState() {
+        PlayerState playerState = new PlayerState();
+        playerState.setId(connection.getID());
+        playerState.setX(body.getPosition().x * PPM);
+        playerState.setY(body.getPosition().y * PPM);
+        playerState.setLives(lives);
+        playerState.setUsername(username);
+        playerState.setMoney(this.money);
+        return playerState;
+    }
+
+    /**
      * Moves the player in the given direction.
      */
     public void move(Direction directionX, Direction directionY) {
@@ -116,6 +130,12 @@ public class Player {
         body.setLinearVelocity(0f, 0f);
     }
 
+    public void decreaseLives() {
+        if (lives > 0) {
+            setLives(lives - 1);
+        }
+    }
+
     /**
      *
      * TODO: This function must be unique to the tax officer.
@@ -128,18 +148,11 @@ public class Player {
         );
     }
 
-    /**
-     * Returns the player's state.
-     */
-    public PlayerState getPlayerState() {
-        PlayerState playerState = new PlayerState();
-        playerState.setId(connection.getID());
-        playerState.setX(body.getPosition().x * PPM);
-        playerState.setY(body.getPosition().y * PPM);
-        playerState.setLives(lives);
-        playerState.setUsername(username);
-        playerState.setMoney(this.money);
-        return playerState;
+    public void shoot(Direction direction) {
+        gameInstance.addBullet(
+                new Bullet(x + (float) PLAYER_PIXEL_WIDTH / 2, y + (float) PLAYER_PIXEL_HEIGHT / 2, direction, id)
+        );
+        Log.info("spawning bullet for " + id + " at " + x + "," + y + " dir=" + direction);
     }
 
     /**

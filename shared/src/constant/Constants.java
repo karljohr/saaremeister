@@ -1,5 +1,8 @@
 package constant;
 
+/**
+ * Constants used throughout the game, to avoid hard-coded values.
+ */
 public class Constants {
 
     // Box2D
@@ -27,7 +30,11 @@ public class Constants {
     public static final int PLAYER_MONEY = 500;
 
     // Bullet
-    public static final float BULLET_SPEED = 10.0f;
+    public static final float BULLET_SPEED = 5.0f;
+    public static final long BULLET_TIMEOUT_MILLISECONDS = 100;
+    public static final float BULLET_WIDTH_IN_PIXELS = 50;
+    public static final float BULLET_HEIGHT_IN_PIXELS = 50;
+    public static final float BULLET_DAMAGE = 1;
 
     // Lobby
     public static final int LOBBY_MAX_PLAYERS = 5;

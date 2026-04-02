@@ -16,6 +16,7 @@ import message.dto.StaticBodyState;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 import static constant.Constants.*;
@@ -31,13 +32,15 @@ public class GameInstance extends Thread {
     private final GameStateHandler gameStateHandler = new GameStateHandler();
     private final Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
     private final List<Player> players = new ArrayList<>();
-    private List<Bullet> bullets = new ArrayList<>();
+    private final Queue<Bullet> pendingBullets = new ConcurrentLinkedDeque<>();
+    private final List<Bullet> bullets = new ArrayList<>();
     private final List<CaptureZone> captureZones = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
     private final World world;
     private List<StaticBodyState> staticBodyData;
     private final BuildHandler buildHandler;
     private final MatchRules matchRules = new MatchRules();
+    private final BulletCollisionHandler bulletCollisionHandler = new BulletCollisionHandler();
 
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
@@ -137,6 +140,13 @@ public class GameInstance extends Thread {
         }
     }
 
+    /**
+     * Adds a bullet to the game instance when shot (requested) by a client.
+     */
+    public void addBullet(Bullet bullet) {
+        pendingBullets.add(bullet);
+    }
+
     @Override
     public void run() {
         boolean isGameRunning = true;
@@ -151,6 +161,12 @@ public class GameInstance extends Thread {
 
             // Update game objects.
             bullets.forEach(Bullet::update);
+            // Log.info("bullets in game state: " + bullets.size());
+            Bullet bullet;
+            while ((bullet = pendingBullets.poll()) != null) {
+                bullets.add(bullet);
+            }
+
             players.forEach(Player::updateFromPhysics);
             var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
 
@@ -186,9 +202,9 @@ public class GameInstance extends Thread {
             }
 
             // Print player positions in the console log.
-            players.forEach(player -> System.out.println(
-                    player.getUsername() + ": " + player.getX() + " ; " + player.getY()
-            ));
+            // players.forEach(player -> System.out.println(
+            //         player.getUsername() + ": " + player.getX() + " ; " + player.getY()
+            // ));
 
             // Sleep for 1 second to maintain a constant tick rate.
             try {

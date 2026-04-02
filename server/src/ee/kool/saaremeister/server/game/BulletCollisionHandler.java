@@ -23,7 +23,7 @@ public class BulletCollisionHandler {
         for (Player player : players) {
             for (Bullet bullet : bullets) {
                 if (bullet.getShotById() != player.getId() && bulletHitsPlayer(bullet, player)) {
-                    // TODO: decrease player's lives.
+                    player.decreaseLives();
                     bulletsToRemove.add(bullet);
                     Log.info("Player with id " + player.getId() + " was hit. " + player.getLives() + " lives left.");
                 }

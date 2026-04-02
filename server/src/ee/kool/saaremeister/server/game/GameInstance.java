@@ -162,7 +162,6 @@ public class GameInstance extends Thread {
             gameStateHandler.setCaptureZoneStates(zoneStates);
 
             // Send the game state to all clients.
-            var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
             connections.forEach(connection -> connection.sendUDP(gameStateMessage));
 
             // If there is a match end reason, stop the game.
@@ -173,7 +172,7 @@ public class GameInstance extends Thread {
                 int winnerPlayerId = matchRules.getGameWinnerId();
                 gameStateHandler.setWinnerPlayerId(winnerPlayerId);
                 gameStateHandler.setGameOver(true);
-                var finalGameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
+                var finalGameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
                 switch (endReason) {
                     case NO_PLAYERS_CONNECTED -> Log.info("No players connected, stopping game.");
                     case ALL_ZONES_CAPTURED -> Log.info("All zones captured by one player, stopping game.");

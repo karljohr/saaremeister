@@ -46,6 +46,7 @@ public class DebugRenderer {
     private void clearBodies() {
         Array<Body> bodies = new Array<>();
         mirrorWorld.getBodies(bodies);
+
         for (Body body : bodies) {
             mirrorWorld.destroyBody(body);
         }
@@ -54,14 +55,6 @@ public class DebugRenderer {
     public void dispose() {
         mirrorWorld.dispose();
         renderer.dispose();
-    }
-
-    private Vector2[] toVectorArray(float[] vertices) {
-        Vector2[] polygon = new Vector2[vertices.length / 2];
-        for (int i = 0; i < vertices.length; i += 2) {
-            polygon[i / 2] = new Vector2(vertices[i], vertices[i + 1]);
-        }
-        return polygon;
     }
 
 }

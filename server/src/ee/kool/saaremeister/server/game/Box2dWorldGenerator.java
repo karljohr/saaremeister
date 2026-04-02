@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import ee.kool.saaremeister.server.TMXLoaders.HijackedTmxLoader;
 import ee.kool.saaremeister.server.TMXLoaders.MyServer;
 import message.dto.StaticBodyState;
+import org.w3c.dom.css.Rect;
 
 
 import java.util.ArrayList;
@@ -64,18 +66,6 @@ public class Box2dWorldGenerator {
             setVertex(vertices, 4, rawCenter.x + halfWidth, rawCenter.y + halfHeight, worldPosition);
             setVertex(vertices, 6, rawCenter.x - halfWidth, rawCenter.y + halfHeight, worldPosition);
 
-            //float gridX = (rectangle.getX());
-            //float gridY = rectangle.getY();
-
-            //float cx = (gridX - gridY) / PPM / 1.44f - 4.325f;
-            //float cy = (gridX + gridY) / PPM / 1.3875f - 2.0225f;
-
-            /*
-            2D coordinates.
-            float cx = (rectangle.getX() + rectangle.getWidth() / 2) / PPM;
-            float cy = (rectangle.getY() + rectang
-            le.getHeight() / 2) / PPM;
-            */
             body = world.createBody(bdef);
             shape.set(vertices);
             fdef.shape = shape;
@@ -83,7 +73,8 @@ public class Box2dWorldGenerator {
 
             staticBodies.add(new StaticBodyState(worldPosition, vertices));
 
-            System.out.println(worldPosition);
+            System.out.println(bdef.position.x + " " + bdef.position.y + "\n");
+
 
         }
 
@@ -91,7 +82,7 @@ public class Box2dWorldGenerator {
         return staticBodies;
     }
 
-    public TiledMap getMap() {
+    public static TiledMap getMap() {
         return new HijackedTmxLoader(new MyServer.MyFileHandleResolver())
                 .load("TMXAssets/map.tmx");
     }
@@ -118,7 +109,7 @@ public class Box2dWorldGenerator {
                 .rotate(0f, 0f, 1f, DEBUG_ISO_ROTATION_DEGREES);
     }
 
-    private Vector2 tileToWorld(TiledMap tiledMap, float pixelX, float pixelY) {
+    public static Vector2 tileToWorld(TiledMap tiledMap, float pixelX, float pixelY) {
         MapProperties props = tiledMap.getProperties();
         float tileWidth = props.get("tilewidth", Integer.class);
         float tileHeight = props.get("tileheight", Integer.class);
@@ -146,5 +137,51 @@ public class Box2dWorldGenerator {
         Vector2 transformed = applyIsometricTransform(x, y);
         vertices[index] = transformed.x - center.x;
         vertices[index + 1] = transformed.y - center.y;
+    }
+
+    public Body buildBody(int tileX, int tileY, World world, int id) {
+        TiledMap tiledMap = getMap();
+        buildIsometricDebugTransform(tiledMap);
+
+        TiledMapTile tile = tiledMap.getTileSets().getTileSet("offensive_buildings").getTile(148);
+
+        Rectangle rectangle = new Rectangle((tileX - 130) * 16, (tileY - 130) * 16, 16, 16);
+
+        BodyDef bdef = new BodyDef(); // Definition for creating a physics body
+        bdef.type = BodyDef.BodyType.StaticBody; // Make the body static (doesn't move)
+        PolygonShape shape = new PolygonShape(); // Shape used for collision detection
+        FixtureDef fdef = new FixtureDef(); // Fixture configuration for the body
+        Body body; // Reference to the created body
+
+        float width = rectangle.getWidth() / PPM;
+        float height = rectangle.getHeight() / PPM;
+        if (width <= 0 || height <= 0) return null;
+
+        Vector2 rawCenter = tileToWorld(
+                tiledMap,
+                rectangle.getX() + rectangle.getWidth() / 2f,
+                rectangle.getY() + rectangle.getHeight() / 2f
+        );
+        Vector2 worldPosition = applyIsometricTransform(rawCenter.x, rawCenter.y);
+        bdef.position.set(worldPosition);
+
+
+        float halfWidth = width / 2f;
+        float halfHeight = height / 2f;
+        float[] vertices = new float[8];
+
+        setVertex(vertices, 0, rawCenter.x - halfWidth, rawCenter.y - halfHeight, worldPosition);
+        setVertex(vertices, 2, rawCenter.x + halfWidth, rawCenter.y - halfHeight, worldPosition);
+        setVertex(vertices, 4, rawCenter.x + halfWidth, rawCenter.y + halfHeight, worldPosition);
+        setVertex(vertices, 6, rawCenter.x - halfWidth, rawCenter.y + halfHeight, worldPosition);
+
+        body = world.createBody(bdef);
+        shape.set(vertices);
+        fdef.shape = shape;
+        body.createFixture(fdef);
+
+        System.out.println(body.getPosition());
+
+        return body;
     }
 }

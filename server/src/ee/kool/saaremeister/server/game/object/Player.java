@@ -150,7 +150,7 @@ public class Player {
 
     public void shoot(Direction direction) {
         gameInstance.addBullet(
-                new Bullet(x + (float) PLAYER_PIXEL_WIDTH / 2, y + (float) PLAYER_PIXEL_HEIGHT / 2, direction, id)
+                new Bullet(x, y, direction, id)
         );
         Log.info("spawning bullet for " + id + " at " + x + "," + y + " dir=" + direction);
     }

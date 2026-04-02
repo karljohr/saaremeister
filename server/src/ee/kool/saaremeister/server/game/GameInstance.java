@@ -40,13 +40,14 @@ public class GameInstance extends Thread {
     private List<StaticBodyState> staticBodyData;
     private final BuildHandler buildHandler;
     private final MatchRules matchRules = new MatchRules();
-    private final BulletCollisionHandler bulletCollisionHandler = new BulletCollisionHandler();
+    private final BulletCollisionHandler bulletCollisionHandler;
 
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
         this.world = new World(new Vector2(0, 0), true);
+        this.bulletCollisionHandler = new BulletCollisionHandler(world);
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         staticBodyData = box2dWorldGenerator.initializeWorld(world);
@@ -166,6 +167,7 @@ public class GameInstance extends Thread {
             while ((bullet = pendingBullets.poll()) != null) {
                 bullets.add(bullet);
             }
+            bulletCollisionHandler.handleBulletCollisions(bullets, players);
 
             players.forEach(Player::updateFromPhysics);
             var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());

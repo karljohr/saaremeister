@@ -31,9 +31,9 @@ public class Constants {
 
     // Bullet
     public static final float BULLET_SPEED = 5.0f;
-    public static final long BULLET_TIMEOUT_MILLISECONDS = 100;
-    public static final float BULLET_WIDTH_IN_PIXELS = 50;
-    public static final float BULLET_HEIGHT_IN_PIXELS = 50;
+    public static final long BULLET_TIMEOUT_MILLISECONDS = 650;
+    public static final float BULLET_WIDTH_IN_PIXELS = 8;
+    public static final float BULLET_HEIGHT_IN_PIXELS = 8;
     public static final float BULLET_DAMAGE = 1;
 
     // Lobby

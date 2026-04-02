@@ -20,6 +20,11 @@ import message.GameStateMessage;
 
 import java.util.List;
 
+import static constant.Constants.MATCH_DURATION_SECONDS;
+
+/**
+ * HUD (Heads-Up Display) for the game stats, player stats, and chat.
+ */
 public class Hud implements Disposable {
 
     @Getter
@@ -28,16 +33,21 @@ public class Hud implements Disposable {
     private final Label livesLabel;
     private final Texture coinTexture;
     private final ChatTable chatTable;
+    private final Label timerLabel;
+    private final Label zonesLabel;
 
     public Hud(SpriteBatch spriteBatch, int lobbyId, String username, Skin skin) {
         stage = new Stage(new ScreenViewport(), spriteBatch);
 
+        // HUD elements for the player stats.
         coinTexture = new Texture(Gdx.files.internal("goldCoin.png"));
         Image moneyIcon = new Image(coinTexture);
-
-        // Kasutame olemasolevat LabelComponenti
         moneyLabel = LabelComponent.createLabel("0", Color.GOLD, 20);
         livesLabel = LabelComponent.createLabel("Elud: 3", Color.RED, 20);
+
+        // HUD elements for the zone capturing.
+        timerLabel = LabelComponent.createLabel("Aeg: 0", Color.WHITE, 20);
+        zonesLabel = LabelComponent.createLabel("Tsoonid: 0", Color.CYAN, 20);
 
         // HUD table for the stats of the player.
         Table statsTable = new Table();
@@ -55,6 +65,16 @@ public class Hud implements Disposable {
         statsTable.add(livesLabel).padTop(5).padLeft(10).left();
         livesLabel.setFontScale(2f);
 
+        // A row for displaying game timer.
+        statsTable.row();
+        statsTable.add(timerLabel).padTop(5).padLeft(10).left();
+        timerLabel.setFontScale(2f);
+
+        // A row for displaying captured zones.
+        statsTable.row();
+        statsTable.add(zonesLabel).padTop(5).padLeft(10).left();
+        zonesLabel.setFontScale(2f);
+
         // HUD table for the chat.
         chatTable = new ChatTable(lobbyId, username, skin);
         Table chatContainer = new Table();
@@ -70,6 +90,7 @@ public class Hud implements Disposable {
      * Updates the HUD with the given GameStateMessage.
      */
     public void update(GameStateMessage msg, int myId) {
+        // Updates the player's money and lives.
         msg.getPlayerStates().stream()
                 .filter(p -> p.getId() == myId)
                 .findFirst()
@@ -77,6 +98,18 @@ public class Hud implements Disposable {
                     moneyLabel.setText(String.valueOf(me.getMoney()));
                     livesLabel.setText("Elud: " + me.getLives());
                 });
+
+        // Updates the game timer.
+        timerLabel.setText("Aeg: " + ((int) (MATCH_DURATION_SECONDS - msg.getGameTime())));
+
+        // Updates the player's captured zones.
+        int ownedZones = 0;
+        if (msg.getCaptureZones() != null) {
+            ownedZones = (int) msg.getCaptureZones().stream()
+                    .filter(zone -> zone.getOwnerPlayerId() == myId)
+                    .count();
+        }
+        zonesLabel.setText("Tsoonid: " + ownedZones + "/4");
     }
 
     /**

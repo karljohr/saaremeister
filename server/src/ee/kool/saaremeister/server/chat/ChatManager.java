@@ -6,6 +6,9 @@ import ee.kool.saaremeister.server.lobby.Lobby;
 import lombok.Data;
 import message.ChatMessage;
 
+/**
+ * Decides which chat instance to send the message to.
+ */
 @Data
 public class ChatManager {
 

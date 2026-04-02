@@ -17,8 +17,8 @@ import message.dto.PlayerState;
 import static constant.Constants.*;
 
 /**
- * The server-side representation of a player. Listens client input
- * and updates the players state accordingly.
+ * The server-side representation of a player. Listens to client input
+ * and updates the player state accordingly.
  */
 @Getter
 @Setter
@@ -33,6 +33,7 @@ public class Player {
     private final GameInstance gameInstance;
     private float x, y = 0f;
     private int lives = PLAYER_LIVES;
+    private int money;
     @Getter @Setter
     private String username = "Player";
 
@@ -52,6 +53,7 @@ public class Player {
         this.connection.addListener(shootingListener);
         this.connection.addListener(buildingListener);
         this.world = world;
+        this.money = PLAYER_MONEY;
         definePlayer();
         this.buildHandler = buildHandler;
     }
@@ -72,7 +74,7 @@ public class Player {
         fdef.friction = 0.0f;
         fdef.density = 1.0f;
 
-        PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes etc.
+        PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes, etc.
         // Adjust hit-box size as needed.
         shape.setAsBox(10 / PPM, 15 / PPM);
 
@@ -136,7 +138,20 @@ public class Player {
         playerState.setY(body.getPosition().y * PPM);
         playerState.setLives(lives);
         playerState.setUsername(username);
+        playerState.setMoney(this.money);
         return playerState;
+    }
+
+    /**
+     * Attempts to buy an item.
+     * @return true if purchase successful
+     */
+    public boolean attemptPurchase(int cost) {
+        if (this.money >= cost) {
+            this.money -= cost;
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -35,7 +35,8 @@ public class GameInstance extends Thread {
     private final List<CaptureZone> captureZones = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
     private final World world;
-    List<StaticBodyState> staticBodyData;
+    private List<StaticBodyState> staticBodyData;
+    private final BuildHandler buildHandler;
     private final MatchRules matchRules = new MatchRules();
 
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
@@ -46,6 +47,8 @@ public class GameInstance extends Thread {
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         staticBodyData = box2dWorldGenerator.initializeWorld(world);
+
+        buildHandler = new BuildHandler();
 
         CaptureZoneLoader captureZoneLoader = new CaptureZoneLoader();
         captureZones.addAll(captureZoneLoader.loadCaptureZones());
@@ -62,7 +65,7 @@ public class GameInstance extends Thread {
             return;
         }
 
-        Player newPlayer = new Player(connection, this, world);
+        Player newPlayer = new Player(connection, this, world, buildHandler);
         newPlayer.setUsername(lobbyManager.getUsername(connection));
         activePlayers.put(connection.getID(), newPlayer);
         players.add(newPlayer);
@@ -98,6 +101,7 @@ public class GameInstance extends Thread {
             }
         });
 
+        // Debug hitbox info
         StaticBodyState[] arr = staticBodyData.toArray(new StaticBodyState[0]);
         connection.sendTCP(arr);
 
@@ -114,7 +118,7 @@ public class GameInstance extends Thread {
             captureZones.forEach(zone -> zone.clearPlayer(p.getId()));
         }
 
-        var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
+        var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
         connections.forEach(c -> c.sendTCP(gameStateMessage));
 
         Log.info("Player left the game: " + connection.getID());
@@ -148,6 +152,7 @@ public class GameInstance extends Thread {
             // Update game objects.
             bullets.forEach(Bullet::update);
             players.forEach(Player::updateFromPhysics);
+            var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
 
             // Capture Zone updates according to the players (not) inside it.
             captureZones.forEach(zone -> zone.update(players, deltaTime));
@@ -157,7 +162,6 @@ public class GameInstance extends Thread {
             gameStateHandler.setCaptureZoneStates(zoneStates);
 
             // Send the game state to all clients.
-            var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
             connections.forEach(connection -> connection.sendUDP(gameStateMessage));
 
             // If there is a match end reason, stop the game.
@@ -168,7 +172,7 @@ public class GameInstance extends Thread {
                 int winnerPlayerId = matchRules.getGameWinnerId();
                 gameStateHandler.setWinnerPlayerId(winnerPlayerId);
                 gameStateHandler.setGameOver(true);
-                var finalGameStateMessage = gameStateHandler.getGameStateMessage(players, bullets);
+                var finalGameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
                 switch (endReason) {
                     case NO_PLAYERS_CONNECTED -> Log.info("No players connected, stopping game.");
                     case ALL_ZONES_CAPTURED -> Log.info("All zones captured by one player, stopping game.");

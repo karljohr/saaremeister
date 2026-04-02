@@ -6,6 +6,7 @@ public class Constants {
     public static final float PPM = 100f;
     public static final int TILE_WIDTH = 32;
     public static final int TILE_HEIGHT = 16;
+    public static final int RENDER_OFFSETX = -4160;
 
     // Networking
     public static final int TCP_PORT = 8080;

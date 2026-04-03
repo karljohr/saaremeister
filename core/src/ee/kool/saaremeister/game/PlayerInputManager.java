@@ -3,6 +3,7 @@ package ee.kool.saaremeister.game;
 import com.badlogic.gdx.Gdx;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.PlayerMovementMessage;
+import message.PlayerShootingMessage;
 import message.dto.Direction;
 
 /**
@@ -53,5 +54,32 @@ public class PlayerInputManager {
         ServerConnection.getInstance().getClient().sendUDP(movementMessage);
     }
 
-    // public void handleShootingInput
+    /**
+     * Handles the player's shooting input.
+     */
+    public void handleShootingInput() {
+        var shootingMessage = new PlayerShootingMessage();
+
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.LEFT)) {
+            shootingMessage.setDirection(Direction.LEFT);
+        } else if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.RIGHT)) {
+            shootingMessage.setDirection(Direction.RIGHT);
+        } else if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.UP)) {
+            shootingMessage.setDirection(Direction.UP);
+        } else if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.DOWN)) {
+            shootingMessage.setDirection(Direction.DOWN);
+        }
+
+        if (shootingMessage.getDirection() == null) return;
+
+        ServerConnection.getInstance().getClient().sendTCP(shootingMessage);
+    }
+
+    /**
+     * Stops sending shooting messages when something else is focused on.
+     */
+    public void stopShooting() {
+        var shootingMessage = new PlayerShootingMessage();
+        ServerConnection.getInstance().getClient().sendTCP(shootingMessage);
+    }
 }

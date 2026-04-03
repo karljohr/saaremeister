@@ -133,12 +133,14 @@ public class GameScreen extends ScreenAdapter {
      */
     private void update(float delta) {
 
-        // Stops movement if the chat is focused and vice versa.
+        // Stops movement and shooting if the chat is focused and vice versa.
         boolean chatFocused = hud.isChatInputFocused();
         if (!chatFocused && !shopOpen) {
             playerInputManager.handleMovementInput();
+            playerInputManager.handleShootingInput();
         } else if (!wasChatFocused) {
             playerInputManager.stopMovement();
+            playerInputManager.stopShooting();
         }
         wasChatFocused = chatFocused;
 
@@ -222,6 +224,7 @@ public class GameScreen extends ScreenAdapter {
         arena.renderCaptureZones(shapeRenderer);
         spriteBatch.begin();
         arena.renderPlayers(spriteBatch);
+        arena.renderBullets(spriteBatch);
         spriteBatch.end();
 
         // Render the isometric map overlay layers

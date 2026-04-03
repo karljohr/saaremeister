@@ -31,6 +31,7 @@ import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
 import message.LobbyExitMessage;
 import ee.kool.saaremeister.game.BuildManager;
+import message.dto.ShopItem;
 
 import java.util.Arrays;
 
@@ -79,10 +80,10 @@ public class GameScreen extends ScreenAdapter {
         this.shapeRenderer = new ShapeRenderer();
         this.arena = new Arena();  // manages players and bullets
         this.hud = new Hud(spriteBatch, lobbyId, username, skin);  // info overlay
-        this.shopOverlay = new ShopOverlay(spriteBatch);
+        this.shopOverlay = new ShopOverlay(spriteBatch, this);
 
         box2dWorldGenerator();
-        this.buildManager = new BuildManager(map);
+        this.buildManager = new BuildManager(map, this);
         buildMode = false;
 
         debugRenderer = new DebugRenderer();
@@ -154,9 +155,6 @@ public class GameScreen extends ScreenAdapter {
                     .ifPresent(me -> {
                         System.out.println(me.getX() + ":" + me.getY());
                     });
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
-            buildMode = !buildMode;
         }
         if (buildMode) {
             Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -321,4 +319,23 @@ public class GameScreen extends ScreenAdapter {
             ServerConnection.getInstance().getClient().sendTCP(exitMessage);
         }
     }
+
+    /**
+     * Handles the process of entering build mode after purchase.
+     * @param item The building player wishes to place.
+     */
+    public void enterBuildMode(ShopItem item) {
+        buildManager.setSelectedBuilding(item.getId());
+        buildMode = true;
+        shopOpen = false;
+        shopOverlay.setOpen(false);
+    }
+
+    /**
+     * Disables build mode.
+     */
+    public void leaveBuildMode() {
+        buildMode = false;
+    }
+
 }

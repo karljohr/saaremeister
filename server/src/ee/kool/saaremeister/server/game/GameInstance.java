@@ -3,6 +3,8 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+import constant.Category;
+import constant.ShopToTile;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
@@ -92,6 +94,12 @@ public class GameInstance extends Thread {
                             if (success) {
                                 Log.info("Purchased " + item.getName() + " for " + p.getUsername() + ". New balance: " + p.getMoney());
                                 // TODO: Give the item/benefit to the player here (to the hotbar)
+                                if (item.getCategory() == Category.EHITISED) {
+                                    // Give player building permit.
+                                    activePlayers.get(connection.getID())
+                                            .addBuildingPermit(ShopToTile.getTileId(item.getId()));
+                                }
+
                             } else {
                                 Log.info(p.getUsername() + " didn't have enough money for " + item.getName());
                             }

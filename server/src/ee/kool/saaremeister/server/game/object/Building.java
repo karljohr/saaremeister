@@ -17,8 +17,6 @@ public class Building {
     private final int id;
     private final int x;
     private final int y;
-    private final int worldX;
-    private final int worldY;
     private final World world;
 
     private Body body;
@@ -28,12 +26,10 @@ public class Building {
 
     private static final int TILE_SIZE = 32;
 
-    public Building(int id, int x, int y, int worldX, int worldY, World world) {
+    public Building(int id, int x, int y, World world) {
         this.id = id;
         this.x = x;
         this.y = y;
-        this.worldX = worldX;
-        this.worldY = worldY;
         this.world = world;
 
         defineBody();

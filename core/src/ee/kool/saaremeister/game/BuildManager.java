@@ -6,11 +6,17 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
+import constant.ShopToTile;
 import ee.kool.saaremeister.network.ServerConnection;
+import ee.kool.saaremeister.screen.GameScreen;
+import lombok.Setter;
 import message.PlayerBuildMessage;
 import message.dto.BuildingState;
+import message.dto.ShopItem;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BuildManager {
 
@@ -19,17 +25,21 @@ public class BuildManager {
     private TiledMapTile tile;
     private Integer lastTileX;
     private Integer lastTileY;
+    private int selectedBuilding;
+    private GameScreen game;
 
-    public BuildManager(TiledMap map) {
+    public BuildManager(TiledMap map, GameScreen game) {
         lastTileX = null;
         lastTileY = null;
         this.map = map;
         layer = (TiledMapTileLayer) map.getLayers().get("temp");
+        this.game = game;
     }
 
     public void handleInput(float mouseX, float mouseY) {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             handlePlacement(mouseX, mouseY);
+            game.leaveBuildMode();
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.T)) {
             // Change building type
@@ -42,7 +52,7 @@ public class BuildManager {
      * @param mouseY mouse y coordinate
      */
     public void renderProjection(float mouseX, float mouseY) {
-        tile = map.getTileSets().getTileSet("offensive_buildings").getTile(148);
+        tile = map.getTileSets().getTileSet("offensive_buildings").getTile(selectedBuilding);
 
         if (lastTileX != null && lastTileY != null) {
             layer.setCell(lastTileX, lastTileY, null);
@@ -76,12 +86,10 @@ public class BuildManager {
     private void handlePlacement(float mouseX, float mouseY) {
         // TODO: Send Box2D body info to server
         PlayerBuildMessage message = new PlayerBuildMessage();
-        message.id = 148;
+        message.id = selectedBuilding;
         int[] coordinates = mouseToIsoCoordinates(mouseX, mouseY);
         message.tileX = coordinates[0];
         message.tileY = coordinates[1];
-        message.worldX = (int) mouseX;
-        message.worldY = (int) mouseY;
 
         ServerConnection
                 .getInstance()
@@ -100,6 +108,10 @@ public class BuildManager {
         int tileY = (int) -Math.floor((y / halfTileHeight - x / halfTileWidth) / 2f);
 
         return new int[]{tileX, tileY};
+    }
+
+    public void setSelectedBuilding(int id) {
+        selectedBuilding = ShopToTile.getTileId(id);
     }
 
 }

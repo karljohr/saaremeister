@@ -47,7 +47,7 @@ public class BuildManager {
     }
 
     /**
-     * Renders a projection of the chosen building under players mouse.
+     * Renders a projection of the chosen building under players mouse
      * @param mouseX mouse x coordinate
      * @param mouseY mouse y coordinate
      */

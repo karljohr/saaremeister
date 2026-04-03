@@ -117,7 +117,6 @@ public class Player {
             case null, default -> {}
         }
 
-        System.out.println(body.getPosition());
     }
 
     /**
@@ -144,7 +143,7 @@ public class Player {
     public void build(PlayerBuildMessage message) {
         buildHandler.build(
                 this,
-                new Building(message.id, message.tileX, message.tileY, message.worldX, message.worldY, world)
+                new Building(message.id, message.tileX, message.tileY, world, gameInstance)
         );
     }
 

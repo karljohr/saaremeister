@@ -74,7 +74,6 @@ public class BuildManager {
     }
 
     private void handlePlacement(float mouseX, float mouseY) {
-        // TODO: Send Box2D body info to server
         PlayerBuildMessage message = new PlayerBuildMessage();
         message.id = 148;
         int[] coordinates = mouseToIsoCoordinates(mouseX, mouseY);

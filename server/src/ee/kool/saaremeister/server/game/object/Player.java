@@ -15,9 +15,6 @@ import message.PlayerBuildMessage;
 import message.dto.Direction;
 import message.dto.PlayerState;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static constant.Constants.*;
 
 /**
@@ -44,7 +41,6 @@ public class Player {
     private Body body;
 
     private final BuildHandler buildHandler;
-    private List<Integer> buildingPermitById;
 
     /**
      * Initializes a new server/side representation of a player.
@@ -60,7 +56,6 @@ public class Player {
         this.money = PLAYER_MONEY;
         definePlayer();
         this.buildHandler = buildHandler;
-        buildingPermitById = new ArrayList<>();
     }
 
     /**
@@ -147,14 +142,10 @@ public class Player {
      * @param message info about the building object to be built. Sent by player.
      */
     public void build(PlayerBuildMessage message) {
-        if (buildingPermitById.contains(message.id)) {
-            buildHandler.build(
-                    this,
-                    new Building(message.id, message.tileX, message.tileY, world)
-            );
-        } else {
-            Log.info("Player doesn't have the right to build this building: " + message.id + " not in " + buildingPermitById);
-        }
+        buildHandler.build(
+                this,
+                new Building(message.id, message.tileX, message.tileY, message.worldX, message.worldY, world)
+        );
     }
 
     public void shoot(Direction direction) {
@@ -174,14 +165,6 @@ public class Player {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Gives the player the building permit for the building after purchase.
-     * @param id
-     */
-    public void addBuildingPermit(int id) {
-        buildingPermitById.add(id);
     }
 
     /**

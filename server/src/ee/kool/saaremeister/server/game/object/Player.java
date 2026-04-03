@@ -101,19 +101,23 @@ public class Player {
      * Moves the player in the given direction.
      */
     public void move(Direction directionX, Direction directionY) {
+        float speed;
         if (directionX == null && directionY == null) {
             return;
+        } else if (directionX != null && directionY != null) {
+            speed = (float) (PLAYER_SPEED / Math.sqrt(2) / PPM);
+        } else {
+            speed = PLAYER_SPEED / PPM;
         }
 
-
         switch (directionX) {
-            case LEFT -> body.setLinearVelocity(-PLAYER_SPEED / PPM, body.getLinearVelocity().y);
-            case RIGHT ->  body.setLinearVelocity(PLAYER_SPEED / PPM, body.getLinearVelocity().y);
+            case LEFT -> body.setLinearVelocity(-speed, body.getLinearVelocity().y);
+            case RIGHT ->  body.setLinearVelocity(speed, body.getLinearVelocity().y);
             case null, default -> {}
         }
         switch (directionY) {
-            case UP -> body.setLinearVelocity(body.getLinearVelocity().x, PLAYER_SPEED / PPM);
-            case DOWN -> body.setLinearVelocity(body.getLinearVelocity().x, -PLAYER_SPEED / PPM);
+            case UP -> body.setLinearVelocity(body.getLinearVelocity().x, speed);
+            case DOWN -> body.setLinearVelocity(body.getLinearVelocity().x, -speed);
             case null, default -> {}
         }
 

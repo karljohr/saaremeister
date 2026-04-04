@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.kool.saaremeister.component.LabelComponent;
 import common.ShopRegistry;
+import ee.kool.saaremeister.screen.GameScreen;
 import message.dto.ShopItem;
 import constant.Category;
 import lombok.Getter;
@@ -67,10 +68,14 @@ public class ShopOverlay implements Disposable {
     private final Map<String, Texture> iconCache = new HashMap<>();
     private Category currentCategory = Category.KOIK;
 
-    public ShopOverlay(SpriteBatch spriteBatch) {
+    private final GameScreen game;
+
+    public ShopOverlay(SpriteBatch spriteBatch, GameScreen game) {
         ScreenViewport viewport = new ScreenViewport();
         viewport.setUnitsPerPixel(0.5f);
         this.stage = new Stage(viewport, spriteBatch);
+
+        this.game = game;
 
         panelBgTexture = createPanelTexture();
         dividerTexture = createDividerTexture();
@@ -152,6 +157,11 @@ public class ShopOverlay implements Disposable {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         sendPurchaseRequest(item.getId());
+
+                        if (item.getCategory() == Category.EHITISED) {
+                            game.enterBuildMode(item);
+                        }
+
                     }
 
                     @Override

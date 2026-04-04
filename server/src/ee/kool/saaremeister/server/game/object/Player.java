@@ -154,7 +154,7 @@ public class Player {
         if (buildingPermitById.contains(message.id)) {
             buildHandler.build(
                     this,
-                    new Building(message.id, message.tileX, message.tileY, world)
+                    new Building(message.id, message.tileX, message.tileY, world, gameInstance)
             );
             buildingPermitById.remove((Object) message.id);
         } else {

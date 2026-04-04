@@ -219,7 +219,7 @@ public class GameScreen extends ScreenAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
         spriteBatch.setProjectionMatrix(camera.combined);
         renderer.render(new int[]{groundIndex});
-        arena.renderCaptureZones(shapeRenderer);
+        //arena.renderCaptureZones(shapeRenderer);
         spriteBatch.begin();
         arena.renderPlayers(spriteBatch);
         arena.renderBullets(spriteBatch);

@@ -3,6 +3,7 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.minlog.Log;
+import ee.kool.saaremeister.server.game.object.Building;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.Player;
 
@@ -28,10 +29,14 @@ public class BulletCollisionHandler {
     /**
      * Handles bullet collisions with players and objects.
      */
-    public void handleBulletCollisions(List<Bullet> bullets, List<Player> players) {
+    public void handleBulletCollisions(List<Bullet> bullets, List<Player> players, List<Building> buildings) {
         Map<Integer, Player> playersById = new HashMap<>();
         for (Player player : players) {
             playersById.put(player.getId(), player);
+        }
+        Map<Integer, Building> buildingById = new HashMap<>();
+        for (Building building : buildings) {
+            buildingById.put(building.getUniqueId(), building);
         }
 
         world.getBodies(worldBodies);
@@ -52,7 +57,7 @@ public class BulletCollisionHandler {
             }
 
             // Hitting a blocking static body.
-            if (hitsBlockingStaticBody(bulletX, bulletY, bullet.getShotById(), playersById)) {
+            if (hitsBlockingStaticBody(bulletX, bulletY, bullet.getShotById(), playersById, buildingById)) {
                 bulletIterator.remove();
             }
         }
@@ -79,12 +84,16 @@ public class BulletCollisionHandler {
     /**
      * Checks if a bullet hits a blocking static body.
      */
-    private boolean hitsBlockingStaticBody(float bulletX, float bulletY, int shooterId, Map<Integer, Player> playersById) {
+    private boolean hitsBlockingStaticBody(float bulletX, float bulletY, int shooterId, Map<Integer, Player> playersById, Map<Integer, Building> buildingById) {
         Player shooter = playersById.get(shooterId);
         Body shooterBody = shooter != null ? shooter.getBody() : null;
 
+        Building origin = buildingById.get(shooterId);
+        Body originBody = origin != null ? origin.getBody() : null;
+
         for (Body body : worldBodies) {
             if (body == shooterBody) continue;
+            if (body == originBody) continue;
             if (body.getType() != BodyDef.BodyType.StaticBody) continue;
 
             for (Fixture fixture : body.getFixtureList()) {

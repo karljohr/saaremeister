@@ -10,6 +10,7 @@ import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
+import lombok.Getter;
 import message.dto.CaptureZoneState;
 import message.dto.StaticBodyState;
 
@@ -31,6 +32,7 @@ public class GameInstance extends Thread {
     private final int lobbyId;
     private final GameStateHandler gameStateHandler = new GameStateHandler();
     private final Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
+    @Getter
     private final List<Player> players = new ArrayList<>();
     private final Queue<Bullet> pendingBullets = new ConcurrentLinkedDeque<>();
     private final List<Bullet> bullets = new ArrayList<>();
@@ -160,6 +162,9 @@ public class GameInstance extends Thread {
             // Timestep based on tick rate; velocity/position iterations are standard defaults.
             world.step(deltaTime, 6, 2);
 
+            // Buildings shoot
+            buildHandler.shoot();
+
             // Update game objects.
             bullets.forEach(Bullet::update);
             // Log.info("bullets in game state: " + bullets.size());
@@ -167,7 +172,7 @@ public class GameInstance extends Thread {
             while ((bullet = pendingBullets.poll()) != null) {
                 bullets.add(bullet);
             }
-            bulletCollisionHandler.handleBulletCollisions(bullets, players);
+            bulletCollisionHandler.handleBulletCollisions(bullets, players, buildHandler.getBuildings());
 
             players.forEach(Player::updateFromPhysics);
             var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());

@@ -1,10 +1,7 @@
 package ee.kool.saaremeister.server.game;
 
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
 import ee.kool.saaremeister.server.game.object.Building;
 import ee.kool.saaremeister.server.game.object.Player;
-import message.dto.BuildingState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +17,7 @@ public class BuildHandler {
     private boolean validate(Player player, Building building) {
         // TODO: only continue if player is "saaremeister".
         for (Building build : buildings) {
-            if (build.getX() == building.getX() && build.getY() == building.getY()) {
+            if (build.getTileX() == building.getTileX() && build.getTileY() == building.getTileY()) {
                 return false;
             }
         }
@@ -34,6 +31,12 @@ public class BuildHandler {
 
     public List<Building> getBuildings() {
         return buildings;
+    }
+
+    public void shoot() {
+        for (Building building : buildings) {
+            building.shoot();
+        }
     }
 
 

@@ -139,11 +139,9 @@ public class Box2dWorldGenerator {
         vertices[index + 1] = transformed.y - center.y;
     }
 
-    public Body buildBody(int tileX, int tileY, World world, int id) {
+    public Body buildBody(int tileX, int tileY, World world) {
         TiledMap tiledMap = getMap();
         buildIsometricDebugTransform(tiledMap);
-
-        TiledMapTile tile = tiledMap.getTileSets().getTileSet("offensive_buildings").getTile(148);
 
         Rectangle rectangle = new Rectangle((tileX - 130) * 16, (tileY - 130) * 16, 16, 16);
 

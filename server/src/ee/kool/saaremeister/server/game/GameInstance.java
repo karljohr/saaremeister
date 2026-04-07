@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import constant.Category;
-import constant.ShopToTile;
+import constant.BuildingInfo;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
@@ -56,7 +56,7 @@ public class GameInstance extends Thread {
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         staticBodyData = box2dWorldGenerator.initializeWorld(world);
 
-        buildHandler = new BuildHandler();
+        buildHandler = new BuildHandler(world, this);
 
         CaptureZoneLoader captureZoneLoader = new CaptureZoneLoader();
         captureZones.addAll(captureZoneLoader.loadCaptureZones());
@@ -99,7 +99,7 @@ public class GameInstance extends Thread {
                                 if (item.getCategory() == Category.EHITISED) {
                                     // Give player building permit.
                                     activePlayers.get(connection.getID())
-                                            .addBuildingPermit(ShopToTile.getTileId(item.getId()));
+                                            .addBuildingPermit(BuildingInfo.getTileId(item.getId()));
                                 }
 
                             } else {
@@ -172,6 +172,7 @@ public class GameInstance extends Thread {
 
             // Buildings shoot
             buildHandler.shoot();
+            buildHandler.buildFromQueue();
 
             // Update game objects.
             bullets.forEach(Bullet::update);

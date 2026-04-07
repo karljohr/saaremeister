@@ -1,10 +1,14 @@
 package ee.kool.saaremeister.server.game.object;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+import constant.BuildingInfo;
 import ee.kool.saaremeister.server.game.BuildHandler;
 import ee.kool.saaremeister.server.game.GameInstance;
+import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
+import ee.kool.saaremeister.server.game.object.buildings.OffenceBuilding;
 import ee.kool.saaremeister.server.listener.BuildingListener;
 import ee.kool.saaremeister.server.listener.PlayerMovementListener;
 import ee.kool.saaremeister.server.listener.PlayerShootingListener;
@@ -12,6 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import message.PlayerBuildMessage;
+import message.dto.BuildingState;
 import message.dto.Direction;
 import message.dto.PlayerState;
 
@@ -147,19 +152,11 @@ public class Player {
 
     /**
      *
-     * TODO: This function must be unique to the tax officer.
+     * TODO: This function must be unique to the island master.
      * @param message info about the building object to be built. Sent by player.
      */
     public void build(PlayerBuildMessage message) {
-        if (buildingPermitById.contains(message.id)) {
-            buildHandler.build(
-                    this,
-                    new Building(message.id, message.tileX, message.tileY, world, gameInstance)
-            );
-            buildingPermitById.remove((Object) message.id);
-        } else {
-            Log.info("Player doesn't have the right to build this building: " + message.id + " not in " + buildingPermitById);
-        }
+        buildHandler.build(message, this);
     }
 
     public void shoot(Direction direction) {
@@ -187,6 +184,10 @@ public class Player {
      */
     public void addBuildingPermit(int id) {
         buildingPermitById.add(id);
+    }
+
+    public void removeBuildingPermit(int id) {
+        buildingPermitById.remove((Object) id);
     }
 
     /**

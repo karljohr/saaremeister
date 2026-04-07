@@ -145,6 +145,16 @@ public class GameScreen extends ScreenAdapter {
         }
         wasChatFocused = chatFocused;
 
+        if (!chatFocused && !shopOpen) {
+            // Hotbar keys
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) hud.selectHotbarSlot(0);
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) hud.selectHotbarSlot(1);
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) hud.selectHotbarSlot(2);
+
+            playerInputManager.handleMovementInput();
+            playerInputManager.handleShootingInput();
+        }
+
         handleScreenNavigation(game);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
@@ -244,6 +254,20 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         InputMultiplexer multiplexer = new InputMultiplexer();
+
+        // Allow mousewheel to work everywhere
+        multiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean scrolled(float amountX, float amountY) {
+                // amountY is 1.0 (down) or -1.0 (up)
+                if (amountY != 0 && !hud.isChatInputFocused() && !shopOpen) {
+                    hud.scrollHotbar((int) amountY);
+                    return true;
+                }
+                return false;
+            }
+        });
+
         multiplexer.addProcessor(shopHotkeyProcessor);
         multiplexer.addProcessor(shopOverlay.getStage());
         multiplexer.addProcessor(hud.getStage());

@@ -29,6 +29,14 @@ public class Constants {
     public static final int PLAYER_PIXEL_WIDTH = 32;
     public static final int PLAYER_MONEY = 500;
 
+    // Island master
+    public static final int MASTER_LIVES = 10;
+    public static final int MASTER_MONEY = 1000;
+
+    // Tax officer
+    public static final int OFFICER_LIVES = 5;
+    public static final int OFFICER_MONEY = 500;
+
     // Bullet
     public static final float BULLET_SPEED = 5.0f;
     public static final long BULLET_TIMEOUT_MILLISECONDS = 650;

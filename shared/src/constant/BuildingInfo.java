@@ -232,7 +232,8 @@ public final class BuildingInfo {
     );
 
     private final static Map<Integer, List<Integer>> BUILDING_VARIATIONS = Map.of(
-            156, List.of(156, 157)
+            156, List.of(156, 157),
+            148, List.of(148)
     );
 
     private BuildingInfo() {}

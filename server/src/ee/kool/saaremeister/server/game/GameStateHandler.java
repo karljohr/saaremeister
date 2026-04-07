@@ -4,6 +4,8 @@ import ee.kool.saaremeister.server.game.object.Building;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
+import ee.kool.saaremeister.server.game.object.buildings.OffenceBuilding;
 import lombok.Getter;
 import lombok.Setter;
 import message.GameStateMessage;
@@ -47,7 +49,13 @@ public class GameStateHandler {
         bullets.forEach(bullet -> bulletStates.add(bullet.getBulletState()));
 
         var buildingStates = new ArrayList<BuildingState>();
-        buildings.forEach(building -> buildingStates.add(building.getBuildingState()));
+        for (Building building : buildings) {
+            if (building instanceof DefenceBuilding defenceBuilding) {
+                buildingStates.addAll(defenceBuilding.getTiles());
+            } else {
+                buildingStates.add(building.getBuildingState());
+            }
+        }
 
         var gameStateMessage = new GameStateMessage();
         gameStateMessage.setPlayerStates(playerStates);

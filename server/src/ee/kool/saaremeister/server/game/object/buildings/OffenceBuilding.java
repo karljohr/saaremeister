@@ -11,6 +11,8 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Comparator;
 
+import static constant.Constants.PPM;
+
 public class OffenceBuilding extends Building {
 
     private final int shootingFrequency = 650;
@@ -21,6 +23,11 @@ public class OffenceBuilding extends Building {
     public OffenceBuilding(int id, int tileX, int tileY, World world, GameInstance gameInstance) {
         super(id, tileX, tileY, world);
         this.gameInstance = gameInstance;
+
+        defineBody();
+
+        super.x = body.getPosition().x * PPM;
+        super.y = body.getPosition().y * PPM;
 
     }
 

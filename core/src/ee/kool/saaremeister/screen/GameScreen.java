@@ -228,7 +228,6 @@ public class GameScreen extends ScreenAdapter {
 
         // Render the isometric map overlay layers
         renderer.render(new int[]{overLayIndex, tempIndex});
-        renderer.render(new int[]{overLay2Index});
 
         shopOverlay.render(delta);
 

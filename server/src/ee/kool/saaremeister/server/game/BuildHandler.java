@@ -8,6 +8,7 @@ import ee.kool.saaremeister.server.game.object.Building;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
 import ee.kool.saaremeister.server.game.object.buildings.OffenceBuilding;
+import lombok.Getter;
 import message.PlayerBuildMessage;
 import message.dto.BuildingState;
 
@@ -16,6 +17,7 @@ import java.util.List;
 
 public class BuildHandler {
 
+    @Getter
     private List<Building> buildings;
     private List<BuildingState> buildMessageQueue;
     private final World world;
@@ -41,21 +43,15 @@ public class BuildHandler {
 
     public void build(PlayerBuildMessage message, Player player) {
         if (!validate(message.getTileX(), message.getTileY())) {
-            Log.info("Player(" + player.getId() + ") tried to build on an invalid tile (" + message.getTileX() + "; " + message.getTileY() + ")");
+            Log.info("[BuildHandler] Player(" + player.getId() + ") tried to build on an invalid tile (" + message.getTileX() + "; " + message.getTileY() + ")");
             return;
         }
         if (player.getBuildingPermitById().contains(BuildingInfo.getBuildingFromVariation(message.id))) {
-            if (BuildingInfo.getBuildingVariations(156).contains(message.id)) {
-                // Walls
-                buildMessageQueue.addAll(BuildingInfo.getWallTileLocations(new BuildingState(message.id, message.tileX, message.tileY)));
-
-            } else {
-                // Everything else
-                buildMessageQueue.add(new BuildingState(message.id, message.tileX, message.tileY));
-            }
+            buildMessageQueue.add(new BuildingState(message.id, message.tileX, message.tileY));
             player.removeBuildingPermit(message.id);
+            Log.info("[BuildHandler] Building added to the queue");
         } else {
-            Log.info("Player doesn't have the right to build this building: " + message.id + " not in " + player.getBuildingPermitById());
+            Log.info("[BuildHandler] Player doesn't have the right to build this building: " + message.id + " not in " + player.getBuildingPermitById());
         }
     }
 
@@ -71,11 +67,7 @@ public class BuildHandler {
                     new DefenceBuilding(buildingState.id, buildingState.x, buildingState.y, world)
             );
         }
-        Log.info("Building placed at " + buildingState.x + ";" + buildingState.y);
-    }
-
-    public List<Building> getBuildings() {
-        return buildings;
+        Log.info("[BuildHandler] Building " + BuildingInfo.getBuildingType(buildingState.id) + " placed at " + buildingState.x + ";" + buildingState.y);
     }
 
     public void shoot() {

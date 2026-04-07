@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class Register {
 
     /**
-     // Register classes sent over the network.
+     / Register classes sent over the network.
      */
     public static void registerClasses(Kryo kryo) {
         kryo.register(ArrayList.class);
@@ -32,6 +32,7 @@ public class Register {
         kryo.register(message.ShopPurchaseMessage.class, 50);
         kryo.register(ShopItem.class);
         kryo.register(Category.class);
+        kryo.register(PlayerRole.class);
 
         // Box2D debug
         kryo.register(StaticBodyState.class);

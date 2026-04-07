@@ -5,21 +5,21 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import constant.Category;
 import constant.ShopToTile;
-import ee.kool.saaremeister.server.game.object.Bullet;
-import ee.kool.saaremeister.server.game.object.CaptureZone;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.*;
 import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
 import lombok.Getter;
 import message.dto.CaptureZoneState;
+import message.dto.PlayerRole;
 import message.dto.StaticBodyState;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static constant.Constants.*;
@@ -46,6 +46,9 @@ public class GameInstance extends Thread {
     private final MatchRules matchRules = new MatchRules();
     private final BulletCollisionHandler bulletCollisionHandler;
 
+    /**
+     * Creates a new game instance.
+     */
     public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
         this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
@@ -60,30 +63,51 @@ public class GameInstance extends Thread {
 
         CaptureZoneLoader captureZoneLoader = new CaptureZoneLoader();
         captureZones.addAll(captureZoneLoader.loadCaptureZones());
-
     }
 
+    public void addLobbyConnections(Collection<Connection> connections) {
+        List<Connection> connectionList = new ArrayList<>(connections);
+        if (connectionList.isEmpty()) return;
+
+        int masterIndex = ThreadLocalRandom.current().nextInt(connectionList.size());
+        for (int i = 0; i < connectionList.size(); i++) {
+            PlayerRole role = (i == masterIndex) ? PlayerRole.MASTER : PlayerRole.OFFICER;
+            addConnection(connectionList.get(i), role);
+        }
+    }
+
+    /**
+     * Returns true if the game instance has reached the maximum player limit.
+     */
     public boolean hasEnoughPlayers() {
         return players.size() == PLAYER_COUNT_INGAME_LIMIT;
     }
 
-    public void addConnection(com.esotericsoftware.kryonet.Connection connection) {
+    /**
+     * Adds a new player to the game instance.
+     */
+    private void addConnection(Connection connection, PlayerRole role) {
         if (hasEnoughPlayers()) {
             Log.info("Cannot add player, game is full.");
             return;
         }
 
-        Player newPlayer = new Player(connection, this, world, buildHandler);
+        Player newPlayer = switch (role) {
+            case MASTER -> new Master(connection, this, world, buildHandler);
+            case OFFICER -> new Officer(connection, this, world, buildHandler);
+        };
         newPlayer.setUsername(lobbyManager.getUsername(connection));
         activePlayers.put(connection.getID(), newPlayer);
         players.add(newPlayer);
         connections.add(connection);
 
         connection.addListener(new com.esotericsoftware.kryonet.Listener() {
+            /**
+             * Handles incoming shop messages from the client.
+             */
             @Override
             public void received(com.esotericsoftware.kryonet.Connection conn, Object object) {
-                if (object instanceof message.ShopPurchaseMessage) {
-                    message.ShopPurchaseMessage msg = (message.ShopPurchaseMessage) object;
+                if (object instanceof message.ShopPurchaseMessage msg) {
 
                     Player p = activePlayers.get(conn.getID());
                     if (p != null) {
@@ -124,6 +148,9 @@ public class GameInstance extends Thread {
         }
     }
 
+    /**
+     * Removes a player from the game instance.
+     */
     public void removeConnection(com.esotericsoftware.kryonet.Connection connection) {
         this.connections.remove(connection);
         Player p = activePlayers.remove(connection.getID());
@@ -138,6 +165,9 @@ public class GameInstance extends Thread {
         Log.info("Player left the game: " + connection.getID());
     }
 
+    /**
+     * Disposes the game instance, removing all players and connections.
+     */
     private void disposeGame() {
         players.forEach(Player::dispose);
         connections.clear();
@@ -158,6 +188,9 @@ public class GameInstance extends Thread {
         pendingBullets.add(bullet);
     }
 
+    /**
+     * The main game loop.
+     */
     @Override
     public void run() {
         boolean isGameRunning = true;

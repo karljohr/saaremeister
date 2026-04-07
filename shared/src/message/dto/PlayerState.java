@@ -10,4 +10,5 @@ public class PlayerState {
     private int lives;
     private String username;
     private int money;
+    private PlayerRole role;
 }

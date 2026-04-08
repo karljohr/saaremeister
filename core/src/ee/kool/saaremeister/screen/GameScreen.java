@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import constant.Category;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.game.Arena;
 import ee.kool.saaremeister.game.GameStateManager;
@@ -27,6 +28,7 @@ import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
+import lombok.Getter;
 import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
 import message.LobbyExitMessage;
@@ -38,14 +40,17 @@ import java.util.Arrays;
 public class GameScreen extends ScreenAdapter {
 
     private final Game game;
+    @Getter
     private final GameStateManager gameStateManager;
     private final PlayerInputManager playerInputManager;
 
     private final SpriteBatch spriteBatch;
     private final ShapeRenderer shapeRenderer;
     private final Arena arena;
+    @Getter
     private final int myId;
     private final int lobbyId;
+    @Getter
     private final Hud hud;
     private final ShopOverlay shopOverlay;
     private boolean shopOpen;
@@ -138,22 +143,17 @@ public class GameScreen extends ScreenAdapter {
         boolean chatFocused = hud.isChatInputFocused();
         if (!chatFocused && !shopOpen) {
             playerInputManager.handleMovementInput();
-            playerInputManager.handleShootingInput();
+            playerInputManager.handleActionInput(hud.getHotbar());
+
+            // Hotbar keys
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) hud.selectHotbarSlot(0);
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) hud.selectHotbarSlot(1);
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) hud.selectHotbarSlot(2);
         } else if (!wasChatFocused) {
             playerInputManager.stopMovement();
             playerInputManager.stopShooting();
         }
         wasChatFocused = chatFocused;
-
-        if (!chatFocused && !shopOpen) {
-            // Hotbar keys
-            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) hud.selectHotbarSlot(0);
-            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) hud.selectHotbarSlot(1);
-            if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) hud.selectHotbarSlot(2);
-
-            playerInputManager.handleMovementInput();
-            playerInputManager.handleShootingInput();
-        }
 
         handleScreenNavigation(game);
 
@@ -175,6 +175,7 @@ public class GameScreen extends ScreenAdapter {
 
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
+        if (currentGameState == null) return;
 
         if (currentGameState.isGameOver()) {
             int gameWinnerId = currentGameState.getWinnerPlayerId();
@@ -182,7 +183,6 @@ public class GameScreen extends ScreenAdapter {
             return;
         }
 
-        if (currentGameState == null) return;
         arena.update(currentGameState);
 
         // Dynamic camera
@@ -199,8 +199,6 @@ public class GameScreen extends ScreenAdapter {
         renderer.setView(camera);
 
         buildManager.renderBatch(currentGameState.getBuildingStates());
-
-        // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
 
         hud.update(currentGameState, myId);  // update info overlay time, lives etc
     }
@@ -255,6 +253,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         InputMultiplexer multiplexer = new InputMultiplexer();
+        ServerConnection connection = ServerConnection.getInstance();
 
         // Allow mousewheel to work everywhere
         multiplexer.addProcessor(new InputAdapter() {
@@ -273,6 +272,29 @@ public class GameScreen extends ScreenAdapter {
         multiplexer.addProcessor(shopOverlay.getStage());
         multiplexer.addProcessor(hud.getStage());
 
+        connection.getClient().addListener(new com.esotericsoftware.kryonet.Listener() {
+            @Override
+            public void received(com.esotericsoftware.kryonet.Connection conn, Object object) {
+                if (object instanceof message.ShopPurchaseMessage msg) {
+                    Gdx.app.postRunnable(() -> {
+                        ShopItem item = common.ShopRegistry.getItemById(msg.getItemId());
+                        if (item != null) {
+                            if (item.getCategory() == Category.EHITISED) {
+                                enterBuildMode(item);
+                            } else {
+                                // Add item to hotbar
+                                boolean added = hud.getHotbar().addItem(item);
+                                Gdx.app.log("UI", "Ese lisatud hotbari: " + added);
+                            }
+                        }
+                        if (shopOverlay != null && shopOverlay.isOpen()) {
+                            shopOverlay.refreshGrid();
+                        }
+                    });
+                }
+            }
+        });
+
         // Determines should the focus be on chat or movement.
         hud.getStage().addCaptureListener(new InputListener() {
             @Override
@@ -287,7 +309,6 @@ public class GameScreen extends ScreenAdapter {
 
         Gdx.input.setInputProcessor(multiplexer);
 
-        ServerConnection connection = ServerConnection.getInstance();
         connection.setChatUpdateListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
                 Gdx.app.postRunnable(() -> hud.updateChat(msg.getMessages()));

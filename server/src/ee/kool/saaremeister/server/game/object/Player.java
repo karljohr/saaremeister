@@ -43,9 +43,12 @@ public class Player {
     private final GameInstance gameInstance;
     private float x, y = 0f;
     private int lives;
+    private int defense = 0;
+    private int currentArmorLevel = 0; // 0 = no armor, 1 = leather, 2 = silver, 3 = diamond
     private int money;
     private PlayerRole role;
     private String username = "Player";
+    private int hotbarItemCount = 0;
 
     private final World world;
     private Body body;
@@ -115,10 +118,19 @@ public class Player {
         playerState.setX(body.getPosition().x * PPM);
         playerState.setY(body.getPosition().y * PPM);
         playerState.setLives(lives);
+        playerState.setDefense(defense);
         playerState.setUsername(username);
         playerState.setMoney(this.money);
         playerState.setRole(role);
         return playerState;
+    }
+
+    public void applyArmor(int level, int defBoost) {
+        if (level > this.currentArmorLevel) {
+            this.currentArmorLevel = level;
+            this.defense = defBoost;
+            Log.info(username + " varustus paranes! Uus tase: " + level + ", Kaitse: " + defense);
+        }
     }
 
     /**
@@ -195,6 +207,21 @@ public class Player {
             return true;
         }
         return false;
+    }
+
+    public boolean isHotbarFull() {
+        return hotbarItemCount >= 3;
+    }
+
+    public void addHotbarItem() {
+        this.hotbarItemCount++;
+    }
+
+    public void removeHotbarItem() {
+        if (this.hotbarItemCount > 0) {
+            this.hotbarItemCount--;
+            Log.info(username + " kasutas eseme. Hotbaris nüüd ruumi: " + (3 - hotbarItemCount));
+        }
     }
 
     /**

@@ -1,6 +1,8 @@
 package ee.kool.saaremeister.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import ee.kool.saaremeister.component.Hotbar;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.PlayerMovementMessage;
 import message.PlayerShootingMessage;
@@ -73,6 +75,28 @@ public class PlayerInputManager {
         if (shootingMessage.getDirection() == null) return;
 
         ServerConnection.getInstance().getClient().sendTCP(shootingMessage);
+    }
+
+    public void handleActionInput(Hotbar hotbar) {
+        String selected = hotbar.getSelectedItem();
+        if (selected == null) return;
+        if (hotbar.isGunSelected()) {
+            handleShootingInput();
+        }
+
+        int selectedIndex = hotbar.getSelectedIndex();
+
+        // Check if selected slot 0 and has gun
+        if (selectedIndex == 0 && "Püstol".equals(selected)) {
+            handleShootingInput();
+        }
+        // For potions left click
+        else if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            System.out.println("Kasutati: " + selected);
+            hotbar.clearSlot(hotbar.getSelectedIndex());
+            ServerConnection.getInstance().getClient().sendTCP(new message.ItemUsedMessage());
+        }
+
     }
 
     /**

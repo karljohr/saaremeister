@@ -11,6 +11,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Utility class for resolving asset paths.
+ */
 public final class ServerAssetPaths {
     public static final String ASSETS_DIR_PROPERTY = "saaremeister.assets.dir";
     public static final String ASSETS_DIR_ENV = "SAAREMEISTER_ASSETS_DIR";
@@ -19,11 +22,14 @@ public final class ServerAssetPaths {
     // If you keep TMXAssets under shared/src, change this to "shared/src".
     private static final String LOCAL_ASSETS_DIR = "assets";
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private ServerAssetPaths() {
     }
 
     /**
-     * Resolves a path relative to the assets directory.
+     * Resolves a path relative to the assets' directory.
      */
     public static Path resolve(String relativePath) {
         for (Path baseDir : getCandidateAssetDirs()) {

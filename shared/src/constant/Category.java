@@ -1,5 +1,8 @@
 package constant;
 
+/**
+ * Categories of shop items.
+ */
 public enum Category {
     KOIK("Kõik"),
     RELVAD("Relvad"),

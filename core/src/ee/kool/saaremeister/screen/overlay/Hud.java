@@ -88,7 +88,7 @@ public class Hud implements Disposable {
         hotbar = new Hotbar(skin);
         Table hotbarContainer = new Table();
         hotbarContainer.setFillParent(true);
-        hotbarContainer.setTouchable(Touchable.childrenOnly); // So hotbar doesnt block mouse clicks around itself
+        hotbarContainer.setTouchable(Touchable.childrenOnly); // So hotbar doesn't block mouse clicks around itself
 
         hotbarContainer.bottom();
 

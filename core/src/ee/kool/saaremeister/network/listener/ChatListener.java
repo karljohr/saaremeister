@@ -6,6 +6,9 @@ import com.esotericsoftware.kryonet.Listener;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.ChatUpdateMessage;
 
+/**
+ * Handles chat messages on the client side.
+ */
 public class ChatListener extends Listener {
     private final ServerConnection serverConnection;
 
@@ -13,6 +16,9 @@ public class ChatListener extends Listener {
         this.serverConnection = serverConnection;
     }
 
+    /**
+     * Handles chat update messages in case of incoming messages.
+     */
     @Override
     public void received(Connection connection, Object object) {
         if (object instanceof ChatUpdateMessage chatUpdateMessage) {

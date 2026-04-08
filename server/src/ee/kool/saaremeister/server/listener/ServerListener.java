@@ -27,6 +27,9 @@ public class ServerListener extends Listener {
         this.chatManager = new ChatManager(this);
     }
 
+    /**
+     * Logs the client's IP address when they connect.
+     */
     @Override
     public void connected(Connection connection) {
         InetSocketAddress address = connection.getRemoteAddressTCP();

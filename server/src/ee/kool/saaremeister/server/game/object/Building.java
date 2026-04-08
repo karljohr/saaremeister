@@ -7,9 +7,9 @@ import ee.kool.saaremeister.server.game.Box2dWorldGenerator;
 import lombok.Getter;
 import message.dto.BuildingState;
 
-import static constant.Constants.PPM;
-
-
+/**
+ * Represents a building in the game.
+ */
 @Getter
 public abstract class Building {
     private final int uniqueId;
@@ -41,6 +41,9 @@ public abstract class Building {
         System.out.println("Body position: " + body.getPosition());
     }
 
+    /**
+     * Returns the building state.
+     */
     public BuildingState getBuildingState() {
         BuildingState buildingState = new BuildingState();
         buildingState.id = id;
@@ -49,6 +52,9 @@ public abstract class Building {
         return buildingState;
     }
 
+    /**
+     * Returns a unique id for a building and increments the static counter.
+     */
     private static int getIdAndIncrementI() {
         return i++;
     }

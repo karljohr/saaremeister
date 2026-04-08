@@ -22,7 +22,7 @@ public class ChatTable extends Table {
     private final TextField inputField;
 
     /**
-     * Creates a new ChatTable instance.
+     * Creates a new ChatTable instance used in LobbyScreen and GameScreen.
      */
     public ChatTable(int lobbyId, String username, Skin skin) {
         this.lobbyId = lobbyId;

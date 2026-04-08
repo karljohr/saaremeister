@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class Register {
 
     /**
-     / Register classes sent over the network.
+     * / Register classes sent over the network.
      */
     public static void registerClasses(Kryo kryo) {
         kryo.register(ArrayList.class);

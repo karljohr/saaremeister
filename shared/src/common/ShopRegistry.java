@@ -2,8 +2,12 @@ package common;
 
 import constant.Category;
 import message.dto.ShopItem;
+
 import java.util.List;
 
+/**
+ * Registry for existing shop items.
+ */
 public class ShopRegistry {
     public static final List<ShopItem> ITEMS = List.of(
             new ShopItem(1, "Püstol", 500, Category.RELVAD, "gun"),

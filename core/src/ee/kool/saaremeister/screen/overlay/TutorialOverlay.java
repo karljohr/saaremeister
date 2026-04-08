@@ -1,7 +1,6 @@
 package ee.kool.saaremeister.screen.overlay;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -9,8 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import ee.kool.saaremeister.component.ButtonComponent;
-import ee.kool.saaremeister.component.LabelComponent;
 
 /**
  * TutorialOverlay is a UI component that displays the game's manual.
@@ -72,7 +69,9 @@ public class TutorialOverlay extends Table {
         updatePosition();
     }
 
-    // Updates the position of the overlay to be centered on the screen.
+    /**
+     * Updates the position of the overlay to be centered on the screen.
+     */
     public void updatePosition() {
         this.pack();
 

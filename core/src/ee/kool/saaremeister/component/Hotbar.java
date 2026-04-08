@@ -13,6 +13,9 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Hotbar component.
+ */
 public class Hotbar extends Table {
     // Colors constants
     private static final Color SLOT_BG_NORMAL = new Color(0.1f, 0.1f, 0.1f, 0.7f);
@@ -32,6 +35,9 @@ public class Hotbar extends Table {
     private int selectedIndex = 0;
     private final int totalSlots = 3;
 
+    /**
+     * Creates a new Hotbar instance used in a game instance.
+     */
     public Hotbar(Skin skin) {
         slotNormal = createDrawable(SLOT_BG_NORMAL, BORDER_NORMAL);
         slotSelected = createDrawable(SLOT_BG_SELECTED, BORDER_SELECTED);
@@ -48,17 +54,23 @@ public class Hotbar extends Table {
         }
     }
 
+    /**
+     * Creates a drawable with a border.
+     */
     private TextureRegionDrawable createDrawable(Color bg, Color border) {
         Pixmap pm = new Pixmap(SLOT_SIZE, SLOT_SIZE, Pixmap.Format.RGBA8888);
         pm.setColor(bg);
         pm.fill();
         pm.setColor(border);
-        for(int i=0; i<BORDER_WIDTH; i++) pm.drawRectangle(i, i, SLOT_SIZE-i*2, SLOT_SIZE-i*2);
+        for (int i = 0; i < BORDER_WIDTH; i++) pm.drawRectangle(i, i, SLOT_SIZE - i * 2, SLOT_SIZE - i * 2);
         TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture(pm)));
         pm.dispose();
         return drawable;
     }
 
+    /**
+     * Sets the selected slot.
+     */
     public void setSelection(int index) {
         // Keep indexes in [0-2]
         if (index < 0) index = totalSlots - 1;

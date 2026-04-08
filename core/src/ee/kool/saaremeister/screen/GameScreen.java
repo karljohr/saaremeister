@@ -98,7 +98,9 @@ public class GameScreen extends ScreenAdapter {
         shopOverlay.setOpen(shopOpen);
     }
 
-    // Handles B before Scene2D so the shop toggles reliably (and chat does not eat the key).
+    /**
+     * Handles B before Scene2D so the shop toggles reliably (and chat does not eat the key).
+     */
     private final InputProcessor shopHotkeyProcessor = new InputAdapter() {
         @Override
         public boolean keyDown(int keycode) {
@@ -344,6 +346,7 @@ public class GameScreen extends ScreenAdapter {
 
     /**
      * Handles the process of entering build mode after purchase.
+     *
      * @param item The building player wishes to place.
      */
     public void enterBuildMode(ShopItem item) {

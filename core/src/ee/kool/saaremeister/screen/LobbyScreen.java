@@ -19,6 +19,9 @@ import message.StartGameMessage;
 
 import java.util.List;
 
+/**
+ * The lobby screen where players meet before joining a game and can use the text-based chat.
+ */
 public class LobbyScreen extends ScreenAdapter {
 
     private final Stage stage;

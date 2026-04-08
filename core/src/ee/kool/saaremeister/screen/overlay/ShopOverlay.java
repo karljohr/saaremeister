@@ -42,21 +42,22 @@ public class ShopOverlay implements Disposable {
     private static final int GRID_COLS = 5;
 
     // Custom UI Colors
-    private static final Color PANEL_DARK      = new Color(0.1f, 0.1f, 0.12f, 1f);
-    private static final Color PANEL_BORDER    = new Color(0.25f, 0.25f, 0.28f, 1f);
-    private static final Color GOLDEN_DIVIDER  = new Color(0.85f, 0.70f, 0.45f, 1f);
+    private static final Color PANEL_DARK = new Color(0.1f, 0.1f, 0.12f, 1f);
+    private static final Color PANEL_BORDER = new Color(0.25f, 0.25f, 0.28f, 1f);
+    private static final Color GOLDEN_DIVIDER = new Color(0.85f, 0.70f, 0.45f, 1f);
 
     // Slot/Wood Colors
-    private static final Color WOOD_NORMAL     = new Color(0.44f, 0.30f, 0.20f, 1f);
-    private static final Color WOOD_HOVER      = new Color(0.54f, 0.40f, 0.30f, 1f);
-    private static final Color WOOD_GRAIN      = new Color(0.40f, 0.27f, 0.18f, 1f);
-    private static final Color WOOD_BORDER     = new Color(0.18f, 0.11f, 0.07f, 1f);
+    private static final Color WOOD_NORMAL = new Color(0.44f, 0.30f, 0.20f, 1f);
+    private static final Color WOOD_HOVER = new Color(0.54f, 0.40f, 0.30f, 1f);
+    private static final Color WOOD_GRAIN = new Color(0.40f, 0.27f, 0.18f, 1f);
+    private static final Color WOOD_BORDER = new Color(0.18f, 0.11f, 0.07f, 1f);
 
     // Button Colors
-    private static final Color BTN_NORMAL      = new Color(0.12f, 0.12f, 0.14f, 1f);
-    private static final Color BTN_HOVER       = new Color(0.2f, 0.2f, 0.25f, 1f);
+    private static final Color BTN_NORMAL = new Color(0.12f, 0.12f, 0.14f, 1f);
+    private static final Color BTN_HOVER = new Color(0.2f, 0.2f, 0.25f, 1f);
 
-    @Getter private final Stage stage;
+    @Getter
+    private final Stage stage;
     private final Table root;
     private final Table itemGrid;
     private final TextureRegionDrawable slotDrawableNormal;
@@ -69,6 +70,9 @@ public class ShopOverlay implements Disposable {
 
     private final GameScreen game;
 
+    /**
+     * Creates a new ShopOverlay instance used in a game instance.
+     */
     public ShopOverlay(SpriteBatch spriteBatch, GameScreen game) {
         ScreenViewport viewport = new ScreenViewport();
         viewport.setUnitsPerPixel(0.5f);
@@ -123,6 +127,9 @@ public class ShopOverlay implements Disposable {
         refreshGrid();
     }
 
+    /**
+     * Refreshes the item grid based on the current category.
+     */
     private void refreshGrid() {
         itemGrid.clearChildren();
 
@@ -185,6 +192,9 @@ public class ShopOverlay implements Disposable {
         }
     }
 
+    /**
+     * Gets the icon texture for the given item name.
+     */
     private Texture getIconTexture(String name) {
         if (!iconCache.containsKey(name)) {
             try {
@@ -197,6 +207,9 @@ public class ShopOverlay implements Disposable {
         return iconCache.get(name);
     }
 
+    /**
+     * Creates a category button.
+     */
     private TextButton shopCategoryButton(int fontSize, String text, Runnable onClick) {
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = getPixelFont(fontSize);
@@ -215,11 +228,16 @@ public class ShopOverlay implements Disposable {
         return button;
     }
 
+    /**
+     * Sends a purchase request to the server.
+     */
     private void sendPurchaseRequest(int itemId) {
         message.ShopPurchaseMessage msg = new message.ShopPurchaseMessage();
         msg.setItemId(itemId);
         ee.kool.saaremeister.network.ServerConnection.getInstance().getClient().sendTCP(msg);
     }
+
+    // UI Texture Creation
 
     private static Texture createShopButtonTexture(boolean hover) {
         // Darkgray buttons
@@ -287,7 +305,9 @@ public class ShopOverlay implements Disposable {
         root.setTouchable(open ? Touchable.childrenOnly : Touchable.disabled);
     }
 
-    public boolean isOpen() { return root.isVisible(); }
+    public boolean isOpen() {
+        return root.isVisible();
+    }
 
     public void render(float delta) {
         if (!root.isVisible()) return;

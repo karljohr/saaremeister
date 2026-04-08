@@ -14,9 +14,11 @@ import static constant.Constants.PLAYER_PIXEL_WIDTH;
 public class Player {
 
     private final int id;
-    @Setter @Getter
+    @Setter
+    @Getter
     private float x;
-    @Setter @Getter
+    @Setter
+    @Getter
     private float y;
 
     /**

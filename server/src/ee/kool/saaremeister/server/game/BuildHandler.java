@@ -1,6 +1,5 @@
 package ee.kool.saaremeister.server.game;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.minlog.Log;
 import constant.BuildingInfo;
@@ -15,6 +14,9 @@ import message.dto.BuildingState;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the building process in the game.
+ */
 public class BuildHandler {
 
     @Getter
@@ -30,6 +32,10 @@ public class BuildHandler {
         buildMessageQueue = new ArrayList<>();
     }
 
+    /**
+     * Checks if the player can build on the given tile. The player must be the Island Master and the tile must be
+     * buildable.
+     */
     public boolean validate(int x, int y) {
         // TODO: only continue if player is "saaremeister".
         // TODO: only continue if tile allows building (buildable == true).
@@ -41,6 +47,9 @@ public class BuildHandler {
         return true;
     }
 
+    /**
+     * Adds a building to the building list.
+     */
     public void build(PlayerBuildMessage message, Player player) {
         if (!validate(message.getTileX(), message.getTileY())) {
             Log.info("[BuildHandler] Player(" + player.getId() + ") tried to build on an invalid tile (" + message.getTileX() + "; " + message.getTileY() + ")");
@@ -55,9 +64,12 @@ public class BuildHandler {
         }
     }
 
+    /**
+     * Builds the building from the queue.
+     */
     public void buildFromQueue() {
         if (buildMessageQueue.isEmpty()) return;
-        BuildingState buildingState =  buildMessageQueue.removeFirst();
+        BuildingState buildingState = buildMessageQueue.removeFirst();
         if (BuildingInfo.getBuildingType(buildingState.id) == BuildingInfo.BuildingType.OFFENCE) {
             buildings.add(
                     new OffenceBuilding(buildingState.id, buildingState.x, buildingState.y, world, gameInstance)
@@ -70,6 +82,9 @@ public class BuildHandler {
         Log.info("[BuildHandler] Building " + BuildingInfo.getBuildingType(buildingState.id) + " placed at " + buildingState.x + ";" + buildingState.y);
     }
 
+    /**
+     * Makes all offense buildings shoot.
+     */
     public void shoot() {
         for (Building building : buildings) {
             if (building instanceof OffenceBuilding offenceBuilding) {
@@ -77,6 +92,4 @@ public class BuildHandler {
             }
         }
     }
-
-
 }

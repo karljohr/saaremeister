@@ -139,13 +139,13 @@ public class Box2dWorldGenerator {
         vertices[index + 1] = transformed.y - center.y;
     }
 
-    public Body buildBody(int tileX, int tileY, World world, int id) {
+    public Body buildBody(int tileX, int tileY, World world, int bodyWidth, int bodyHeight) {
         TiledMap tiledMap = getMap();
         buildIsometricDebugTransform(tiledMap);
 
-        TiledMapTile tile = tiledMap.getTileSets().getTileSet("offensive_buildings").getTile(148);
-
-        Rectangle rectangle = new Rectangle((tileX - 130) * 16, (tileY - 130) * 16, 16, 16);
+        tileX -= (bodyWidth / 16 / 2);
+        tileY -= (bodyHeight / 16 / 2);
+        Rectangle rectangle = new Rectangle((tileX - 130) * 16, (tileY - 130) * 16, bodyWidth, bodyHeight);
 
         BodyDef bdef = new BodyDef(); // Definition for creating a physics body
         bdef.type = BodyDef.BodyType.StaticBody; // Make the body static (doesn't move)
@@ -183,5 +183,9 @@ public class Box2dWorldGenerator {
         System.out.println(body.getPosition());
 
         return body;
+    }
+
+    public Body buildBody(int tileX, int tileY, World world) {
+        return buildBody(tileX, tileY, world, 16, 16);
     }
 }

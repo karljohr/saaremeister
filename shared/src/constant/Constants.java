@@ -12,8 +12,8 @@ public class Constants {
     public static final int RENDER_OFFSETX = -4160;
 
     // Networking
-    public static final int TCP_PORT = 8080;
-    public static final int UDP_PORT = 8081;
+    public static final int TCP_PORT = 8082;
+    public static final int UDP_PORT = 8083;
     public static final String SERVER_IP = "localhost";     // TalTech serveri IP: 193.40.157.179
 
     // Game

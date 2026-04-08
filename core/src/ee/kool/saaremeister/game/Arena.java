@@ -43,7 +43,7 @@ public class Arena {
                     .filter(p -> p.getId().equals(playerState.getId()))
                     .findFirst()
                     .orElseGet(() -> {
-                        var newPlayer = new Player(playerState.getId(), playerState.getUsername());
+                        var newPlayer = new Player(playerState.getId());
                         players.add(newPlayer);
                         return newPlayer;
                     });

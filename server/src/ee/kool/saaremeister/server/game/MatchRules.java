@@ -1,15 +1,18 @@
 package ee.kool.saaremeister.server.game;
 
+import com.badlogic.gdx.physics.box2d.Body;
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
+import ee.kool.saaremeister.server.game.object.Player;
 import lombok.Getter;
+import message.dto.PlayerRole;
 
 import java.util.*;
 
-import static constant.Constants.MATCH_DURATION_SECONDS;
+import static constant.Constants.*;
 
 /**
- * Winning, drawing, and losing conditions for the game.
+ * Winning, drawing, losing conditions, and respawning logic.
  */
 public class MatchRules {
 
@@ -111,5 +114,34 @@ public class MatchRules {
      */
     private boolean isLobbyEmpty(Set<Connection> players) {
         return players.isEmpty();
+    }
+
+    /**
+     * When a player dies (lives go to 0), their character disappears and their inputs freeze for 5 seconds. After that,
+     * they respawn with max lives (depending on their role) and default spawn position. Respawns have no limit.
+     */
+    public void checkRespawn(List<Player> players) {
+        players.forEach(player -> {
+            if (player.getLives() <= 0 && player.isAlive()) {
+                player.setAlive(false);
+                player.setRespawnAtMs(System.currentTimeMillis() + 5000);
+                player.getBody().setActive(false);
+            }
+            if (!player.isAlive() && player.getRespawnAtMs() <= System.currentTimeMillis()) {
+                if (player.getRole().equals(PlayerRole.MASTER)) {
+                    player.setLives(MASTER_LIVES);
+                } else if (player.getRole().equals(PlayerRole.OFFICER)) {
+                    player.setLives(OFFICER_LIVES);
+                }
+
+                Body playerBody = player.getBody();
+                playerBody.setActive(true);
+                playerBody.setTransform(0f / PPM, 0f / PPM, 0f);
+                playerBody.setLinearVelocity(0f, 0f);
+                player.setX(0f);
+                player.setY(0f);
+                player.setAlive(true);
+            }
+        });
     }
 }

@@ -19,18 +19,21 @@ public class PlayerShootingListener extends Listener {
     private final Player player;
     private LocalTime lastShotTime = LocalTime.MIN;
 
+    /**
+     * Creates a new player shooting listener.
+     */
     public PlayerShootingListener(Player player) {
         this.player = player;
     }
 
+    /**
+     * Handles player shooting messages. If the player is not alive, the message is ignored.
+     */
     @Override
     public void received(Connection connection, Object object) {
-        if (!(object instanceof PlayerShootingMessage msg)) {
-            return;
-        }
-        if (msg.getDirection() == null) {
-            return;
-        }
+        if (!player.isAlive()) return;
+        if (!(object instanceof PlayerShootingMessage msg)) return;
+        if (msg.getDirection() == null) return;
         LocalTime now = LocalTime.now();
         if (now.isBefore(lastShotTime.plus(Duration.ofMillis(BULLET_TIMEOUT_MILLISECONDS)))) {
             return;

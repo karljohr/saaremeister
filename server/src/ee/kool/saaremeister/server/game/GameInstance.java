@@ -3,24 +3,17 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
-import constant.Category;
-import constant.BuildingInfo;
 import ee.kool.saaremeister.server.game.object.*;
 import ee.kool.saaremeister.server.listener.ServerListener;
-import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
 import lombok.Getter;
-import message.dto.CaptureZoneState;
-import message.dto.PlayerRole;
 import message.dto.StaticBodyState;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 import static constant.Constants.*;
 
@@ -46,6 +39,9 @@ public class GameInstance extends Thread {
     private final MatchRules matchRules = new MatchRules();
     private final BulletCollisionHandler bulletCollisionHandler;
 
+    private final GameConnectionManager connectionManager;
+    private final GameTickProcessor tickProcessor;
+
     /**
      * Creates a new game instance.
      */
@@ -53,132 +49,70 @@ public class GameInstance extends Thread {
         this.serverListener = serverListener;
         this.lobbyManager = lobbyManager;
         this.lobbyId = lobbyId;
+
         this.world = new World(new Vector2(0, 0), true);
         this.bulletCollisionHandler = new BulletCollisionHandler(world);
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         staticBodyData = box2dWorldGenerator.initializeWorld(world);
 
-        buildHandler = new BuildHandler(world, this);
+        this.buildHandler = new BuildHandler(world, this);
 
         CaptureZoneLoader captureZoneLoader = new CaptureZoneLoader();
         captureZones.addAll(captureZoneLoader.loadCaptureZones());
-    }
 
-    public void addLobbyConnections(Collection<Connection> connections) {
-        List<Connection> connectionList = new ArrayList<>(connections);
-        if (connectionList.isEmpty()) return;
+        this.connectionManager = new GameConnectionManager(
+                lobbyManager,
+                gameStateHandler,
+                buildHandler,
+                world,
+                this,
+                players,
+                bullets,
+                captureZones,
+                activePlayers,
+                connections,
+                staticBodyData
+        );
 
-        int masterIndex = ThreadLocalRandom.current().nextInt(connectionList.size());
-        for (int i = 0; i < connectionList.size(); i++) {
-            PlayerRole role = (i == masterIndex) ? PlayerRole.MASTER : PlayerRole.OFFICER;
-            addConnection(connectionList.get(i), role);
-        }
+        GameDisposer gameDisposer = new GameDisposer(players, connections, lobbyManager, lobbyId);
+
+        this.tickProcessor = new GameTickProcessor(
+                world,
+                gameStateHandler,
+                buildHandler,
+                bulletCollisionHandler,
+                matchRules,
+                players,
+                pendingBullets,
+                bullets,
+                captureZones,
+                connections,
+                gameDisposer,
+                lobbyManager,
+                lobbyId
+        );
     }
 
     /**
-     * Returns true if the game instance has reached the maximum player limit.
+     * Adds a connection to the game instance.
+     */
+    public void addLobbyConnections(Collection<Connection> connections) {
+        connectionManager.addLobbyConnections(connections);
+    }
+
+    /**
+     * Returns true if the game instance has enough players to start.
      */
     public boolean hasEnoughPlayers() {
-        return players.size() == PLAYER_COUNT_INGAME_LIMIT;
+        return connectionManager.hasEnoughPlayers();
     }
 
     /**
-     * Adds a new player to the game instance.
+     * Removes a connection from the game instance.
      */
-    private void addConnection(Connection connection, PlayerRole role) {
-        if (hasEnoughPlayers()) {
-            Log.info("Cannot add player, game is full.");
-            return;
-        }
-
-        Player newPlayer = switch (role) {
-            case MASTER -> new Master(connection, this, world, buildHandler);
-            case OFFICER -> new Officer(connection, this, world, buildHandler);
-        };
-        newPlayer.setUsername(lobbyManager.getUsername(connection));
-        activePlayers.put(connection.getID(), newPlayer);
-        players.add(newPlayer);
-        connections.add(connection);
-
-        connection.addListener(new com.esotericsoftware.kryonet.Listener() {
-            /**
-             * Handles incoming shop messages from the client.
-             */
-            @Override
-            public void received(com.esotericsoftware.kryonet.Connection conn, Object object) {
-                if (object instanceof message.ShopPurchaseMessage msg) {
-
-                    Player p = activePlayers.get(conn.getID());
-                    if (p != null) {
-                        message.dto.ShopItem item = common.ShopRegistry.getItemById(msg.getItemId());
-
-                        if (item != null) {
-                            // Use the price defined in the ShopItem
-                            boolean success = p.attemptPurchase(item.getPrice());
-
-                            if (success) {
-                                Log.info("Purchased " + item.getName() + " for " + p.getUsername() + ". New balance: " + p.getMoney());
-                                // TODO: Give the item/benefit to the player here (to the hotbar)
-                                if (item.getCategory() == Category.EHITISED) {
-                                    // Give player building permit.
-                                    activePlayers.get(connection.getID())
-                                            .addBuildingPermit(BuildingInfo.getTileId(item.getId()));
-                                }
-
-                            } else {
-                                Log.info(p.getUsername() + " didn't have enough money for " + item.getName());
-                            }
-                        } else {
-                            Log.error("Received purchase request for non-existent item ID: " + msg.getItemId());
-                        }
-                    } else {
-                        Log.error("Player object not found for ID " + conn.getID());
-                    }
-                }
-            }
-        });
-
-        // Debug hitbox info
-        StaticBodyState[] arr = staticBodyData.toArray(new StaticBodyState[0]);
-        connection.sendTCP(arr);
-
-        if (hasEnoughPlayers()) {
-            gameStateHandler.setAllPlayersHaveJoined(true);
-        }
-    }
-
-    /**
-     * Removes a player from the game instance.
-     */
-    public void removeConnection(com.esotericsoftware.kryonet.Connection connection) {
-        this.connections.remove(connection);
-        Player p = activePlayers.remove(connection.getID());
-        if (p != null) {
-            players.remove(p);
-            captureZones.forEach(zone -> zone.clearPlayer(p.getId()));
-        }
-
-        var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
-        connections.forEach(c -> c.sendTCP(gameStateMessage));
-
-        Log.info("Player left the game: " + connection.getID());
-    }
-
-    /**
-     * Disposes the game instance, removing all players and connections.
-     */
-    private void disposeGame() {
-        players.forEach(Player::dispose);
-        connections.clear();
-
-        Lobby lobby = lobbyManager.getLobby(lobbyId);
-        if (lobby != null) {
-            lobby.disposeGame();
-            Log.info("Game disposed in lobby " + lobbyId);
-        } else {
-            Log.warn("Lobby not found for game " + lobbyId);
-        }
+    public void removeConnection(Connection connection) {
+        connectionManager.removeConnection(connection);
     }
 
     /**
@@ -195,69 +129,9 @@ public class GameInstance extends Thread {
     public void run() {
         boolean isGameRunning = true;
         System.out.println("Game is running: " + isGameRunning);
+
         while (isGameRunning) {
-            float deltaTime = 1f / GAME_TICK_RATE;
-            gameStateHandler.incrementGameTimeIfPlayersPresent();
-
-            // Step Box2D simulation so bodies move.
-            // Timestep based on tick rate; velocity/position iterations are standard defaults.
-            world.step(deltaTime, 6, 2);
-
-            // Buildings shoot
-            buildHandler.shoot();
-            buildHandler.buildFromQueue();
-
-            // Update game objects.
-            bullets.forEach(Bullet::update);
-            // Log.info("bullets in game state: " + bullets.size());
-            Bullet bullet;
-            while ((bullet = pendingBullets.poll()) != null) {
-                bullets.add(bullet);
-            }
-            bulletCollisionHandler.handleBulletCollisions(bullets, players, buildHandler.getBuildings());
-
-            // Check if any players are dead and need to be given the respawn timer.
-            matchRules.checkRespawn(players);
-
-            // Update player positions.
-            players.forEach(Player::updateFromPhysics);
-            var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
-
-            // Capture Zone updates according to the players (not) inside it.
-            captureZones.forEach(zone -> zone.update(players, deltaTime));
-            ArrayList<CaptureZoneState> zoneStates = captureZones.stream()
-                    .map(CaptureZone::toState)
-                    .collect(Collectors.toCollection(ArrayList::new));
-            gameStateHandler.setCaptureZoneStates(zoneStates);
-
-            // Send the game state to all clients.
-            connections.forEach(connection -> connection.sendUDP(gameStateMessage));
-
-            // If there is a match end reason, stop the game.
-            MatchRules.MatchEndReason endReason = matchRules.determineEndReason(
-                    captureZones, connections, gameStateHandler.getGameTime()
-            );
-            if (endReason != MatchRules.MatchEndReason.NONE) {
-                int winnerPlayerId = matchRules.getGameWinnerId();
-                gameStateHandler.setWinnerPlayerId(winnerPlayerId);
-                gameStateHandler.setGameOver(true);
-                var finalGameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
-                switch (endReason) {
-                    case NO_PLAYERS_CONNECTED -> Log.info("No players connected, stopping game.");
-                    case ALL_ZONES_CAPTURED -> Log.info("All zones captured by one player, stopping game.");
-                    case TIME_LIMIT_REACHED_WITH_RESULT -> Log.info("Time limit reached, someone won, stopping game.");
-                    case TIME_LIMIT_REACHED_WITH_DRAW -> Log.info("Time limit reached, no one won, stopping game.");
-                }
-                connections.forEach(connection -> connection.sendTCP(finalGameStateMessage));
-                disposeGame();
-                isGameRunning = false;
-                lobbyManager.disposeLobby(lobbyId);
-            }
-
-            // Print player positions in the console log.
-            // players.forEach(player -> System.out.println(
-            //         player.getUsername() + ": " + player.getX() + " ; " + player.getY()
-            // ));
+            isGameRunning = tickProcessor.tick();
 
             // Sleep for 1 second to maintain a constant tick rate.
             try {

@@ -20,7 +20,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.kool.saaremeister.component.LabelComponent;
 import common.ShopRegistry;
-import ee.kool.saaremeister.screen.GameScreen;
+import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import message.dto.ShopItem;
 import constant.Category;
 import lombok.Getter;

@@ -7,7 +7,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import constant.BuildingInfo;
 import ee.kool.saaremeister.network.ServerConnection;
-import ee.kool.saaremeister.screen.GameScreen;
+import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import message.PlayerBuildMessage;
 import message.dto.BuildingState;
 

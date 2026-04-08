@@ -13,6 +13,7 @@ import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.network.ServerConnection;
+import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
 import message.LobbyExitMessage;
 import message.StartGameMessage;

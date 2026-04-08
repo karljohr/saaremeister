@@ -18,6 +18,7 @@ import lombok.Setter;
 import message.PlayerBuildMessage;
 import message.dto.BuildingState;
 import message.dto.Direction;
+import message.dto.PlayerRole;
 import message.dto.PlayerState;
 
 import java.util.ArrayList;
@@ -41,8 +42,9 @@ public class Player {
     private final int id;
     private final GameInstance gameInstance;
     private float x, y = 0f;
-    private int lives = PLAYER_LIVES;
+    private int lives;
     private int money;
+    private PlayerRole role;
     private String username = "Player";
 
     private final World world;
@@ -53,9 +55,17 @@ public class Player {
     private List<Integer> buildingPermitById;
 
     /**
-     * Initializes a new server/side representation of a player.
+     * Initializes a new server/side representation of a standard player.
      */
-    public Player(Connection connection, GameInstance gameInstance, World world, BuildHandler buildHandler) {
+    public Player(
+            Connection connection,
+            GameInstance gameInstance,
+            World world,
+            BuildHandler buildHandler,
+            int money,
+            int lives,
+            PlayerRole role
+    ) {
         this.connection = connection;
         this.id = connection.getID();
         this.gameInstance = gameInstance;
@@ -63,14 +73,16 @@ public class Player {
         this.connection.addListener(shootingListener);
         this.connection.addListener(buildingListener);
         this.world = world;
-        this.money = PLAYER_MONEY;
+        this.money = money;
+        this.lives = lives;
+        this.role = role;
         definePlayer();
         this.buildHandler = buildHandler;
         buildingPermitById = new ArrayList<>();
     }
 
     /**
-     * Creates a Box2D body for player.
+     * Creates a Box2D body for the player.
      */
     private void definePlayer() {
         BodyDef bdef = new BodyDef();
@@ -105,6 +117,7 @@ public class Player {
         playerState.setLives(lives);
         playerState.setUsername(username);
         playerState.setMoney(this.money);
+        playerState.setRole(role);
         return playerState;
     }
 
@@ -123,13 +136,15 @@ public class Player {
 
         switch (directionX) {
             case LEFT -> body.setLinearVelocity(-speed, body.getLinearVelocity().y);
-            case RIGHT ->  body.setLinearVelocity(speed, body.getLinearVelocity().y);
-            case null, default -> {}
+            case RIGHT -> body.setLinearVelocity(speed, body.getLinearVelocity().y);
+            case null, default -> {
+            }
         }
         switch (directionY) {
             case UP -> body.setLinearVelocity(body.getLinearVelocity().x, speed);
             case DOWN -> body.setLinearVelocity(body.getLinearVelocity().x, -speed);
-            case null, default -> {}
+            case null, default -> {
+            }
         }
 
     }
@@ -144,6 +159,9 @@ public class Player {
         body.setLinearVelocity(0f, 0f);
     }
 
+    /**
+     * Decreases the player's lives.
+     */
     public void decreaseLives() {
         if (lives > 0) {
             setLives(lives - 1);
@@ -168,6 +186,7 @@ public class Player {
 
     /**
      * Attempts to buy an item.
+     *
      * @return true if purchase successful
      */
     public boolean attemptPurchase(int cost) {
@@ -196,5 +215,6 @@ public class Player {
     public void dispose() {
         connection.removeListener(movementListener);
         connection.removeListener(shootingListener);
+        connection.removeListener(buildingListener);
     }
 }

@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.kool.saaremeister.component.ChatTable;
+import ee.kool.saaremeister.component.Hotbar;
 import ee.kool.saaremeister.component.LabelComponent;
 import lombok.Getter;
 import message.GameStateMessage;
@@ -35,6 +36,7 @@ public class Hud implements Disposable {
     private final ChatTable chatTable;
     private final Label timerLabel;
     private final Label zonesLabel;
+    private final Hotbar hotbar;
 
     public Hud(SpriteBatch spriteBatch, int lobbyId, String username, Skin skin) {
         stage = new Stage(new ScreenViewport(), spriteBatch);
@@ -82,8 +84,31 @@ public class Hud implements Disposable {
         chatContainer.bottom().right();
         chatContainer.add(chatTable).colspan(2).padTop(10).padRight(10).right();
 
+        // Hotbar
+        hotbar = new Hotbar(skin);
+        Table hotbarContainer = new Table();
+        hotbarContainer.setFillParent(true);
+        hotbarContainer.setTouchable(Touchable.childrenOnly); // So hotbar doesnt block mouse clicks around itself
+
+        hotbarContainer.bottom();
+
+        hotbarContainer.add(hotbar)
+                .expandX()
+                .center()
+                .padBottom(20);
+
         stage.addActor(statsTable);
         stage.addActor(chatContainer);
+        stage.addActor(hotbarContainer);
+    }
+
+    public void selectHotbarSlot(int index) {
+        hotbar.setSelection(index);
+    }
+
+    public void scrollHotbar(int direction) {
+        int newIndex = hotbar.getSelectedIndex() - direction;
+        hotbar.setSelection(newIndex);
     }
 
     /**

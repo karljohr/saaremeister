@@ -40,7 +40,6 @@ public class ShopOverlay implements Disposable {
 
     private static final float SLOT_SIZE = 84f;
     private static final int GRID_COLS = 5;
-    private static final int GRID_ROWS = 3;
 
     // Custom UI Colors
     private static final Color PANEL_DARK      = new Color(0.1f, 0.1f, 0.12f, 1f);

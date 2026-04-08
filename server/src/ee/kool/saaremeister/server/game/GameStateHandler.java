@@ -2,10 +2,8 @@ package ee.kool.saaremeister.server.game;
 
 import ee.kool.saaremeister.server.game.object.Building;
 import ee.kool.saaremeister.server.game.object.Bullet;
-import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
-import ee.kool.saaremeister.server.game.object.buildings.OffenceBuilding;
 import lombok.Getter;
 import lombok.Setter;
 import message.GameStateMessage;
@@ -42,12 +40,20 @@ public class GameStateHandler {
      * Creates a game state message with the given player and bullet states.
      */
     public Object getGameStateMessage(List<Player> players, List<Bullet> bullets, List<Building> buildings) {
+        // Create player states for the game state message.
         var playerStates = new ArrayList<PlayerState>();
-        players.forEach(player -> playerStates.add(player.getPlayerState()));
+        players.forEach(player -> {
+            // Only include alive players in the game state.
+            if (player.isAlive()) {
+                playerStates.add(player.getPlayerState());
+            }
+        });
 
+        // Create bullet states for the game state message.
         var bulletStates = new ArrayList<BulletState>();
         bullets.forEach(bullet -> bulletStates.add(bullet.getBulletState()));
 
+        // Create building states for the game state message.
         var buildingStates = new ArrayList<BuildingState>();
         for (Building building : buildings) {
             if (building instanceof DefenceBuilding defenceBuilding) {
@@ -57,6 +63,7 @@ public class GameStateHandler {
             }
         }
 
+        // Create a new game state message.
         var gameStateMessage = new GameStateMessage();
         gameStateMessage.setPlayerStates(playerStates);
         gameStateMessage.setBulletStates(bulletStates);

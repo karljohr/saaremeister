@@ -20,9 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import ee.kool.saaremeister.Main;
-import ee.kool.saaremeister.game.Arena;
-import ee.kool.saaremeister.game.GameStateManager;
-import ee.kool.saaremeister.game.PlayerInputManager;
+import ee.kool.saaremeister.game.*;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
@@ -30,7 +28,6 @@ import ee.kool.saaremeister.utility.DebugRenderer;
 import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
 import message.LobbyExitMessage;
-import ee.kool.saaremeister.game.BuildManager;
 import message.dto.ShopItem;
 
 import java.util.Arrays;

@@ -27,6 +27,7 @@ import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
+import lombok.Getter;
 import message.GameStateMessage;
 import com.badlogic.gdx.InputMultiplexer;
 import message.LobbyExitMessage;
@@ -37,14 +38,17 @@ import java.util.Arrays;
 public class GameScreen extends ScreenAdapter {
 
     private final Game game;
+    @Getter
     private final int myId;
     private final int lobbyId;
 
+    @Getter
     private final GameStateManager gameStateManager;
     private final PlayerInputManager playerInputManager;
     private final SpriteBatch spriteBatch;
     private final ShapeRenderer shapeRenderer;
     private final Arena arena;
+    @Getter
     private final Hud hud;
     private final ShopOverlay shopOverlay;
     private final BuildManager buildManager;

@@ -96,7 +96,7 @@ public class Hud implements Disposable {
         hotbar = new Hotbar(skin);
         Table hotbarContainer = new Table();
         hotbarContainer.setFillParent(true);
-        hotbarContainer.setTouchable(Touchable.childrenOnly); // So hotbar doesnt block mouse clicks around itself
+        hotbarContainer.setTouchable(Touchable.childrenOnly); // So hotbar doesn't block mouse clicks around itself.
 
         hotbarContainer.bottom();
 
@@ -130,7 +130,7 @@ public class Hud implements Disposable {
         if (me.isPresent()) {
             moneyLabel.setText(String.valueOf(me.get().getMoney()));
             livesLabel.setText("Elud: " + me.get().getLives());
-            defenseLabel.setText("Kaitse: " + me.getDefense());
+            defenseLabel.setText("Kaitse: " + me.get().getDefense());
         } else {
             livesLabel.setText("Elud: 0");
             defenseLabel.setText("Kaitse: 0");

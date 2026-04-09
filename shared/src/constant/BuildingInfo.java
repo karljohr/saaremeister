@@ -1,16 +1,18 @@
 package constant;
 
-import message.PlayerBuildMessage;
 import message.dto.BuildingState;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Information about the buildings in the game.
+ */
 public final class BuildingInfo {
     private static final Map<Integer, Integer> SHOP_ID_TO_TILE_ID = Map.of(
             8, 148,
-                9, 156
+            9, 156
     );
 
     private static final Map<Integer, List<BuildingState>> TILE_ID_TO_WALL_TILE_LOCATION = Map.of(
@@ -236,10 +238,12 @@ public final class BuildingInfo {
             148, List.of(148)
     );
 
-    private BuildingInfo() {}
+    private BuildingInfo() {
+    }
 
     /**
      * Converts shop id to building tile id.
+     *
      * @param shopId Buildings id in shop.
      * @return Building tile id.
      */
@@ -249,6 +253,7 @@ public final class BuildingInfo {
 
     /**
      * Returns a list of BuildingStates for each piece of a wall.
+     *
      * @param message Wall middle piece BuildingState.
      * @return List of BuildingStates.
      */
@@ -263,15 +268,16 @@ public final class BuildingInfo {
         }
         return List.of(
                 new BuildingState(156, message.getX() + (extraX * 2), message.getY() + (extraY * 2)),
-                new BuildingState(middleTile, message.getX() + (extraX), message.getY()  + (extraY)),
+                new BuildingState(middleTile, message.getX() + (extraX), message.getY() + (extraY)),
                 new BuildingState(middleTile, message.getX(), message.getY()),
-                new BuildingState(middleTile, message.getX() + (extraX * (-1)), message.getY() +  (extraY * (-1))),
+                new BuildingState(middleTile, message.getX() + (extraX * (-1)), message.getY() + (extraY * (-1))),
                 new BuildingState(156, message.getX() + (extraX * (-2)), message.getY() + (extraY * (-2)))
         );
     }
 
     /**
      * Returns the type of building using the tile id.
+     *
      * @param id Tile id of the building.
      * @return BuildingType enum
      */
@@ -281,6 +287,7 @@ public final class BuildingInfo {
 
     /**
      * Return different variations of requested building.
+     *
      * @param buildingId Tile id of the building.
      * @return List of different variation tile ids.
      */
@@ -290,6 +297,7 @@ public final class BuildingInfo {
 
     /**
      * Returns the main id of the building from variationId.
+     *
      * @param variationId variation id of the building.
      * @return main (Integer) id of the building.
      */

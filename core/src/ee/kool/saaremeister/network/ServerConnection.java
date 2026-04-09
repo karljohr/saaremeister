@@ -21,6 +21,9 @@ import java.util.function.Consumer;
 import static constant.Constants.*;
 import static network.Register.registerClasses;
 
+/**
+ * Handles the connection to the server and handles incoming messages.
+ */
 @Getter
 @Setter
 public class ServerConnection {
@@ -38,6 +41,9 @@ public class ServerConnection {
 
     private StaticBodyState[] cachedStaticBodies;
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private ServerConnection() {
         client = new Client(65536, 65536);
         registerClasses(client.getKryo());
@@ -49,6 +55,9 @@ public class ServerConnection {
         client.start();
     }
 
+    /**
+     * Returns the singleton instance of ServerConnection.
+     */
     public static ServerConnection getInstance() {
         if (instance == null) {
             instance = new ServerConnection();
@@ -56,6 +65,9 @@ public class ServerConnection {
         return instance;
     }
 
+    /**
+     * Connects the client to the server.
+     */
     public void connect() {
         new Thread(() -> {
             try {
@@ -66,6 +78,9 @@ public class ServerConnection {
         }, "ServerConnection").start();
     }
 
+    /**
+     * Joins a lobby with the given lobby ID and username.
+     */
     public void joinLobby(int lobbyId, String username, Consumer<LobbyUpdateMessage> callback) {
         this.pendingJoinCallback = callback;
         GameJoinMessage joinMessage = new GameJoinMessage();
@@ -80,6 +95,9 @@ public class ServerConnection {
         }
     }
 
+    /**
+     * Handles the StartGameMessage and calls the startGameListener if it is not null.
+     */
     public void handleStartGame(StartGameMessage msg) {
         if (startGameListener != null) {
             try {
@@ -90,6 +108,9 @@ public class ServerConnection {
         }
     }
 
+    /**
+     * Handles the LobbyUpdateMessage and calls the lobbyUpdateListener if it is not null.
+     */
     public void handleLobbyUpdate(LobbyUpdateMessage msg) {
         if (pendingJoinCallback != null) {
             try {
@@ -109,6 +130,9 @@ public class ServerConnection {
         }
     }
 
+    /**
+     * Handles the LobbyExitMessage and calls the lobbyExitListener if it is not null.
+     */
     public void handleLobbyExit(LobbyExitMessage msg) {
         if (lobbyExitListener != null) {
             try {
@@ -119,6 +143,9 @@ public class ServerConnection {
         }
     }
 
+    /**
+     * Handles the ChatUpdateMessage and calls the chatUpdateListener if it is not null.
+     */
     public void handleChatUpdate(ChatUpdateMessage msg) {
         System.out.println("[CLIENT] Received ChatUpdateMessage from server! Messages count: " + msg.getMessages().size());
         cachedChatUpdates.put(msg.getLobbyId(), msg);
@@ -148,6 +175,9 @@ public class ServerConnection {
         }
     }
 
+    /**
+     * Handles the StaticBodyState array and calls the staticBodiesListener if it is not null.
+     */
     public void handleStaticBodies(StaticBodyState[] bodies) {
         this.cachedStaticBodies = bodies;
         if (staticBodiesListener != null) {
@@ -155,6 +185,9 @@ public class ServerConnection {
         }
     }
 
+    /**
+     * Sets the staticBodiesListener and calls it with the cachedStaticBodies if it is not null.
+     */
     public void setStaticBodiesListener(Consumer<StaticBodyState[]> listener) {
         this.staticBodiesListener = listener;
         if (cachedStaticBodies != null) {

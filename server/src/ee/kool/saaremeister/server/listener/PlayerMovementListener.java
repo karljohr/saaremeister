@@ -2,7 +2,6 @@ package ee.kool.saaremeister.server.listener;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.Player;
 import message.PlayerMovementMessage;
 
@@ -13,9 +12,6 @@ public class PlayerMovementListener extends Listener {
 
     private final Player player;
 
-    /**
-     * Creates a new player movement listener.
-     */
     public PlayerMovementListener(Player player) {
         this.player = player;
     }

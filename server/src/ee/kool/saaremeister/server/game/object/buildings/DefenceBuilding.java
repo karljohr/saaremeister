@@ -1,6 +1,5 @@
 package ee.kool.saaremeister.server.game.object.buildings;
 
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import constant.BuildingInfo;
 import ee.kool.saaremeister.server.game.Box2dWorldGenerator;
@@ -12,6 +11,9 @@ import java.util.List;
 
 import static constant.Constants.PPM;
 
+/**
+ * Represents a defense building that protects the player from bullets.
+ */
 public class DefenceBuilding extends Building {
 
     @Getter
@@ -39,7 +41,7 @@ public class DefenceBuilding extends Building {
         } else {
             width *= tiles.size();
         }
-        body = generator.buildBody(tileX, tileY, world,  width, height);
+        body = generator.buildBody(tileX, tileY, world, width, height);
         System.out.println("Body position: " + body.getPosition());
     }
 

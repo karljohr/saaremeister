@@ -12,9 +12,6 @@ public class BuildingListener extends Listener {
 
     private Player player;
 
-    /**
-     * Creates a new building listener.
-     */
     public BuildingListener(Player player) {
         this.player = player;
     }

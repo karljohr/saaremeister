@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import ee.kool.saaremeister.network.ServerConnection;
-import message.ChatUpdateMessage;
 import message.LobbyExitMessage;
 import message.LobbyUpdateMessage;
 import message.StartGameMessage;
 
+/**
+ * Handles lobby messages on the client side.
+ */
 public class LobbyListener extends Listener {
 
     private final ServerConnection serverConnection;
@@ -17,6 +19,9 @@ public class LobbyListener extends Listener {
         this.serverConnection = serverConnection;
     }
 
+    /**
+     * Handles lobby messages in case of incoming messages. Decides the action to take based on the message type.
+     */
     @Override
     public void received(Connection connection, Object object) {
         if (object == null) {

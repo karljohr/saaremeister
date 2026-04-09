@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages the lobby system and handles lobby-related requests.
+ */
 @Data
 public class LobbyManager {
 
@@ -23,6 +26,9 @@ public class LobbyManager {
         this.serverListener = serverListener;
     }
 
+    /**
+     * Handles a lobby join request from a client.
+     */
     public void handleJoinRequest(Connection connection, GameJoinMessage gameJoinMessage) {
         storeUsername(connection, gameJoinMessage.getUsername());
         removePlayerFromAllLobbies(connection);
@@ -39,9 +45,7 @@ public class LobbyManager {
                 if (currentPlayers > maxPlayers) {
                     maxPlayers = currentPlayers;
                     bestLobby = lobby;
-                }
-
-                else if (currentPlayers == maxPlayers && bestLobby != null) {
+                } else if (currentPlayers == maxPlayers && bestLobby != null) {
                     if (lobby.getLobbyId() < bestLobby.getLobbyId()) {
                         bestLobby = lobby;
                     }
@@ -78,6 +82,9 @@ public class LobbyManager {
         }
     }
 
+    /**
+     * Handles a start game request from a client. Starts the game in the lobby if it is not already started.
+     */
     public void handleStartGameRequest(Connection connection, StartGameMessage startMessage) {
         int lobbyId = startMessage.getLobbyId();
         Lobby lobby = lobbies.get(lobbyId);
@@ -94,6 +101,9 @@ public class LobbyManager {
         }
     }
 
+    /**
+     * Handles an exit request from a client. Removes the player from the lobby and sends a confirmation message.
+     */
     public void handleExitRequest(Connection connection, LobbyExitMessage exitMessage) {
         int lobbyId = exitMessage.getLobbyId();
         Lobby lobby = lobbies.get(lobbyId);
@@ -115,6 +125,9 @@ public class LobbyManager {
         }
     }
 
+    /**
+     * Removes the player from all lobbies they are in.
+     */
     public void removePlayerFromAllLobbies(Connection connection) {
         // Kasutame eemaldamiseks turvalisemat viisi
         lobbies.values().removeIf(lobby -> {

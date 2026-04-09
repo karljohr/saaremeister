@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+/**
+ * Handles the building process in the game.
+ */
 public class BuildHandler {
 
     @Getter
@@ -35,6 +38,10 @@ public class BuildHandler {
         buildMessageQueue = new ArrayList<>();
     }
 
+    /**
+     * Checks if the player can build on the given tile. The player must be the Island Master and the tile must be
+     * buildable.
+     */
     public boolean validate(int x, int y, int tileId) {
         TiledMap map = Box2dWorldGenerator.getMap();
         TiledMapTileSet ground = map.getTileSets().getTileSet("blocks");
@@ -47,6 +54,7 @@ public class BuildHandler {
         }
 
         // TODO: only continue if player is "saaremeister".
+
         // Check ground tile
         if (!(boolean) ground.getTile(id).getProperties().get("canBuildOn")) {
             return false;
@@ -97,6 +105,13 @@ public class BuildHandler {
         return true;
     }
 
+    /**
+     * Checks if given coordinates are at the same place as the given building.
+     * @param x coordinate.
+     * @param y coordinate.
+     * @param build existing building.
+     * @return true if locations match.
+     */
     private boolean tileCoordinatesMatch(int x, int y, Building build) {
         if (build instanceof DefenceBuilding) {
             return ((DefenceBuilding) build).getTiles().stream()
@@ -108,6 +123,9 @@ public class BuildHandler {
         }
     }
 
+    /**
+     * Adds a building to the building list.
+     */
     public void build(PlayerBuildMessage message, Player player) {
         if (!validate(message.getTileX(), message.getTileY(), message.id)) {
             Log.info("[BuildHandler] Player(" + player.getId() + ") tried to build on an invalid tile (" + message.getTileX() + "; " + message.getTileY() + ")");
@@ -122,9 +140,12 @@ public class BuildHandler {
         }
     }
 
+    /**
+     * Builds the building from the queue.
+     */
     public void buildFromQueue() {
         if (buildMessageQueue.isEmpty()) return;
-        BuildingState buildingState =  buildMessageQueue.removeFirst();
+        BuildingState buildingState = buildMessageQueue.removeFirst();
         if (BuildingInfo.getBuildingType(buildingState.id) == BuildingInfo.BuildingType.OFFENCE) {
             buildings.add(
                     new OffenceBuilding(buildingState.id, buildingState.x, buildingState.y, world, gameInstance)
@@ -137,6 +158,9 @@ public class BuildHandler {
         Log.info("[BuildHandler] Building " + BuildingInfo.getBuildingType(buildingState.id) + " placed at " + buildingState.x + ";" + buildingState.y);
     }
 
+    /**
+     * Makes all offense buildings shoot.
+     */
     public void shoot() {
         for (Building building : buildings) {
             if (building instanceof OffenceBuilding offenceBuilding) {
@@ -144,6 +168,4 @@ public class BuildHandler {
             }
         }
     }
-
-
 }

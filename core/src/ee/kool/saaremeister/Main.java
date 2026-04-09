@@ -10,6 +10,9 @@ import ee.kool.saaremeister.screen.TitleScreen;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Main class of the game on the client side.
+ */
 public class Main extends Game {
     @Getter
     @Setter
@@ -20,9 +23,6 @@ public class Main extends Game {
 
     private static Main instance;
 
-    /**
-     * Creates a new Main instance.
-     */
     @Override
     public void create() {
         instance = this;

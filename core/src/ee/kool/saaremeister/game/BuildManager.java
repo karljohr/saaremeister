@@ -5,16 +5,18 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Vector2;
 import constant.BuildingInfo;
 import ee.kool.saaremeister.network.ServerConnection;
-import ee.kool.saaremeister.screen.GameScreen;
+import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import message.PlayerBuildMessage;
 import message.dto.BuildingState;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the building process in the game.
+ */
 public class BuildManager {
 
     private TiledMapTileLayer layer;
@@ -25,14 +27,17 @@ public class BuildManager {
     private int selectedVariation;
     private GameScreen game;
 
-
     public BuildManager(TiledMap map, GameScreen game) {
-        lastTiles =  new ArrayList<>();
+        lastTiles = new ArrayList<>();
         this.map = map;
         this.game = game;
         layer = (TiledMapTileLayer) map.getLayers().get("temp");
     }
 
+    /**
+     * Handles input for the build manager. If the left mouse button is pressed, the building process is started. If
+     * the T key is pressed, the next building variation is selected.
+     */
     public void handleInput(float mouseX, float mouseY) {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             handlePlacement(mouseX, mouseY);
@@ -49,7 +54,8 @@ public class BuildManager {
     }
 
     /**
-     * Renders a projection of the chosen building under players mouse
+     * Renders a projection of the chosen building under the player mouse
+     *
      * @param mouseX mouse x coordinate
      * @param mouseY mouse y coordinate
      */
@@ -64,31 +70,37 @@ public class BuildManager {
         int tileY = coordinates[1];
 
         if (BuildingInfo.getBuildingVariations(156).contains(selectedVariation)) {
-            for (BuildingState building :  BuildingInfo.getWallTileLocations(new BuildingState(selectedVariation, tileX, tileY))) {
+            for (BuildingState building : BuildingInfo.getWallTileLocations(new BuildingState(selectedVariation, tileX, tileY))) {
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 tile = map.getTileSets().getTile(building.id);
                 cell.setTile(tile);
-                layer.setCell(building.getX() ,building.getY(), cell);
+                layer.setCell(building.getX(), building.getY(), cell);
                 lastTiles.add(building);
             }
         } else {
             TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
             cell.setTile(tile);
-            layer.setCell(tileX ,tileY, cell);
+            layer.setCell(tileX, tileY, cell);
             lastTiles.add(new BuildingState(selectedVariation, tileX, tileY));
         }
 
     }
 
+    /**
+     * Deletes the projection of the chosen building
+     */
     private void deleteProjection() {
         for (BuildingState lastTile : lastTiles) {
             layer.setCell((int) lastTile.x, (int) lastTile.y, null);
         }
     }
 
+    /**
+     * Renders a batch of buildings
+     */
     public void renderBatch(List<BuildingState> buildingStates) {
         if (buildingStates == null || buildingStates.isEmpty()) return;
-        for  (BuildingState building : buildingStates) {
+        for (BuildingState building : buildingStates) {
             tile = map.getTileSets().getTile(building.getId());
 
             TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
@@ -98,6 +110,9 @@ public class BuildManager {
         }
     }
 
+    /**
+     * Sends a message to the server to build the chosen building.
+     */
     private void handlePlacement(float mouseX, float mouseY) {
         PlayerBuildMessage message = new PlayerBuildMessage();
         message.id = selectedVariation;
@@ -113,6 +128,9 @@ public class BuildManager {
                 .sendTCP(message);
     }
 
+    /**
+     * Converts mouse coordinates to tile coordinates
+     */
     private int[] mouseToIsoCoordinates(float mouseX, float mouseY) {
         float x = mouseX - layer.getRenderOffsetX() - 16;
         float y = -(mouseY - layer.getRenderOffsetY() - 16);
@@ -126,6 +144,9 @@ public class BuildManager {
         return new int[]{tileX, tileY};
     }
 
+    /**
+     * Sets the selected building
+     */
     public void setSelectedBuilding(int id) {
         selectedBuilding = BuildingInfo.getTileId(id);
         selectedVariation = selectedBuilding;
@@ -134,7 +155,4 @@ public class BuildManager {
     private void handleWallPlacement() {
 
     }
-
-
-
 }

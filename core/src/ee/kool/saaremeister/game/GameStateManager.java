@@ -9,6 +9,9 @@ import message.GameStateMessage;
 
 import java.util.ArrayList;
 
+/**
+ * Manages the game state on the client side.
+ */
 @Setter
 @Getter
 public class GameStateManager {
@@ -17,9 +20,6 @@ public class GameStateManager {
     private final GameStateMessageListener gameStateMessageListener;
     private GameStateMessage latestGameStateMessage;
 
-    /**
-     * Creates a new instance of the game state manager.
-     */
     public GameStateManager() {
         this.client = ServerConnection.getInstance().getClient();
         this.gameStateMessageListener = new GameStateMessageListener(this);
@@ -35,6 +35,9 @@ public class GameStateManager {
         latestGameStateMessage.setWinnerPlayerId(-1);
     }
 
+    /**
+     * Disposes the game state manager.
+     */
     public void dispose() {
         client.removeListener(gameStateMessageListener);
     }

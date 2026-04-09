@@ -19,9 +19,6 @@ public class PlayerShootingListener extends Listener {
     private final Player player;
     private LocalTime lastShotTime = LocalTime.MIN;
 
-    /**
-     * Creates a new player shooting listener.
-     */
     public PlayerShootingListener(Player player) {
         this.player = player;
     }

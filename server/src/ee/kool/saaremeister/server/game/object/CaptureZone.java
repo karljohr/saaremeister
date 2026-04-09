@@ -47,6 +47,9 @@ public class CaptureZone {
                 && playerY >= y && playerY <= y + height;
     }
 
+    /**
+     * Updates the capture zone's state based on the players in the zone.
+     */
     public void update(List<Player> allPlayers, float deltaTime) {
         List<Player> playersInZone = allPlayers.stream().filter(this::contains).toList();
 

@@ -17,6 +17,9 @@ import java.util.List;
 
 import static constant.Constants.GAME_TICK_RATE;
 
+/**
+ * Handles the game state and creates game state messages.
+ */
 @Getter
 @Setter
 public class GameStateHandler {
@@ -43,7 +46,7 @@ public class GameStateHandler {
         // Create player states for the game state message.
         var playerStates = new ArrayList<PlayerState>();
         players.forEach(player -> {
-            // Only include alive players in the game state.
+            // Only include live players in the game state.
             if (player.isAlive()) {
                 playerStates.add(player.getPlayerState());
             }

@@ -7,11 +7,14 @@ import com.badlogic.gdx.physics.box2d.*;
 import message.dto.StaticBodyState;
 
 import com.badlogic.gdx.utils.Array;
+
 import java.util.List;
 
 import static constant.Constants.PPM;
 
-
+/**
+ * Debug renderer for Box2D physics bodies.
+ */
 public class DebugRenderer {
     private final World mirrorWorld;
     private final Box2DDebugRenderer renderer;
@@ -21,13 +24,16 @@ public class DebugRenderer {
         renderer = new Box2DDebugRenderer();
     }
 
+    /**
+     * Loads static bodies from the server.
+     */
     public void loadStaticBodies(List<StaticBodyState> bodies) {
         clearBodies();
 
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.StaticBody;
 
-        for (StaticBodyState data: bodies) {
+        for (StaticBodyState data : bodies) {
             def.position.set(data.worldPosition);
             Body body = mirrorWorld.createBody(def);
 
@@ -43,6 +49,9 @@ public class DebugRenderer {
         renderer.render(mirrorWorld, debugMatrix);
     }
 
+    /**
+     * Clears all bodies from the physics world.
+     */
     private void clearBodies() {
         Array<Body> bodies = new Array<>();
         mirrorWorld.getBodies(bodies);

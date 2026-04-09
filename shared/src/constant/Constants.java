@@ -24,10 +24,8 @@ public class Constants {
 
     // Player
     public static final float PLAYER_SPEED = 500.0f;
-    public static final int PLAYER_LIVES = 1;
     public static final int PLAYER_PIXEL_HEIGHT = 32;
     public static final int PLAYER_PIXEL_WIDTH = 32;
-    public static final int PLAYER_MONEY = 500;
 
     // Island master
     public static final int MASTER_LIVES = 10;

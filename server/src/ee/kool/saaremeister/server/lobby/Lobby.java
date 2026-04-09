@@ -17,6 +17,9 @@ import java.util.Set;
 
 import static constant.Constants.LOBBY_MAX_PLAYERS;
 
+/**
+ * Represents a lobby for a game on the server side.
+ */
 @Data
 public class Lobby {
 
@@ -114,6 +117,9 @@ public class Lobby {
         return players.isEmpty();
     }
 
+    /**
+     * Disposes the game instance for the lobby.
+     */
     public void disposeGame() {
         gameInstance = null;
         started = false;

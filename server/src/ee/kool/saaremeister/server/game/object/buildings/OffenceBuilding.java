@@ -13,6 +13,9 @@ import java.util.Comparator;
 
 import static constant.Constants.PPM;
 
+/**
+ * Represents an offense building that shoots bullets at players.
+ */
 public class OffenceBuilding extends Building {
 
     private final int shootingFrequency = 650;
@@ -31,6 +34,9 @@ public class OffenceBuilding extends Building {
 
     }
 
+    /**
+     * Shoots a bullet at the closest player.
+     */
     public void shoot() {
         LocalTime now = LocalTime.now();
         if (now.isBefore(lastShotTime.plus(Duration.ofMillis(shootingFrequency)))) {
@@ -51,6 +57,9 @@ public class OffenceBuilding extends Building {
         // Log.info("spawning bullet for " + uniqueId + " at " + x + "," + y + " dir(vector)=" + aim);
     }
 
+    /**
+     * Finds the closest player to the offense building.
+     */
     private Player findClosestPlayer() {
         return gameInstance
                 .getPlayers()
@@ -62,6 +71,9 @@ public class OffenceBuilding extends Building {
                 .orElse(null);
     }
 
+    /**
+     * Returns the vector pointing from the offense building to the player.
+     */
     private Vector2 buildingToPlayerAim(Player player) {
         float vectorX = player.getX() - this.getX();
         float vectorY = player.getY() - this.getY();

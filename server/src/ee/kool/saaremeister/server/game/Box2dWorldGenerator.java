@@ -4,7 +4,6 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -13,14 +12,15 @@ import com.badlogic.gdx.physics.box2d.*;
 import ee.kool.saaremeister.server.TMXLoaders.HijackedTmxLoader;
 import ee.kool.saaremeister.server.TMXLoaders.MyServer;
 import message.dto.StaticBodyState;
-import org.w3c.dom.css.Rect;
-
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static constant.Constants.*;
 
+/**
+ * Generates the Box2D world from the Tiled map.
+ */
 public class Box2dWorldGenerator {
     private static final float DEBUG_ISO_ROTATION_DEGREES = 135f;
     private static final float COLLISION_OFFSET_X = 62.320f; // 62.32
@@ -29,10 +29,14 @@ public class Box2dWorldGenerator {
     private final Matrix4 isoDebugTransform = new Matrix4();
     private final Vector3 tmpVector = new Vector3();
 
+    /**
+     * Initializes the Box2D world from the Tiled map.
+     */
     public List<StaticBodyState> initializeWorld(World world) {
         List<StaticBodyState> staticBodies = new ArrayList<>();
         TiledMap tiledMap = getMap();
-        MapLayer mapLayer = tiledMap.getLayers().get("collisions"); // Get the collision layer from the Tiled map // assuming the layer is named "Collisions"
+        // Get the collision layer from the Tiled map // assuming the layer is named "Collisions"
+        MapLayer mapLayer = tiledMap.getLayers().get("collisions");
 
         buildIsometricDebugTransform(tiledMap);
 
@@ -43,7 +47,9 @@ public class Box2dWorldGenerator {
         Body body; // Reference to the created body
 
         for (RectangleMapObject object : mapLayer.getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rectangle = object.getRectangle(); // for loop to get only rectangular objects in the collision map. There are different types of objects in Tiled maps.
+            // for loop to get only rectangular objects in the collision map.
+            // There are different types of objects in Tiled maps.
+            Rectangle rectangle = object.getRectangle();
 
             float width = rectangle.getWidth() / PPM;
             float height = rectangle.getHeight() / PPM;
@@ -87,6 +93,9 @@ public class Box2dWorldGenerator {
                 .load("TMXAssets/map.tmx");
     }
 
+    /**
+     * Builds the isometric debug transform matrix.
+     */
     private void buildIsometricDebugTransform(TiledMap tiledMap) {
         MapProperties props = tiledMap.getProperties();
         float tileWidth = props.get("tilewidth", Integer.class);
@@ -109,6 +118,10 @@ public class Box2dWorldGenerator {
                 .rotate(0f, 0f, 1f, DEBUG_ISO_ROTATION_DEGREES);
     }
 
+    /**
+     * Converts pixel coordinates from a Tiled map into world coordinates (scaled by PPM), flipping the origin from
+     * top-left to bottom-left and applying collision offsets.
+     */
     public static Vector2 tileToWorld(TiledMap tiledMap, float pixelX, float pixelY) {
         MapProperties props = tiledMap.getProperties();
         float tileWidth = props.get("tilewidth", Integer.class);
@@ -133,12 +146,18 @@ public class Box2dWorldGenerator {
         return new Vector2(tmpVector.x, tmpVector.y);
     }
 
+    /**
+     * Sets a vertex in the vertices array.
+     */
     private void setVertex(float[] vertices, int index, float x, float y, Vector2 center) {
         Vector2 transformed = applyIsometricTransform(x, y);
         vertices[index] = transformed.x - center.x;
         vertices[index + 1] = transformed.y - center.y;
     }
 
+    /**
+     * Builds a body for a static object.
+     */
     public Body buildBody(int tileX, int tileY, World world, int bodyWidth, int bodyHeight) {
         TiledMap tiledMap = getMap();
         buildIsometricDebugTransform(tiledMap);
@@ -185,6 +204,9 @@ public class Box2dWorldGenerator {
         return body;
     }
 
+    /**
+     * Builds a body for a static object with default width and height.
+     */
     public Body buildBody(int tileX, int tileY, World world) {
         return buildBody(tileX, tileY, world, 16, 16);
     }

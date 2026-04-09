@@ -42,6 +42,8 @@ public class Player {
     private final int id;
     private final GameInstance gameInstance;
     private float x, y = 0f;
+    private boolean alive = true;
+    private long respawnAtMs;
     private int lives;
     private int defense = 0;
     private int currentArmorLevel = 0; // 0 = no armor, 1 = leather, 2 = silver, 3 = diamond

@@ -233,6 +233,10 @@ public class GameInstance extends Thread {
             }
             bulletCollisionHandler.handleBulletCollisions(bullets, players, buildHandler.getBuildings());
 
+            // Check if any players are dead and need to be given the respawn timer.
+            matchRules.checkRespawn(players);
+
+            // Update player positions.
             players.forEach(Player::updateFromPhysics);
             var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
 

@@ -123,15 +123,18 @@ public class Hud implements Disposable {
      * Updates the HUD with the given GameStateMessage.
      */
     public void update(GameStateMessage msg, int myId) {
-        // Updates the player's money and lives.
-        msg.getPlayerStates().stream()
+        // Updates the player's money and lives. Lives are set to 0 if the player is currently not in the game (dead).
+        var me = msg.getPlayerStates().stream()
                 .filter(p -> p.getId() == myId)
-                .findFirst()
-                .ifPresent(me -> {
-                    moneyLabel.setText(String.valueOf(me.getMoney()));
-                    livesLabel.setText("Elud: " + me.getLives());
-                    defenseLabel.setText("Kaitse: " + me.getDefense());
-                });
+                .findFirst();
+        if (me.isPresent()) {
+            moneyLabel.setText(String.valueOf(me.get().getMoney()));
+            livesLabel.setText("Elud: " + me.get().getLives());
+            defenseLabel.setText("Kaitse: " + me.getDefense());
+        } else {
+            livesLabel.setText("Elud: 0");
+            defenseLabel.setText("Kaitse: 0");
+        }
 
         // Updates the game timer.
         timerLabel.setText("Aeg: " + ((int) (MATCH_DURATION_SECONDS - msg.getGameTime())));

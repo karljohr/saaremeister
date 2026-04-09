@@ -28,6 +28,7 @@ public class Register {
         kryo.register(message.LobbyExitMessage.class);
         kryo.register(message.ChatMessage.class);
         kryo.register(message.ChatUpdateMessage.class);
+        kryo.register(message.ItemUsedMessage.class);
         kryo.register(CaptureZoneState.class);
         kryo.register(message.ShopPurchaseMessage.class, 50);
         kryo.register(ShopItem.class);

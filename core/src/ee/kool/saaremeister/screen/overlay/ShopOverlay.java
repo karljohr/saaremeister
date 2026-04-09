@@ -133,12 +133,35 @@ public class ShopOverlay implements Disposable {
     private void refreshGrid() {
         itemGrid.clearChildren();
 
-        // Filter the items first based on category
+        // Find players armor type
+        message.GameStateMessage msg = game.getGameStateManager().getLatestGameStateMessage();
+        common.ArmorType currentArmor = common.ArmorType.NONE;
+
+        if (msg != null) {
+            currentArmor = msg.getPlayerStates().stream()
+                    .filter(p -> p.getId() == game.getMyId())
+                    .findFirst()
+                    .map(message.dto.PlayerState::getArmorType)
+                    .orElse(common.ArmorType.NONE);
+        }
+        List<String> itemsInHotbar = game.getHud().getHotbar().getAllItems();
+
         List<ShopItem> filteredItems = new ArrayList<>();
         for (ShopItem item : ShopRegistry.ITEMS) {
-            if (currentCategory == Category.KOIK || item.getCategory() == currentCategory) {
-                filteredItems.add(item);
+            if (currentCategory != Category.KOIK && item.getCategory() != currentCategory) continue;
+
+            // Armor check
+            common.ArmorType itemArmor = common.ArmorType.fromName(item.getName());
+            if (itemArmor != common.ArmorType.NONE) {
+                if (itemArmor.getLevel() <= currentArmor.getLevel()) continue;
             }
+
+            // Gun check
+            if (item.getName().equals("Püstol") && itemsInHotbar.contains("Püstol")) {
+                continue;
+            }
+
+            filteredItems.add(item);
         }
 
         // 15 slots
@@ -159,6 +182,7 @@ public class ShopOverlay implements Disposable {
                 slotContainer.add(nameLabel).padTop(2).row();
                 slotContainer.add(priceLabel);
 
+                slotContainer.setTouchable(Touchable.enabled);
                 slotContainer.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
@@ -301,6 +325,9 @@ public class ShopOverlay implements Disposable {
     }
 
     public void setOpen(boolean open) {
+        if (open) {
+            refreshGrid(); // Refresh each time the shop gets opened
+        }
         root.setVisible(open);
         root.setTouchable(open ? Touchable.childrenOnly : Touchable.disabled);
     }

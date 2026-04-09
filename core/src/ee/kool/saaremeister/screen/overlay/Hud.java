@@ -32,10 +32,12 @@ public class Hud implements Disposable {
     private final Stage stage;
     private final Label moneyLabel;
     private final Label livesLabel;
+    private final Label defenseLabel;
     private final Texture coinTexture;
     private final ChatTable chatTable;
     private final Label timerLabel;
     private final Label zonesLabel;
+    @Getter
     private final Hotbar hotbar;
 
     public Hud(SpriteBatch spriteBatch, int lobbyId, String username, Skin skin) {
@@ -46,6 +48,7 @@ public class Hud implements Disposable {
         Image moneyIcon = new Image(coinTexture);
         moneyLabel = LabelComponent.createLabel("0", Color.GOLD, 20);
         livesLabel = LabelComponent.createLabel("Elud: 3", Color.RED, 20);
+        defenseLabel = LabelComponent.createLabel("Kaitse: 0", Color.WHITE, 20);
 
         // HUD elements for the zone capturing.
         timerLabel = LabelComponent.createLabel("Aeg: 0", Color.WHITE, 20);
@@ -66,6 +69,11 @@ public class Hud implements Disposable {
         statsTable.row();
         statsTable.add(livesLabel).padTop(5).padLeft(10).left();
         livesLabel.setFontScale(2f);
+
+        // A row for displaying defense.
+        statsTable.row();
+        statsTable.add(defenseLabel).padTop(5).padLeft(10).left();
+        defenseLabel.setFontScale(2f);
 
         // A row for displaying game timer.
         statsTable.row();
@@ -88,7 +96,7 @@ public class Hud implements Disposable {
         hotbar = new Hotbar(skin);
         Table hotbarContainer = new Table();
         hotbarContainer.setFillParent(true);
-        hotbarContainer.setTouchable(Touchable.childrenOnly); // So hotbar doesn't block mouse clicks around itself
+        hotbarContainer.setTouchable(Touchable.childrenOnly); // So hotbar doesn't block mouse clicks around itself.
 
         hotbarContainer.bottom();
 
@@ -122,8 +130,10 @@ public class Hud implements Disposable {
         if (me.isPresent()) {
             moneyLabel.setText(String.valueOf(me.get().getMoney()));
             livesLabel.setText("Elud: " + me.get().getLives());
+            defenseLabel.setText("Kaitse: " + me.get().getDefense());
         } else {
             livesLabel.setText("Elud: 0");
+            defenseLabel.setText("Kaitse: 0");
         }
 
         // Updates the game timer.

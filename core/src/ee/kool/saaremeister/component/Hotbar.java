@@ -1,5 +1,6 @@
 package ee.kool.saaremeister.component;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -8,9 +9,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import constant.Category;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,6 +37,8 @@ public class Hotbar extends Table {
     @Getter
     private int selectedIndex = 0;
     private final int totalSlots = 3;
+    private final String[] slotItems = new String[3];
+    private final Table[] itemContainers = new Table[3]; // For item icons
 
     /**
      * Creates a new Hotbar instance used in a game instance.
@@ -42,16 +47,79 @@ public class Hotbar extends Table {
         slotNormal = createDrawable(SLOT_BG_NORMAL, BORDER_NORMAL);
         slotSelected = createDrawable(SLOT_BG_SELECTED, BORDER_SELECTED);
 
-        for (int i = 1; i <= totalSlots; i++) {
-            Table slot = new Table();
-            slot.setBackground(i == 1 ? slotSelected : slotNormal);
+        for (int i = 0; i < totalSlots; i++) {
+            Table slotFrame = new Table();
+            slotFrame.setBackground(i == 0 ? slotSelected : slotNormal);
 
-            Label nrLabel = new Label(String.valueOf(i), skin);
-            slot.add(nrLabel).expand().top().left().pad(SLOT_PADDING);
+            Stack stack = new Stack();
 
-            add(slot).size(SLOT_SIZE, SLOT_SIZE).pad(SLOT_PADDING);
-            slots.add(slot);
+            // Number 1, 2, 3
+            Table labelTable = new Table();
+            labelTable.top().left();
+            labelTable.add(new Label(String.valueOf(i + 1), skin)).pad(2);
+
+            // Image container
+            Table itemTable = new Table();
+            itemContainers[i] = itemTable;
+
+            stack.add(labelTable);
+            stack.add(itemTable);
+
+            slotFrame.add(stack).size(SLOT_SIZE, SLOT_SIZE);
+            add(slotFrame).size(SLOT_SIZE, SLOT_SIZE).pad(SLOT_PADDING);
+            slots.add(slotFrame);
         }
+    }
+
+    public boolean addItem(message.dto.ShopItem item) {
+        int targetSlot = -1;
+
+        // Decide slot
+        if (item.getCategory() == Category.RELVAD) {
+            targetSlot = 0;
+        } else if (item.getCategory() == Category.TARVIKUD && !item.getName().contains("rüü")) {
+            if (slotItems[1] == null) targetSlot = 1;
+            else if (slotItems[2] == null) targetSlot = 2;
+        }
+
+        if (targetSlot != -1) {
+            slotItems[targetSlot] = item.getName();
+
+            // Create icon
+            Texture tex = getIconTexture(item.getTextureName());
+            Image icon = new Image(tex);
+
+            // Clear old icon and add new
+            itemContainers[targetSlot].clearChildren();
+            itemContainers[targetSlot].add(icon).size(48, 48).center();
+
+            return true;
+        }
+        return false;
+    }
+
+    public String getSelectedItem() {
+        return slotItems[selectedIndex];
+    }
+
+    public boolean isGunSelected() {
+        String selected = getSelectedItem();
+        return selectedIndex == 0 && "Püstol".equals(selected);
+    }
+
+    public List<String> getAllItems() {
+        return Arrays.asList(slotItems);
+    }
+
+    public void clearSlot(int index) {
+        if (index >= 0 && index < totalSlots) {
+            slotItems[index] = null;
+            itemContainers[index].clearChildren();
+        }
+    }
+
+    private Texture getIconTexture(String textureName) {
+        return new Texture(Gdx.files.internal("shop/" + textureName + ".png"));
     }
 
     /**

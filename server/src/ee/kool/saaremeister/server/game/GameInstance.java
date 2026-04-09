@@ -108,32 +108,49 @@ public class GameInstance extends Thread {
             @Override
             public void received(com.esotericsoftware.kryonet.Connection conn, Object object) {
                 if (object instanceof message.ShopPurchaseMessage msg) {
-
                     Player p = activePlayers.get(conn.getID());
                     if (p != null) {
                         message.dto.ShopItem item = common.ShopRegistry.getItemById(msg.getItemId());
 
-                        if (item != null) {
-                            // Use the price defined in the ShopItem
-                            boolean success = p.attemptPurchase(item.getPrice());
+                        if (item == null) return;
 
-                            if (success) {
-                                Log.info("Purchased " + item.getName() + " for " + p.getUsername() + ". New balance: " + p.getMoney());
-                                // TODO: Give the item/benefit to the player here (to the hotbar)
-                                if (item.getCategory() == Category.EHITISED) {
-                                    // Give player building permit.
-                                    activePlayers.get(connection.getID())
-                                            .addBuildingPermit(BuildingInfo.getTileId(item.getId()));
+                        common.ArmorType itemArmor = common.ArmorType.fromName(item.getName());
+                        boolean isArmor = (itemArmor != common.ArmorType.NONE);
+
+                        // Check if item needs a slot in hotbar
+                        boolean needsHotbarSpace = (item.getCategory() == Category.RELVAD || item.getCategory() == Category.TARVIKUD) && !isArmor;
+
+                        // If hotbar full, dont deduct money
+                        if (needsHotbarSpace && p.isHotbarFull()) {
+                            Log.info(p.getUsername() + " hotbar on täis, ost tühistatud.");
+                            return;
+                        }
+
+                        // Now deduct money
+                        if (p.attemptPurchase(item.getPrice())) {
+                            if (isArmor) {
+                                p.applyArmor(itemArmor.getLevel(), itemArmor.getDefenseValue());
+                            } else {
+                                if (needsHotbarSpace) {
+                                    p.addHotbarItem();
                                 }
 
-                            } else {
-                                Log.info(p.getUsername() + " didn't have enough money for " + item.getName());
+                                if (item.getCategory() == Category.EHITISED) {
+                                    p.addBuildingPermit(BuildingInfo.getTileId(item.getId()));
+                                }
                             }
-                        } else {
-                            Log.error("Received purchase request for non-existent item ID: " + msg.getItemId());
+
+                            message.ShopPurchaseMessage response = new message.ShopPurchaseMessage();
+                            response.setItemId(item.getId());
+                            conn.sendTCP(response);
                         }
-                    } else {
-                        Log.error("Player object not found for ID " + conn.getID());
+                    }
+                }
+
+                if (object instanceof message.ItemUsedMessage) {
+                    Player p = activePlayers.get(conn.getID());
+                    if (p != null) {
+                        p.removeHotbarItem();
                     }
                 }
             }

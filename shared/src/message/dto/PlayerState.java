@@ -8,7 +8,12 @@ public class PlayerState {
     private float x;
     private float y;
     private int lives;
+    private int defense;
     private String username;
     private int money;
     private PlayerRole role;
+
+    public common.ArmorType getArmorType() {
+        return common.ArmorType.fromDefense(this.defense);
+    }
 }

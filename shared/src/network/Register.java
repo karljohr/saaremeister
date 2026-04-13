@@ -3,6 +3,7 @@ package network;
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import message.PlayerBuildMessage;
+import message.RefundMessage;
 import message.dto.*;
 import constant.Category;
 
@@ -34,6 +35,7 @@ public class Register {
         kryo.register(ShopItem.class);
         kryo.register(Category.class);
         kryo.register(PlayerRole.class);
+        kryo.register(RefundMessage.class);
 
         // Box2D debug
         kryo.register(StaticBodyState.class);

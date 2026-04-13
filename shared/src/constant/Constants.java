@@ -14,7 +14,7 @@ public class Constants {
     // Networking
     public static final int TCP_PORT = 8082;
     public static final int UDP_PORT = 8083;
-    public static final String SERVER_IP = "193.40.157.179";     // TalTech serveri IP: 193.40.157.179
+    public static final String SERVER_IP = "localhost";     // TalTech serveri IP: 193.40.157.179
 
     // Game
     public static final int GAME_TICK_RATE = 60;

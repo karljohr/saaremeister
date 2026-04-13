@@ -165,6 +165,7 @@ public class GameScreen extends ScreenAdapter {
         screenState.setBuildMode(true);
         screenState.setShopOpen(false);
         shopOverlay.setOpen(false);
+        hud.changeBuildLegendVisibility();
     }
 
     /**
@@ -172,5 +173,6 @@ public class GameScreen extends ScreenAdapter {
      */
     public void leaveBuildMode() {
         screenState.setBuildMode(false);
+        hud.changeBuildLegendVisibility();
     }
 }

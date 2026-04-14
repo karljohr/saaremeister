@@ -3,6 +3,8 @@ package ee.kool.saaremeister.server.game.object;
 import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+import common.ShopRegistry;
+import constant.BuildingInfo;
 import ee.kool.saaremeister.server.game.BuildHandler;
 import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.listener.BuildingListener;
@@ -231,6 +233,21 @@ public class Player {
 
     public void removeBuildingPermit(int id) {
         buildingPermitById.remove((Object) id);
+    }
+
+    /**
+     * Gives the player the money back after cancelling building.
+     * @param id tileId of the building.
+     */
+    public void refundBuildingPermit(int id) {
+        removeBuildingPermit(id);
+        money += ShopRegistry
+                .getItemById(
+                        BuildingInfo.getShopId(
+                                BuildingInfo.getBuildingFromVariation(id)
+                        )
+                )
+                .getPrice();
     }
 
     /**

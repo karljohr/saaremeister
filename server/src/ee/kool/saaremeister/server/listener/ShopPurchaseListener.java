@@ -53,5 +53,12 @@ public class ShopPurchaseListener extends Listener {
                 Log.error("Player object not found for ID " + conn.getID());
             }
         }
+
+        if (object instanceof message.RefundMessage msg) {
+            Player p = activePlayers.get(conn.getID());
+            if (p != null) {
+                p.refundBuildingPermit(msg.getId());
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@ import constant.BuildingInfo;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import message.PlayerBuildMessage;
+import message.RefundMessage;
 import message.dto.BuildingState;
 
 import java.util.ArrayList;
@@ -50,6 +51,16 @@ public class BuildManager {
                     variations.indexOf(selectedVariation) != variations.size() - 1
                             ? variations.indexOf(selectedVariation) + 1 : 0
             );
+        }
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+            game.leaveBuildMode();
+            deleteProjection();
+            RefundMessage msg = new RefundMessage();
+            msg.setId(selectedVariation);
+            ServerConnection
+                    .getInstance()
+                    .getClient()
+                    .sendTCP(msg);
         }
     }
 

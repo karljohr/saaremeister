@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.kool.saaremeister.component.ChatTable;
@@ -39,6 +40,7 @@ public class Hud implements Disposable {
     private final Label zonesLabel;
     @Getter
     private final Hotbar hotbar;
+    private final Table buildLegend;
 
     public Hud(SpriteBatch spriteBatch, int lobbyId, String username, Skin skin) {
         stage = new Stage(new ScreenViewport(), spriteBatch);
@@ -104,6 +106,22 @@ public class Hud implements Disposable {
                 .expandX()
                 .center()
                 .padBottom(20);
+
+        // BuildMode Legend
+        buildLegend = new Table();
+        buildLegend.setFillParent(true);
+        buildLegend.bottom().left();
+
+        Table panel = new Table(skin);
+        panel.defaults().left().pad(4);
+        panel.add(LabelComponent.createLabel("Build mode", Color.WHITE, 24)).row();
+        panel.add(LabelComponent.createLabel("LMB  Place", Color.LIGHT_GRAY, 20)).row();
+        panel.add(LabelComponent.createLabel("T    Next variation", Color.LIGHT_GRAY, 20)).row();
+        panel.add(LabelComponent.createLabel("RMB  Cancel", Color.LIGHT_GRAY, 20)).row();
+
+        buildLegend.add(panel).padLeft(16).padBottom(16);
+        buildLegend.setVisible(false);
+        stage.addActor(buildLegend);
 
         stage.addActor(statsTable);
         stage.addActor(chatContainer);
@@ -175,6 +193,10 @@ public class Hud implements Disposable {
      */
     public boolean clickedInsideChatInput(Actor target) {
         return chatTable.clickedInsideInput(target);
+    }
+
+    public void changeBuildLegendVisibility() {
+        buildLegend.setVisible(!buildLegend.isVisible());
     }
 
     public void render(float delta) {

@@ -30,6 +30,11 @@ public final class BuildingInfo {
             148, List.of(148)
     );
 
+    private static final Map<Integer, Integer> BUILDING_TO_HEALTH = Map.of(
+            156, 20,
+            148, 10
+    );
+
     private BuildingInfo() {
     }
 
@@ -65,19 +70,23 @@ public final class BuildingInfo {
      * @return List of BuildingStates.
      */
     public static List<BuildingState> getWallTileLocations(BuildingState message) {
-        int middleTile = 157;
+
+        BuildingState middleTile = message;
+
+        int middleTileI = 157;
         int extraX = 0;
         int extraY = 1;
         if (message.id == 157) {
-            middleTile = 158;
+            middleTileI = 158;
             extraX = 1;
             extraY = 0;
         }
+        middleTile.setId(middleTileI);
         return List.of(
                 new BuildingState(156, message.getX() + (extraX * 2), message.getY() + (extraY * 2)),
-                new BuildingState(middleTile, message.getX() + (extraX), message.getY() + (extraY)),
-                new BuildingState(middleTile, message.getX(), message.getY()),
-                new BuildingState(middleTile, message.getX() + (extraX * (-1)), message.getY() + (extraY * (-1))),
+                new BuildingState(middleTileI, message.getX() + (extraX), message.getY() + (extraY)),
+                middleTile,
+                new BuildingState(middleTileI, message.getX() + (extraX * (-1)), message.getY() + (extraY * (-1))),
                 new BuildingState(156, message.getX() + (extraX * (-2)), message.getY() + (extraY * (-2)))
         );
     }
@@ -114,5 +123,14 @@ public final class BuildingInfo {
                 .filter(key -> BUILDING_VARIATIONS.get(key).contains(variationId))
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * Return the health of the building by its buildingId.
+     * @param buildingId tileId of the building.
+     * @return building health Integer.
+     */
+    public static Integer getBuildingHealth(int buildingId) {
+        return BUILDING_TO_HEALTH.get(buildingId);
     }
 }

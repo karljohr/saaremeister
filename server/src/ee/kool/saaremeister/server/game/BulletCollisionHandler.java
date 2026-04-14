@@ -3,7 +3,7 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.minlog.Log;
-import ee.kool.saaremeister.server.game.object.Building;
+import ee.kool.saaremeister.server.game.object.buildings.Building;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.Player;
 
@@ -95,7 +95,15 @@ public class BulletCollisionHandler {
 
             for (Fixture fixture : body.getFixtureList()) {
                 if (fixture.testPoint(bulletX, bulletY)) {
+                    buildingById
+                            .entrySet()
+                            .stream()
+                            .filter(entry ->
+                                    entry.getValue().getBody() == fixture.getBody())
+                            .findAny()
+                            .ifPresent(entry -> entry.getValue().decreaseHealth());
                     return true;
+
                 }
             }
         }

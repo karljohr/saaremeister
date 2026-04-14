@@ -4,6 +4,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.buildings.Building;
 import lombok.Getter;
 import message.dto.PlayerRole;
 
@@ -143,5 +144,18 @@ public class MatchRules {
                 player.setAlive(true);
             }
         });
+    }
+
+    public void checkBrokenBuildings(List<Building> buildings) {
+        Iterator<Building> iterator = buildings.iterator();
+
+        while (iterator.hasNext()) {
+            Building building = iterator.next();
+
+            if (building.getHealth() <= 0) {
+                building.destroy();
+                iterator.remove();
+            }
+        }
     }
 }

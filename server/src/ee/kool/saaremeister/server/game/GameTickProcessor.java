@@ -95,6 +95,9 @@ public class GameTickProcessor {
         // Check if any players are dead and need to be given the respawn timer.
         matchRules.checkRespawn(players);
 
+        // Check if any buildings have been broken and need to be deleted.
+        matchRules.checkBrokenBuildings(buildHandler.getBuildings());
+
         // Update player positions.
         players.forEach(Player::updateFromPhysics);
         var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());

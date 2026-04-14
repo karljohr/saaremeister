@@ -1,6 +1,5 @@
 package ee.kool.saaremeister.server.game;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
@@ -8,7 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.minlog.Log;
 import constant.BuildingInfo;
-import ee.kool.saaremeister.server.game.object.Building;
+import ee.kool.saaremeister.server.game.object.buildings.Building;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
 import ee.kool.saaremeister.server.game.object.buildings.OffenceBuilding;
@@ -18,7 +17,6 @@ import message.dto.BuildingState;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Handles the building process in the game.
@@ -148,11 +146,26 @@ public class BuildHandler {
         BuildingState buildingState = buildMessageQueue.removeFirst();
         if (BuildingInfo.getBuildingType(buildingState.id) == BuildingInfo.BuildingType.OFFENCE) {
             buildings.add(
-                    new OffenceBuilding(buildingState.id, buildingState.x, buildingState.y, world, gameInstance)
+                    new OffenceBuilding(
+                            buildingState.id,
+                            buildingState.x,
+                            buildingState.y,
+                            world,
+                            gameInstance,
+                            BuildingInfo.getBuildingHealth(buildingState.id)
+                    )
             );
         } else {
             buildings.add(
-                    new DefenceBuilding(buildingState.id, buildingState.x, buildingState.y, world)
+                    new DefenceBuilding(
+                            buildingState.id,
+                            buildingState.x,
+                            buildingState.y,
+                            world,
+                            BuildingInfo.getBuildingHealth(
+                                            BuildingInfo.getBuildingFromVariation(buildingState.id)
+                            )
+                    )
             );
         }
         Log.info("[BuildHandler] Building " + BuildingInfo.getBuildingType(buildingState.id) + " placed at " + buildingState.x + ";" + buildingState.y);

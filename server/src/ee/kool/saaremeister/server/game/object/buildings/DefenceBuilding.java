@@ -3,7 +3,6 @@ package ee.kool.saaremeister.server.game.object.buildings;
 import com.badlogic.gdx.physics.box2d.World;
 import constant.BuildingInfo;
 import ee.kool.saaremeister.server.game.Box2dWorldGenerator;
-import ee.kool.saaremeister.server.game.object.Building;
 import lombok.Getter;
 import message.dto.BuildingState;
 
@@ -18,11 +17,10 @@ public class DefenceBuilding extends Building {
 
     @Getter
     private List<BuildingState> tiles;
-    private int health = 10;
 
-    public DefenceBuilding(int id, int tileX, int tileY, World world) {
-        super(id, tileX, tileY, world);
-        tiles = BuildingInfo.getWallTileLocations(new BuildingState(id, tileX, tileY));
+    public DefenceBuilding(int id, int tileX, int tileY, World world, int health) {
+        super(id, tileX, tileY, world, health);
+        tiles = BuildingInfo.getWallTileLocations(new BuildingState(id, tileX, tileY, health, health));
 
         defineBody();
 
@@ -43,6 +41,10 @@ public class DefenceBuilding extends Building {
         }
         body = generator.buildBody(tileX, tileY, world, width, height);
         System.out.println("Body position: " + body.getPosition());
+    }
+
+    public List<BuildingState> getTiles() {
+        return BuildingInfo.getWallTileLocations(super.getBuildingState());
     }
 
 }

@@ -124,6 +124,7 @@ public class GameScreenUpdateController {
         worldView.getRenderer().setView(worldView.getCamera());
 
         buildManager.renderBatch(currentGameState.getBuildingStates());
+        buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
 
         // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
 

@@ -2,9 +2,13 @@ package ee.kool.saaremeister.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Vector2;
 import constant.BuildingInfo;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
@@ -12,8 +16,11 @@ import message.PlayerBuildMessage;
 import message.RefundMessage;
 import message.dto.BuildingState;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles the building process in the game.
@@ -27,12 +34,29 @@ public class BuildManager {
     private int selectedBuilding;
     private int selectedVariation;
     private GameScreen game;
+    private Map<Integer, Integer> previousHealthById;
+    private Map<Integer, Long> healthBarVisibleUntilById;
+    private List<BuildingState> currentBuildingStates;
+    private List<BuildingState> renderedBuildings;
+
+    // Health bar
+    private static final int BAR_WIDTH = 20;
+    private static final int BAR_HEIGHT = 3;
+    private static final int BAR_X_OFFSET_FROM_BUILDING = -(BAR_WIDTH / 2);
+    private static final int BAR_Y_OFFSET_FROM_BUILDING = 40;
+    private static final int HEALTH_BAR_VISIBLE_FOR_SECONDS = 2;
 
     public BuildManager(TiledMap map, GameScreen game) {
         lastTiles = new ArrayList<>();
         this.map = map;
         this.game = game;
         layer = (TiledMapTileLayer) map.getLayers().get("temp");
+
+        previousHealthById =  new HashMap<>();
+        healthBarVisibleUntilById = new HashMap<>();
+
+        renderedBuildings = new ArrayList<>();
+        currentBuildingStates = new ArrayList<>();
     }
 
     /**
@@ -110,7 +134,13 @@ public class BuildManager {
      * Renders a batch of buildings
      */
     public void renderBatch(List<BuildingState> buildingStates) {
-        if (buildingStates == null || buildingStates.isEmpty()) return;
+
+        for (BuildingState building : renderedBuildings) {
+            layer.setCell(building.getX(), building.getY(), null);
+        }
+
+        renderedBuildings = buildingStates;
+
         for (BuildingState building : buildingStates) {
             tile = map.getTileSets().getTile(building.getId());
 
@@ -163,7 +193,57 @@ public class BuildManager {
         selectedVariation = selectedBuilding;
     }
 
-    private void handleWallPlacement() {
+    /**
+     * Compares buildings new health to old one and requests health bar rendering if health has changed.
+     * @param buildingStates message from the server that includes information about the buildings.
+     *                       A list of buildingStates.
+     */
+    public void compareBuildingOldHealthToNew(List<BuildingState> buildingStates) {
+        currentBuildingStates = buildingStates;
 
+        for (BuildingState building : buildingStates) {
+
+            if (building.maxHealth == 0) continue;
+            Integer oldHealth = previousHealthById.get(building.getUniqueId());
+
+            if (oldHealth != null && building.getHealth() < oldHealth) {
+                healthBarVisibleUntilById.put(
+                        building.getUniqueId(),
+                        System.currentTimeMillis() + HEALTH_BAR_VISIBLE_FOR_SECONDS * 1000
+                );
+            }
+
+            previousHealthById.put(building.getUniqueId(), building.getHealth());
+        }
     }
+
+    /**
+     * Renders the health bar of the building if it has taken damage.
+     * @param shapeRenderer gameScreen shapeRenderer.
+     */
+    public void renderHealthBars(ShapeRenderer shapeRenderer) {
+        for (BuildingState building : currentBuildingStates) {
+            if (building.maxHealth == 0) continue;
+            Long visibleUntil = healthBarVisibleUntilById.get(building.uniqueId);
+            if (visibleUntil != null && System.currentTimeMillis() < visibleUntil) {
+                float ratio = (float) building.health / building.maxHealth;
+
+                shapeRenderer.setColor(Color.DARK_GRAY);
+                shapeRenderer.rect(
+                        building.worldX + BAR_X_OFFSET_FROM_BUILDING,
+                        building.getWorldY() + BAR_Y_OFFSET_FROM_BUILDING, BAR_WIDTH, BAR_HEIGHT
+                );
+
+                shapeRenderer.setColor(
+                        ratio > 0.5f
+                                ? Color.GREEN : ratio > 0.25f
+                                ? Color.ORANGE : Color.RED);
+                shapeRenderer.rect(
+                        building.worldX + BAR_X_OFFSET_FROM_BUILDING,
+                        building.worldY + BAR_Y_OFFSET_FROM_BUILDING, BAR_WIDTH * ratio, BAR_HEIGHT
+                );
+            }
+        }
+    }
+
 }

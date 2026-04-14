@@ -107,7 +107,8 @@ public class GameScreen extends ScreenAdapter {
                 shopOverlay,
                 debugRenderer,
                 worldView,
-                screenState
+                screenState,
+                buildManager
         );
 
         ServerConnection.getInstance().setStaticBodiesListener(bodies -> Gdx.app.postRunnable(() ->

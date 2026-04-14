@@ -3,7 +3,6 @@ package ee.kool.saaremeister.server.game.object.buildings;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import ee.kool.saaremeister.server.game.GameInstance;
-import ee.kool.saaremeister.server.game.object.Building;
 import ee.kool.saaremeister.server.game.object.Bullet;
 import ee.kool.saaremeister.server.game.object.Player;
 
@@ -23,8 +22,8 @@ public class OffenceBuilding extends Building {
     private final GameInstance gameInstance;
 
 
-    public OffenceBuilding(int id, int tileX, int tileY, World world, GameInstance gameInstance) {
-        super(id, tileX, tileY, world);
+    public OffenceBuilding(int id, int tileX, int tileY, World world, GameInstance gameInstance, int health) {
+        super(id, tileX, tileY, world, health);
         this.gameInstance = gameInstance;
 
         defineBody();

@@ -1,10 +1,12 @@
 package ee.kool.saaremeister.screen.gamescreen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import ee.kool.saaremeister.game.Arena;
+import ee.kool.saaremeister.game.BuildManager;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
@@ -22,6 +24,7 @@ public class GameScreenRenderController {
     private final DebugRenderer debugRenderer;
     private final GameWorldView worldView;
     private final GameScreenState state;
+    private final BuildManager buildManager;
 
     public GameScreenRenderController(
             SpriteBatch spriteBatch,
@@ -31,7 +34,8 @@ public class GameScreenRenderController {
             ShopOverlay shopOverlay,
             DebugRenderer debugRenderer,
             GameWorldView worldView,
-            GameScreenState state
+            GameScreenState state,
+            BuildManager buildManager
     ) {
         this.spriteBatch = spriteBatch;
         this.shapeRenderer = shapeRenderer;
@@ -41,6 +45,7 @@ public class GameScreenRenderController {
         this.debugRenderer = debugRenderer;
         this.worldView = worldView;
         this.state = state;
+        this.buildManager = buildManager;
     }
 
     /**
@@ -75,6 +80,11 @@ public class GameScreenRenderController {
 
         // Render the isometric map overlay layers
         worldView.getRenderer().render(new int[]{overLayIndex, tempIndex});
+
+        // Render building health bars
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        buildManager.renderHealthBars(shapeRenderer);
+        shapeRenderer.end();
 
         shopOverlay.render(delta);
         hud.render(delta); // render the HUD last to ensure it appears on top of all other content

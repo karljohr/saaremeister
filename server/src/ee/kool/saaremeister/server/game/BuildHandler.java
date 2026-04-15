@@ -152,7 +152,12 @@ public class BuildHandler {
                             buildingState.y,
                             world,
                             gameInstance,
-                            BuildingInfo.getBuildingHealth(buildingState.id)
+                            BuildingInfo.getBuildingHealth(
+                                    BuildingInfo.getBuildingFromVariation(buildingState.id)
+                            ),
+                            BuildingInfo.getRange(
+                                    BuildingInfo.getBuildingFromVariation(buildingState.id)
+                            )
                     )
             );
         } else {

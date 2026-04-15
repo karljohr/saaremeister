@@ -22,17 +22,24 @@ public class OffenceBuilding extends Building {
     private final int shootingFrequency = 650;
     private LocalTime lastShotTime = LocalTime.MIN;
     private final GameInstance gameInstance;
+    private int range;
 
 
-    public OffenceBuilding(int id, int tileX, int tileY, World world, GameInstance gameInstance, int health) {
+    public OffenceBuilding(int id,
+                           int tileX,
+                           int tileY,
+                           World world,
+                           GameInstance gameInstance,
+                           int health,
+                           int range) {
         super(id, tileX, tileY, world, health);
         this.gameInstance = gameInstance;
+        this.range = range;
 
         defineBody();
 
         super.x = body.getPosition().x * PPM;
         super.y = body.getPosition().y * PPM;
-
     }
 
     /**
@@ -68,9 +75,17 @@ public class OffenceBuilding extends Building {
                 .stream()
                 .filter(Officer.class::isInstance)
                 .filter(Player::isAlive)
-                .min(Comparator.comparingInt(player -> (int) ((
-                        (player.getX() - this.getX()) * (player.getX() - this.getX()))
-                        + ((player.getY() - this.getY()) * (player.getY() - this.getY())))
+                .filter(player ->
+                        calcDistanceBetweenTwoPoints(
+                                player.getX(), player.getY(),
+                                this.getX(), this.getY()
+                        ) < range
+                )
+                .min(Comparator.comparingInt(player -> (int) (
+                        calcDistanceBetweenTwoPoints(
+                                player.getX(), player.getY(),
+                                this.getX(), this.getY())
+                        )
                 ))
                 .orElse(null);
     }
@@ -88,5 +103,18 @@ public class OffenceBuilding extends Building {
         }
 
         return aim.nor();
+    }
+
+    /**
+     * Returns the distance between 2 points.
+     * @param x1 x coordinate of the first point.
+     * @param y1 y coordinate of the first point.
+     * @param x2 x coordinate of the second point.
+     * @param y2 y coordinate of the second point.
+     * @return distance between the 2 points.
+     */
+    private float calcDistanceBetweenTwoPoints(float x1, float y1,
+                                             float x2, float y2) {
+        return new Vector2(x2 - x1, y2 - y1).len();
     }
 }

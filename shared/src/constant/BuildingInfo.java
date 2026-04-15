@@ -35,6 +35,10 @@ public final class BuildingInfo {
             148, 10
     );
 
+    private static final Map<Integer, Integer> BUILDING_TO_RANGE = Map.of(
+            148, 400
+    );
+
     private BuildingInfo() {
     }
 
@@ -132,5 +136,15 @@ public final class BuildingInfo {
      */
     public static Integer getBuildingHealth(int buildingId) {
         return BUILDING_TO_HEALTH.get(buildingId);
+    }
+
+
+    /**
+     * Return the range of the building.
+     * @param buildingId tile id of th building.
+     * @return range.
+     */
+    public static Integer getRange(int buildingId) {
+        return BUILDING_TO_RANGE.get(buildingId);
     }
 }

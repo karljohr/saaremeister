@@ -27,6 +27,13 @@ public class Arena {
     private List<CaptureZoneState> captureZones = new ArrayList<>();
     private final int myId = ServerConnection.getInstance().getClient().getID();
 
+    public enum ZoneVisualState {
+        CONTESTED,
+        MINE,
+        ENEMY,
+        NEUTRAL
+    }
+
     /**
      * Update the game state in the client based on the server's messages.
      */
@@ -108,5 +115,20 @@ public class Arena {
             return new Color(0f, 1f, 0f, 0.30f);
         }
         return new Color(1f, 0f, 0f, 0.30f);
+    }
+
+    /**
+     * Returns the visual state of a capture zone based on the capture zone owner.
+     */
+    public ZoneVisualState getZoneVisualState(int zoneId) {
+        CaptureZoneState zoneState = captureZones.stream()
+                .filter(z -> z.getZoneId() == zoneId)
+                .findFirst()
+                .orElse(null);
+
+        if (zoneState == null || zoneState.getOwnerPlayerId() == NEUTRAL_OWNER_ID) return ZoneVisualState.NEUTRAL;
+        if (zoneState.isContested()) return ZoneVisualState.CONTESTED;
+        if (zoneState.getOwnerPlayerId() == myId) return ZoneVisualState.MINE;
+        return ZoneVisualState.ENEMY;
     }
 }

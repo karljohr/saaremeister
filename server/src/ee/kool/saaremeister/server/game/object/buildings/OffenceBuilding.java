@@ -2,8 +2,10 @@ package ee.kool.saaremeister.server.game.object.buildings;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.game.object.Bullet;
+import ee.kool.saaremeister.server.game.object.Officer;
 import ee.kool.saaremeister.server.game.object.Player;
 
 import java.time.Duration;
@@ -44,6 +46,7 @@ public class OffenceBuilding extends Building {
         lastShotTime = now;
 
         Player closestPlayer = findClosestPlayer();
+        Log.info("[BUILDING] shooting at " + closestPlayer);
         if (closestPlayer == null) {
             return;
         }
@@ -63,6 +66,8 @@ public class OffenceBuilding extends Building {
         return gameInstance
                 .getPlayers()
                 .stream()
+                .filter(Officer.class::isInstance)
+                .filter(Player::isAlive)
                 .min(Comparator.comparingInt(player -> (int) ((
                         (player.getX() - this.getX()) * (player.getX() - this.getX()))
                         + ((player.getY() - this.getY()) * (player.getY() - this.getY())))

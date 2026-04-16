@@ -72,7 +72,11 @@ public class GameScreenRenderController {
 
         worldView.getRenderer().render(new int[]{groundIndex});
 
-        //arena.renderCaptureZones(shapeRenderer);
+        renderZoneLayer(1);
+        renderZoneLayer(2);
+        renderZoneLayer(3);
+        renderZoneLayer(4);
+
         spriteBatch.begin();
         arena.renderPlayers(spriteBatch);
         arena.renderBullets(spriteBatch);
@@ -92,6 +96,27 @@ public class GameScreenRenderController {
         // Render debug
         if (state.isDebugMode()) {
             debugRenderer.render(worldView.getCamera());
+        }
+    }
+
+    /**
+     * Render a specific layer.
+     */
+    private void renderLayer(String name) {
+        int index = worldView.getMap().getLayers().getIndex(name);
+        if (index >= 0) worldView.getRenderer().render(new int[]{index});
+    }
+
+    /**
+     * Render the zone layer for a specific zone depending on its state.
+     */
+    private void renderZoneLayer(int zoneId) {
+        switch (arena.getZoneVisualState(zoneId)) {
+            case MINE -> renderLayer("cz" + zoneId + "_mine");
+            case ENEMY -> renderLayer("cz" + zoneId + "_enemy");
+            case CONTESTED -> renderLayer("cz" + zoneId + "_contested");
+            case NEUTRAL -> {
+            }
         }
     }
 }

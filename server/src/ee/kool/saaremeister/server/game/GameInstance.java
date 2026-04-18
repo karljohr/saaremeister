@@ -5,7 +5,6 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.*;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
-import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
 import lombok.Getter;
@@ -32,14 +31,6 @@ public class GameInstance extends Thread {
     @Getter
     private final Map<PlayerRole, List<Vector2>> spawnPoints;
     private final Queue<ExplosionState> pendingExplosions = new ConcurrentLinkedDeque<>();
-    private final List<Bullet> bullets = new ArrayList<>();
-    private final List<CaptureZone> captureZones = new ArrayList<>();
-    private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
-    private final World world;
-    private List<StaticBodyState> staticBodyData;
-    private final BuildHandler buildHandler;
-    private final MatchRules matchRules = new MatchRules();
-    private final BulletCollisionHandler bulletCollisionHandler;
 
     private final GameConnectionManager connectionManager;
     private final GameTickProcessor tickProcessor;
@@ -48,12 +39,11 @@ public class GameInstance extends Thread {
      * Creates a new game instance.
      */
     public GameInstance(LobbyManager lobbyManager, int lobbyId) {
-
         World world = new World(new Vector2(0, 0), true);
         BulletCollisionHandler bulletCollisionHandler = new BulletCollisionHandler(world);
-        this.world = new World(new Vector2(0, 0), true);
-        this.bulletCollisionHandler = new BulletCollisionHandler(world);
-        this.bulletCollisionHandler.setGameInstance(this);
+        World world1 = new World(new Vector2(0, 0), true);
+        BulletCollisionHandler bulletCollisionHandler1 = new BulletCollisionHandler(world);
+        bulletCollisionHandler1.setGameInstance(this);
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         List<StaticBodyState> staticBodyData = box2dWorldGenerator.initializeWorld(world);

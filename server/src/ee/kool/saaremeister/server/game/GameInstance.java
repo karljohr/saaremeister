@@ -7,6 +7,7 @@ import ee.kool.saaremeister.server.game.object.*;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
 import lombok.Getter;
+import message.dto.PlayerRole;
 import message.dto.StaticBodyState;
 
 import java.time.Duration;
@@ -24,6 +25,9 @@ public class GameInstance extends Thread {
     @Getter
     private final List<Player> players = new ArrayList<>();
     private final Queue<Bullet> pendingBullets = new ConcurrentLinkedDeque<>();
+
+    @Getter
+    private final Map<PlayerRole, List<Vector2>> spawnPoints;
 
     private final GameConnectionManager connectionManager;
     private final GameTickProcessor tickProcessor;
@@ -48,6 +52,9 @@ public class GameInstance extends Thread {
         Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
         List<Bullet> bullets = new ArrayList<>();
         Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
+        SpawnPointLoader spawnPointLoader = new SpawnPointLoader();
+        spawnPoints = spawnPointLoader.loadSpawnPoints();
+
         this.connectionManager = new GameConnectionManager(
                 lobbyManager,
                 gameStateHandler,
@@ -59,7 +66,8 @@ public class GameInstance extends Thread {
                 captureZones,
                 activePlayers,
                 connections,
-                staticBodyData
+                staticBodyData,
+                spawnPoints
         );
 
         GameDisposer gameDisposer = new GameDisposer(players, connections, lobbyManager, lobbyId);

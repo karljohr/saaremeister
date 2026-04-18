@@ -123,7 +123,7 @@ public class GameConnectionManager {
 
         if (p != null) {
             players.remove(p);
-            captureZones.forEach(zone -> zone.clearPlayer(p.getId()));
+            captureZones.forEach(zone -> zone.clearPlayer(p.getRole()));
         }
 
         var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
@@ -131,5 +131,4 @@ public class GameConnectionManager {
 
         Log.info("Player left the game: " + connection.getID());
     }
-
 }

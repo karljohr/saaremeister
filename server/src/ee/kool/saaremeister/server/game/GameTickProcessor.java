@@ -114,18 +114,17 @@ public class GameTickProcessor {
 
         // If there is a match end reason, stop the game.
         MatchRules.MatchEndReason endReason = matchRules.determineEndReason(
-                captureZones, connections, gameStateHandler.getGameTime()
+                captureZones, connections, players, gameStateHandler.getGameTime()
         );
         if (endReason != MatchRules.MatchEndReason.NONE) {
-            int winnerPlayerId = matchRules.getGameWinnerId();
-            gameStateHandler.setWinnerPlayerId(winnerPlayerId);
+            var winnerPlayerRole = matchRules.getGameWinnerRole();
+            gameStateHandler.setWinnerPlayerRole(winnerPlayerRole);
             gameStateHandler.setGameOver(true);
             var finalGameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
             switch (endReason) {
                 case NO_PLAYERS_CONNECTED -> Log.info("No players connected, stopping game.");
-                case ALL_ZONES_CAPTURED -> Log.info("All zones captured by one player, stopping game.");
-                case TIME_LIMIT_REACHED_WITH_RESULT -> Log.info("Time limit reached, someone won, stopping game.");
-                case TIME_LIMIT_REACHED_WITH_DRAW -> Log.info("Time limit reached, no one won, stopping game.");
+                case ALL_ZONES_CAPTURED -> Log.info("All zones captured by the officers, stopping game.");
+                case TIME_LIMIT_REACHED -> Log.info("Time limit reached, Island Master won, stopping game.");
             }
             connections.forEach(connection -> connection.sendTCP(finalGameStateMessage));
             gameDisposer.dispose();

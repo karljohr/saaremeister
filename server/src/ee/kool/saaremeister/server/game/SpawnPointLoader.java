@@ -95,7 +95,7 @@ public class SpawnPointLoader {
     }
 
     /**
-     * Sets a random spawnpoint to player according to his role.
+     * Sets a random spawnpoint to the player according to his role.
      * @param role PlayerRole.
      */
     public static void setRandomSpawnPoint(

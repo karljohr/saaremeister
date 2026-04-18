@@ -18,13 +18,12 @@ import static constant.Constants.*;
 public class MatchRules {
 
     @Getter
-    private int gameWinnerId = -1;
+    private PlayerRole gameWinnerRole = null;
 
     public enum MatchEndReason {
         NONE,
         ALL_ZONES_CAPTURED,
-        TIME_LIMIT_REACHED_WITH_RESULT,
-        TIME_LIMIT_REACHED_WITH_DRAW,
+        TIME_LIMIT_REACHED,
         NO_PLAYERS_CONNECTED
     }
 
@@ -33,26 +32,28 @@ public class MatchRules {
      */
     public MatchEndReason determineEndReason(
             List<CaptureZone> captureZones,
-            Set<Connection> players,
+            Set<Connection> connections,
+            List<Player> players,
             float gameTime) {
 
-        if (areAllZonesCapturedByOnePlayer(captureZones)) {
-            gameWinnerId = captureZones.getFirst().getOwnerPlayerId();
+        if (areAllZonesCapturedByOneClass(captureZones, players)) {
+            var gameWinnerEnum = captureZones.getFirst().getOwnerEnum();
+            if (gameWinnerEnum == CaptureZone.ZoneOwner.MASTER) {
+                gameWinnerRole = PlayerRole.MASTER;
+            }
+            if (gameWinnerEnum == CaptureZone.ZoneOwner.OFFICER) {
+                gameWinnerRole = PlayerRole.OFFICER;
+            }
             return MatchEndReason.ALL_ZONES_CAPTURED;
         }
 
+        // If the game time is over, Island Master wins.
         if (isGameTimeOver(gameTime)) {
-            // If one player has captured more zones than others, then they win.
-            int drawResult = isDraw(captureZones);
-            if (drawResult != -1) {
-                gameWinnerId = drawResult;
-                return MatchEndReason.TIME_LIMIT_REACHED_WITH_RESULT;
-            }
-            // Else, it's a complete draw and everyone loses.
-            return MatchEndReason.TIME_LIMIT_REACHED_WITH_DRAW;
+            gameWinnerRole = PlayerRole.MASTER;
+            return MatchEndReason.TIME_LIMIT_REACHED;
         }
 
-        if (isLobbyEmpty(players)) {
+        if (isLobbyEmpty(connections)) {
             return MatchEndReason.NO_PLAYERS_CONNECTED;
         }
 
@@ -60,17 +61,17 @@ public class MatchRules {
     }
 
     /**
-     * Checks if one player captures all capture zones.
+     * Checks if one player captures all capture zones. The player must not be the Island Master.
      */
-    private boolean areAllZonesCapturedByOnePlayer(List<CaptureZone> captureZones) {
-        int check = 0;
-        for (int i = 0; i < captureZones.size() - 1; i++) {
-            if (captureZones.get(i).getOwnerPlayerId() == captureZones.get(i + 1).getOwnerPlayerId()
-                    && captureZones.get(i).getOwnerPlayerId() != -1) {
-                check++;
-            }
-        }
-        return check == captureZones.size() - 1;
+    private boolean areAllZonesCapturedByOneClass(List<CaptureZone> captureZones, List<Player> players) {
+        if (captureZones.isEmpty()) return false;
+
+        CaptureZone.ZoneOwner ownerEnum = captureZones.getFirst().getOwnerEnum();
+
+        // No winner if neutral, and Island Master should not win by zone control.
+        if (ownerEnum != CaptureZone.ZoneOwner.OFFICER) return false;
+
+        return captureZones.stream().allMatch(zone -> zone.getOwnerEnum() == ownerEnum);
     }
 
     /**
@@ -78,36 +79,6 @@ public class MatchRules {
      */
     private boolean isGameTimeOver(float gameTime) {
         return gameTime >= MATCH_DURATION_SECONDS;
-    }
-
-    /**
-     * Checks if the game ended in a complete draw or someone had more captured zones than others.
-     * Returns the winner's ID if someone wins, -1 if it's a draw.
-     */
-    private int isDraw(List<CaptureZone> captureZones) {
-        // Counts the number of captured zones per player.
-        Map<Integer, Integer> capturedZonesPerPlayer = new HashMap<>();
-        for (CaptureZone captureZone : captureZones) {
-            if (captureZone.getOwnerPlayerId() != -1) {
-                capturedZonesPerPlayer.merge(captureZone.getOwnerPlayerId(), 1, Integer::sum);
-            }
-        }
-
-        // Sorts the map by captured zones in descending order.
-        List<Map.Entry<Integer, Integer>> sorted = capturedZonesPerPlayer.entrySet()
-                .stream()
-                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                .toList();
-        if (sorted.size() == 1) {
-            return sorted.getFirst().getKey();
-        }
-        if (sorted.size() > 1) {
-            if (Objects.equals(sorted.get(0).getValue(), sorted.get(1).getValue())) {
-                return -1;
-            }
-            return sorted.getFirst().getKey();
-        }
-        return -1;
     }
 
     /**
@@ -148,6 +119,9 @@ public class MatchRules {
         });
     }
 
+    /**
+     * Destroys buildings that have no health left.
+     */
     public void checkBrokenBuildings(List<Building> buildings) {
         Iterator<Building> iterator = buildings.iterator();
 

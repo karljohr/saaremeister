@@ -14,6 +14,7 @@ import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import message.GameStateMessage;
 import message.LobbyExitMessage;
+import message.dto.PlayerRole;
 
 /**
  * Updates the in-game screen each frame by handling input, build mode, camera movement, screen transitions, and
@@ -23,6 +24,7 @@ public class GameScreenUpdateController {
 
     private final Game game;
     private final int myId;
+    private PlayerRole myRole;
     private final int lobbyId;
     private final GameStateManager gameStateManager;
     private final PlayerInputManager playerInputManager;
@@ -102,12 +104,24 @@ public class GameScreenUpdateController {
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
 
         if (currentGameState.isGameOver()) {
-            int gameWinnerId = currentGameState.getWinnerPlayerId();
-            game.setScreen(new EndScreen(game, gameWinnerId, myId));
+            var gameWinnerRole = currentGameState.getWinnerPlayerRole();
+            game.setScreen(new EndScreen(game, gameWinnerRole, myRole));
             return;
         }
 
         if (currentGameState == null) return;
+
+        // resolve once (role does not change mid-game)
+        if (myRole == null) {
+            myRole = gameStateManager.resolveMyRole(currentGameState);
+        }
+
+        if (currentGameState.isGameOver()) {
+            var gameWinnerRole = currentGameState.getWinnerPlayerRole();
+            game.setScreen(new EndScreen(game, gameWinnerRole, myRole));
+            return;
+        }
+
         arena.update(currentGameState);
 
         // Dynamic camera
@@ -128,7 +142,7 @@ public class GameScreenUpdateController {
 
         // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
 
-        hud.update(currentGameState, myId);  // update info overlay time, lives, etc.
+        hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
     }
 
     /**

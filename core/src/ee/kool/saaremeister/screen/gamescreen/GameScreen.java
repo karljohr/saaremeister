@@ -37,17 +37,13 @@ import java.util.Arrays;
 
 public class GameScreen extends ScreenAdapter {
 
-    private final Game game;
     @Getter
     private final int myId;
-    private final int lobbyId;
 
     @Getter
     private final GameStateManager gameStateManager;
-    private final PlayerInputManager playerInputManager;
     private final SpriteBatch spriteBatch;
     private final ShapeRenderer shapeRenderer;
-    private final Arena arena;
     @Getter
     private final Hud hud;
     private final ShopOverlay shopOverlay;
@@ -66,17 +62,15 @@ public class GameScreen extends ScreenAdapter {
      * @param game Current game instance, used for navigating between screens, for example, GameScreen -> TitleScreen
      */
     public GameScreen(Game game, int lobbyId, String username) {
-        this.game = game;
         this.myId = ServerConnection.getInstance().getClient().getID();
-        this.lobbyId = lobbyId;
 
         Skin skin = ((Main) game).getSkin();
 
         this.gameStateManager = new GameStateManager();  // receives game state from the server
-        this.playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
+        PlayerInputManager playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
         this.spriteBatch = new SpriteBatch();  // where all the content is rendered
         this.shapeRenderer = new ShapeRenderer();
-        this.arena = new Arena();  // manages players and bullets
+        Arena arena = new Arena();  // manages players and bullets
         this.hud = new Hud(spriteBatch, lobbyId, username, skin);  // info overlay
         this.shopOverlay = new ShopOverlay(spriteBatch, this);
 

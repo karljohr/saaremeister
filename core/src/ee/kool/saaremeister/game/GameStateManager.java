@@ -28,6 +28,7 @@ public class GameStateManager {
         latestGameStateMessage = new GameStateMessage();
         latestGameStateMessage.setPlayerStates(new ArrayList<>());
         latestGameStateMessage.setBulletStates(new ArrayList<>());
+        latestGameStateMessage.setBuildingStates(new ArrayList<>());
         latestGameStateMessage.setGameTime(0);
         latestGameStateMessage.setAllPlayersHaveJoined(false);
         latestGameStateMessage.setCaptureZones(new ArrayList<>());

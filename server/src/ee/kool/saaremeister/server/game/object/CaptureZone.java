@@ -1,6 +1,8 @@
 package ee.kool.saaremeister.server.game.object;
 
+import com.badlogic.gdx.math.Intersector;
 import lombok.Getter;
+import lombok.Setter;
 import message.dto.CaptureZoneState;
 
 import java.util.List;
@@ -21,30 +23,44 @@ public class CaptureZone {
     private final float y;
     private final float width;
     private final float height;
+    private final float[] polygonVertices;
 
     // Mutable game state.
+    @Setter
     private int ownerPlayerId = NEUTRAL_OWNER_ID;
     private int capturingPlayerId = NEUTRAL_OWNER_ID;
     private float captureProgressSeconds = 0f;
     private boolean contested = false;
 
-    public CaptureZone(int zoneId, float x, float y, float width, float height) {
+    /**
+     * Creates a new capture zone with the given polygon vertices.
+     */
+    public CaptureZone(int zoneId, float[] polygonVertices) {
         this.zoneId = zoneId;
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        this.polygonVertices = polygonVertices.clone();
+
+        float minX = Float.POSITIVE_INFINITY, minY = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY, maxY = Float.NEGATIVE_INFINITY;
+        for (int i = 0; i < polygonVertices.length; i += 2) {
+            float vx = polygonVertices[i], vy = polygonVertices[i + 1];
+            minX = Math.min(minX, vx); maxX = Math.max(maxX, vx);
+            minY = Math.min(minY, vy); maxY = Math.max(maxY, vy);
+        }
+        this.x = minX; this.y = minY; this.width = maxX - minX; this.height = maxY - minY;
     }
 
     /**
      * Returns true if the player is standing in the capture zone.
      */
     public boolean contains(Player player) {
-        float playerX = player.getX();
-        float playerY = player.getY();
+        float px = player.getX();
+        float py = player.getY();
 
-        return playerX >= x && playerX <= x + width
-                && playerY >= y && playerY <= y + height;
+        // fast reject using AABB
+        if (px < x || px > x + width || py < y || py > y + height) return false;
+
+        // exact isometric quad check
+        return Intersector.isPointInPolygon(polygonVertices, 0, polygonVertices.length, px, py);
     }
 
     /**
@@ -56,8 +72,9 @@ public class CaptureZone {
         // Sets the zone as contested if there are multiple players in it.
         contested = playersInZone.size() > 1;
 
-        // Pauses capture progress when no player is inside the zone.
+        // Resets the capture progress when no player is inside the zone.
         if (playersInZone.isEmpty()) {
+            captureProgressSeconds = 0f;
             return;
         }
 

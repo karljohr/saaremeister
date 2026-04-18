@@ -3,6 +3,7 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
+import ee.kool.saaremeister.server.game.object.Master;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
 import lombok.Getter;
@@ -33,10 +34,11 @@ public class MatchRules {
      */
     public MatchEndReason determineEndReason(
             List<CaptureZone> captureZones,
-            Set<Connection> players,
+            Set<Connection> connections,
+            List<Player> players,
             float gameTime) {
 
-        if (areAllZonesCapturedByOnePlayer(captureZones)) {
+        if (areAllZonesCapturedByOnePlayer(captureZones, players)) {
             gameWinnerId = captureZones.getFirst().getOwnerPlayerId();
             return MatchEndReason.ALL_ZONES_CAPTURED;
         }
@@ -52,7 +54,7 @@ public class MatchRules {
             return MatchEndReason.TIME_LIMIT_REACHED_WITH_DRAW;
         }
 
-        if (isLobbyEmpty(players)) {
+        if (isLobbyEmpty(connections)) {
             return MatchEndReason.NO_PLAYERS_CONNECTED;
         }
 
@@ -60,17 +62,22 @@ public class MatchRules {
     }
 
     /**
-     * Checks if one player captures all capture zones.
+     * Checks if one player captures all capture zones. The player must not be the Island Master.
      */
-    private boolean areAllZonesCapturedByOnePlayer(List<CaptureZone> captureZones) {
-        int check = 0;
-        for (int i = 0; i < captureZones.size() - 1; i++) {
-            if (captureZones.get(i).getOwnerPlayerId() == captureZones.get(i + 1).getOwnerPlayerId()
-                    && captureZones.get(i).getOwnerPlayerId() != -1) {
-                check++;
-            }
-        }
-        return check == captureZones.size() - 1;
+    private boolean areAllZonesCapturedByOnePlayer(List<CaptureZone> captureZones, List<Player> players) {
+        int ownerId = captureZones.getFirst().getOwnerPlayerId();
+        if (ownerId == -1) return false;
+
+        boolean allSameOwner = captureZones.stream()
+                .allMatch(zone -> zone.getOwnerPlayerId() == ownerId);
+        if (!allSameOwner) return false;
+
+        Player owner = players.stream()
+                .filter(p -> p.getId() == ownerId)
+                .findFirst()
+                .orElse(null);
+
+        return !(owner instanceof Master);
     }
 
     /**
@@ -146,6 +153,9 @@ public class MatchRules {
         });
     }
 
+    /**
+     * Destroys buildings that have no health left.
+     */
     public void checkBrokenBuildings(List<Building> buildings) {
         Iterator<Building> iterator = buildings.iterator();
 

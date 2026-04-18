@@ -1,7 +1,6 @@
 package ee.kool.saaremeister.screen.gamescreen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -60,7 +59,6 @@ public class GameScreenRenderController {
 
         // Render isometric map
         int overLayIndex = worldView.getMap().getLayers().getIndex("Overlay");
-        int overLay2Index = worldView.getMap().getLayers().getIndex("Overlay2");
         int groundIndex = worldView.getMap().getLayers().getIndex("ground");
         int tempIndex = worldView.getMap().getLayers().getIndex("temp");
 
@@ -79,8 +77,12 @@ public class GameScreenRenderController {
 
         spriteBatch.begin();
         arena.renderPlayers(spriteBatch);
-        arena.renderBullets(spriteBatch);
+        arena.renderProjectiles(spriteBatch);
         spriteBatch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        arena.renderExplosions(shapeRenderer);
+        shapeRenderer.end();
 
         // Render the isometric map overlay layers
         worldView.getRenderer().render(new int[]{overLayIndex, tempIndex});

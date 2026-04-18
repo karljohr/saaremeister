@@ -1,9 +1,10 @@
 package ee.kool.saaremeister.server.game;
 
 import ee.kool.saaremeister.server.game.object.buildings.Building;
-import ee.kool.saaremeister.server.game.object.Bullet;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
+import ee.kool.saaremeister.server.game.object.projectiles.Rocket;
 import lombok.Getter;
 import lombok.Setter;
 import message.GameStateMessage;
@@ -39,7 +40,12 @@ public class GameStateHandler {
     /**
      * Creates a game state message with the given player and bullet states.
      */
-    public Object getGameStateMessage(List<Player> players, List<Bullet> bullets, List<Building> buildings) {
+    public Object getGameStateMessage(
+            List<Player> players,
+            List<Bullet> bullets,
+            List<Building> buildings,
+            List<ExplosionState> explosionStates
+    ) {
         // Create player states for the game state message.
         var playerStates = new ArrayList<PlayerState>();
         players.forEach(player -> {
@@ -49,9 +55,16 @@ public class GameStateHandler {
             }
         });
 
-        // Create bullet states for the game state message.
+        // Create bullet & rocket states for the game state message.
         var bulletStates = new ArrayList<BulletState>();
-        bullets.forEach(bullet -> bulletStates.add(bullet.getBulletState()));
+        var rocketStates = new ArrayList<RocketState>();
+        bullets.forEach(bullet -> {
+            if (bullet instanceof Rocket rocket) {
+                rocketStates.add(rocket.getRocketState());
+            } else {
+                bulletStates.add(bullet.getBulletState());
+            }
+        });
 
         // Create building states for the game state message.
         var buildingStates = new ArrayList<BuildingState>();
@@ -67,11 +80,13 @@ public class GameStateHandler {
         var gameStateMessage = new GameStateMessage();
         gameStateMessage.setPlayerStates(playerStates);
         gameStateMessage.setBulletStates(bulletStates);
+        gameStateMessage.setRocketStates(rocketStates);
         gameStateMessage.setBuildingStates(buildingStates);
         gameStateMessage.setGameTime(Math.round(gameTime));
         gameStateMessage.setAllPlayersHaveJoined(allPlayersHaveJoined);
         gameStateMessage.setGameOver(gameOver);
         gameStateMessage.setCaptureZones(captureZoneStates);
+        gameStateMessage.setExplosionStates(explosionStates);
         gameStateMessage.setWinnerPlayerRole(winnerPlayerRole);
 
         return gameStateMessage;

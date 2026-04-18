@@ -18,7 +18,14 @@ public class ShopRegistry {
             new ShopItem(6, "Kiirusjook", 75, Category.TARVIKUD, "speed_pot"),
             new ShopItem(7, "Tugevusjook", 100, Category.TARVIKUD, "strength_pot"),
             new ShopItem(8, "Suurtükitorn", 50, Category.EHITISED, "gun_tower"),
-            new ShopItem(9, "Müürid", 50, Category.EHITISED, "walls")
+            new ShopItem(9, "Müürid", 50, Category.EHITISED, "walls"),
+            new ShopItem(
+                    10,
+                    "Ballistilise raketi baas",
+                    200,
+                    Category.EHITISED,
+                    "ballistic_rocket_base"
+            )
     );
 
     public static ShopItem getItemById(int id) {

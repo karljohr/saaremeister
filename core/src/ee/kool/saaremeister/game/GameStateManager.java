@@ -36,6 +36,7 @@ public class GameStateManager {
         latestGameStateMessage.setAllPlayersHaveJoined(false);
         latestGameStateMessage.setCaptureZones(new ArrayList<>());
         latestGameStateMessage.setGameOver(false);
+        latestGameStateMessage.setExplosionStates(new ArrayList<>());
         latestGameStateMessage.setWinnerPlayerRole(null);
     }
 

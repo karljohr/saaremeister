@@ -9,10 +9,12 @@ import java.util.List;
 public class GameStateMessage {
     private List<PlayerState> playerStates;
     private List<BulletState> bulletStates;
+    private List<RocketState> rocketStates;
     private List<CaptureZoneState> captureZones;
     private float gameTime;
     private boolean allPlayersHaveJoined;
     private List<BuildingState>  buildingStates;
     private boolean gameOver;
+    private List<ExplosionState> explosionStates;
     private PlayerRole winnerPlayerRole;
 }

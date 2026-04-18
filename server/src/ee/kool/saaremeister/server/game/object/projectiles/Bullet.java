@@ -1,4 +1,4 @@
-package ee.kool.saaremeister.server.game.object;
+package ee.kool.saaremeister.server.game.object.projectiles;
 
 import com.badlogic.gdx.math.Vector2;
 import lombok.Getter;
@@ -16,9 +16,9 @@ import static constant.Constants.BULLET_SPEED;
 public class Bullet {
     private final Direction direction;
     private final Vector2 aim;
-    private float x;
-    private float y;
-    private int shotById;
+    protected float x;
+    protected float y;
+    protected int shotById;
 
     /**
      * Bullets that are shot by a player.

@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.*;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.listener.ShopPurchaseListener;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import message.dto.PlayerRole;
@@ -126,7 +127,12 @@ public class GameConnectionManager {
             captureZones.forEach(zone -> zone.clearPlayer(p.getRole()));
         }
 
-        var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
+        var gameStateMessage = gameStateHandler.getGameStateMessage(
+                players,
+                bullets,
+                buildHandler.getBuildings(),
+                new ArrayList<>()
+        );
         connections.forEach(c -> c.sendTCP(gameStateMessage));
 
         Log.info("Player left the game: " + connection.getID());

@@ -15,7 +15,6 @@ import static constant.Constants.PPM;
  */
 public class DefenceBuilding extends Building {
 
-    @Getter
     private List<BuildingState> tiles;
 
     public DefenceBuilding(int id, int tileX, int tileY, World world, int health) {

@@ -4,9 +4,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.*;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
 import lombok.Getter;
+import message.dto.ExplosionState;
 import message.dto.PlayerRole;
 import message.dto.StaticBodyState;
 
@@ -28,6 +30,7 @@ public class GameInstance extends Thread {
 
     @Getter
     private final Map<PlayerRole, List<Vector2>> spawnPoints;
+    private final Queue<ExplosionState> pendingExplosions = new ConcurrentLinkedDeque<>();
 
     private final GameConnectionManager connectionManager;
     private final GameTickProcessor tickProcessor;
@@ -36,9 +39,11 @@ public class GameInstance extends Thread {
      * Creates a new game instance.
      */
     public GameInstance(LobbyManager lobbyManager, int lobbyId) {
-
         World world = new World(new Vector2(0, 0), true);
         BulletCollisionHandler bulletCollisionHandler = new BulletCollisionHandler(world);
+        World world1 = new World(new Vector2(0, 0), true);
+        BulletCollisionHandler bulletCollisionHandler1 = new BulletCollisionHandler(world);
+        bulletCollisionHandler1.setGameInstance(this);
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         List<StaticBodyState> staticBodyData = box2dWorldGenerator.initializeWorld(world);
@@ -81,6 +86,7 @@ public class GameInstance extends Thread {
                 matchRules,
                 players,
                 pendingBullets,
+                pendingExplosions,
                 bullets,
                 captureZones,
                 connections,
@@ -109,6 +115,10 @@ public class GameInstance extends Thread {
      */
     public void addBullet(Bullet bullet) {
         pendingBullets.add(bullet);
+    }
+
+    public void addExplosion(ExplosionState explosionState) {
+        pendingExplosions.add(explosionState);
     }
 
     /**

@@ -137,10 +137,12 @@ public class MatchRules {
 
                 Body playerBody = player.getBody();
                 playerBody.setActive(true);
-                playerBody.setTransform(0f / PPM, 0f / PPM, 0f);
+                SpawnPointLoader.setRandomSpawnPoint(
+                        player,
+                        player.getRole(),
+                        player.getGameInstance().getSpawnPoints()
+                );
                 playerBody.setLinearVelocity(0f, 0f);
-                player.setX(0f);
-                player.setY(0f);
                 player.setAlive(true);
             }
         });

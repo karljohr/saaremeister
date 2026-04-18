@@ -9,8 +9,8 @@ public class CaptureZoneState {
     private float y;
     private float width;
     private float height;
-    private int ownerPlayerId;
-    private int capturingPlayerId;
+    private PlayerRole ownerRole;
+    private PlayerRole capturingRole;
     private float captureProgressSeconds;
     private boolean contested;
 }

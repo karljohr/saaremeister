@@ -4,8 +4,11 @@ import com.badlogic.gdx.math.Intersector;
 import lombok.Getter;
 import lombok.Setter;
 import message.dto.CaptureZoneState;
+import message.dto.PlayerRole;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import static constant.Constants.CAPTURE_SECONDS_REQUIRED;
 import static constant.Constants.NEUTRAL_OWNER_ID;
@@ -27,10 +30,14 @@ public class CaptureZone {
 
     // Mutable game state.
     @Setter
-    private int ownerPlayerId = NEUTRAL_OWNER_ID;
-    private int capturingPlayerId = NEUTRAL_OWNER_ID;
+    private ZoneOwner ownerEnum = ZoneOwner.MASTER;
+    private ZoneOwner capturingEnum = ZoneOwner.NEUTRAL;
     private float captureProgressSeconds = 0f;
     private boolean contested = false;
+
+    public enum ZoneOwner {
+        MASTER, OFFICER, NEUTRAL
+    }
 
     /**
      * Creates a new capture zone with the given polygon vertices.
@@ -43,10 +50,15 @@ public class CaptureZone {
         float maxX = Float.NEGATIVE_INFINITY, maxY = Float.NEGATIVE_INFINITY;
         for (int i = 0; i < polygonVertices.length; i += 2) {
             float vx = polygonVertices[i], vy = polygonVertices[i + 1];
-            minX = Math.min(minX, vx); maxX = Math.max(maxX, vx);
-            minY = Math.min(minY, vy); maxY = Math.max(maxY, vy);
+            minX = Math.min(minX, vx);
+            maxX = Math.max(maxX, vx);
+            minY = Math.min(minY, vy);
+            maxY = Math.max(maxY, vy);
         }
-        this.x = minX; this.y = minY; this.width = maxX - minX; this.height = maxY - minY;
+        this.x = minX;
+        this.y = minY;
+        this.width = maxX - minX;
+        this.height = maxY - minY;
     }
 
     /**
@@ -67,13 +79,25 @@ public class CaptureZone {
      * Updates the capture zone's state based on the players in the zone.
      */
     public void update(List<Player> allPlayers, float deltaTime) {
-        List<Player> playersInZone = allPlayers.stream().filter(this::contains).toList();
+
+        // Finds what classes of players are in the zone. Removes the enum from the set if there is not such a class in
+        // the zone.
+        Set<ZoneOwner> classesInZone = EnumSet.noneOf(ZoneOwner.class);
+        for (Player player : allPlayers) {
+            if (!this.contains(player)) continue;
+            if (player.getRole() == PlayerRole.MASTER) {
+                classesInZone.add(ZoneOwner.MASTER);
+            } else if (player.getRole() == PlayerRole.OFFICER) {
+                classesInZone.add(ZoneOwner.OFFICER);
+            }
+        }
+
 
         // Sets the zone as contested if there are multiple players in it.
-        contested = playersInZone.size() > 1;
+        contested = classesInZone.size() > 1;
 
         // Resets the capture progress when no player is inside the zone.
-        if (playersInZone.isEmpty()) {
+        if (classesInZone.isEmpty()) {
             captureProgressSeconds = 0f;
             return;
         }
@@ -83,51 +107,51 @@ public class CaptureZone {
             return;
         }
 
-        Player capturingPlayer = playersInZone.getFirst();
-        int playerId = capturingPlayer.getId();
+        capturingEnum = classesInZone.iterator().next();
 
         // Doesn't advance capture progress if the player already owns the zone.
-        if (ownerPlayerId == playerId) {
-            capturingPlayerId = NEUTRAL_OWNER_ID;
+        if (ownerEnum == capturingEnum) {
+            capturingEnum = ZoneOwner.NEUTRAL;
             captureProgressSeconds = 0f;
             contested = false;
             return;
         }
 
-        // Resets the capture progress if a different player started capturing the zone.
-        if (capturingPlayerId != playerId) {
-            capturingPlayerId = playerId;
-            captureProgressSeconds = 0f;
-        }
-
+        // Advances capture progress.
         captureProgressSeconds += deltaTime;
 
         // If one player has reached the capture time, then they are the new owner of the zone.
         if (captureProgressSeconds >= CAPTURE_SECONDS_REQUIRED) {
-            ownerPlayerId = playerId;
-            capturingPlayerId = NEUTRAL_OWNER_ID;
+            ownerEnum = capturingEnum;
+            capturingEnum = ZoneOwner.NEUTRAL;
             captureProgressSeconds = 0f;
             contested = false;
         }
-    }
-
-    public boolean isCaptured() {
-        return ownerPlayerId != NEUTRAL_OWNER_ID;
     }
 
     /**
-     * Clears the capture progress of the player.
+     * Clears ongoing capture state for a disconnecting player's class. Ownership is class-based, so we do not clear
+     * ownerEnum here.
      */
-    public void clearPlayer(int playerId) {
-        if (ownerPlayerId == playerId) {
-            ownerPlayerId = NEUTRAL_OWNER_ID;
-        }
+    public void clearPlayer(PlayerRole role) {
+        ZoneOwner leavingClass = switch (role) {
+            case MASTER -> ZoneOwner.MASTER;
+            case OFFICER -> ZoneOwner.OFFICER;
+        };
 
-        if (capturingPlayerId == playerId) {
-            capturingPlayerId = NEUTRAL_OWNER_ID;
+        if (capturingEnum == leavingClass) {
+            capturingEnum = ZoneOwner.NEUTRAL;
             captureProgressSeconds = 0f;
             contested = false;
         }
+    }
+
+    private PlayerRole toPlayerRoleOrNull(ZoneOwner zoneOwner) {
+        return switch (zoneOwner) {
+            case MASTER -> PlayerRole.MASTER;
+            case OFFICER -> PlayerRole.OFFICER;
+            case NEUTRAL -> null;
+        };
     }
 
     /**
@@ -140,8 +164,8 @@ public class CaptureZone {
         state.setY(y);
         state.setWidth(width);
         state.setHeight(height);
-        state.setOwnerPlayerId(ownerPlayerId);
-        state.setCapturingPlayerId(capturingPlayerId);
+        state.setOwnerRole(toPlayerRoleOrNull(ownerEnum));
+        state.setCapturingRole(toPlayerRoleOrNull(capturingEnum));
         state.setCaptureProgressSeconds(captureProgressSeconds);
         state.setContested(contested);
         return state;

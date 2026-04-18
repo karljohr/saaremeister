@@ -1,10 +1,7 @@
 package message;
 
 import lombok.Data;
-import message.dto.BuildingState;
-import message.dto.BulletState;
-import message.dto.CaptureZoneState;
-import message.dto.PlayerState;
+import message.dto.*;
 
 import java.util.List;
 
@@ -17,5 +14,5 @@ public class GameStateMessage {
     private boolean allPlayersHaveJoined;
     private List<BuildingState>  buildingStates;
     private boolean gameOver;
-    private int winnerPlayerId;
+    private PlayerRole winnerPlayerRole;
 }

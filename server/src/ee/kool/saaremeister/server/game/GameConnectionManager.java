@@ -105,11 +105,6 @@ public class GameConnectionManager {
 
         connection.addListener(new ShopPurchaseListener(activePlayers));
 
-        // Gives all the capture zones to the Island Master by default.
-        for (CaptureZone captureZone : captureZones) {
-            captureZone.setOwnerPlayerId(getMasterId());
-        }
-
         // Debug hitbox info
         StaticBodyState[] arr = staticBodyData.toArray(new StaticBodyState[0]);
         connection.sendTCP(arr);
@@ -128,24 +123,12 @@ public class GameConnectionManager {
 
         if (p != null) {
             players.remove(p);
-            captureZones.forEach(zone -> zone.clearPlayer(p.getId()));
+            captureZones.forEach(zone -> zone.clearPlayer(p.getRole()));
         }
 
         var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
         connections.forEach(c -> c.sendTCP(gameStateMessage));
 
         Log.info("Player left the game: " + connection.getID());
-    }
-
-    /**
-     * Returns the ID of the Island Master.
-     */
-    public int getMasterId() {
-        for (Player player : players) {
-            if (player.getRole() == PlayerRole.MASTER) {
-                return player.getId();
-            }
-        }
-        return -1;
     }
 }

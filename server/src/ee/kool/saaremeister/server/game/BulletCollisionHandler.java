@@ -4,11 +4,14 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
-import ee.kool.saaremeister.server.game.object.Bullet;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.projectiles.Rocket;
+import message.dto.ExplosionState;
 
 import java.util.*;
 
+import static constant.Constants.BULLET_DAMAGE;
 import static constant.Constants.PPM;
 
 /**
@@ -18,9 +21,14 @@ public class BulletCollisionHandler {
 
     private final World world;
     private final Array<Body> worldBodies = new Array<>();
+    private GameInstance gameInstance;
 
     public BulletCollisionHandler(World world) {
         this.world = world;
+    }
+
+    public void setGameInstance(GameInstance gameInstance) {
+        this.gameInstance = gameInstance;
     }
 
     /**
@@ -41,17 +49,48 @@ public class BulletCollisionHandler {
         Iterator<Bullet> bulletIterator = bullets.iterator();
         while (bulletIterator.hasNext()) {
             Bullet bullet = bulletIterator.next();
+
+            if (bullet instanceof Rocket rocket) {
+                if (!rocket.hasLanded()) continue;
+            }
+
             float bulletX = bullet.getX() / PPM;
             float bulletY = bullet.getY() / PPM;
+
+            if (bullet instanceof Rocket rocket) {
+
+                // Rocket hitting ground & checking if anyone got hit.
+                List<Player> hitPlayers = findHitPlayersInRange(bulletX, bulletY, bullet.getShotById(), players);
+                if (!hitPlayers.isEmpty()) {
+                    hitPlayers.forEach(player -> player.decreaseLives(rocket.getDamage()));
+                    Log.info("Players "
+                            + hitPlayers.stream()
+                            .map(Player::getId)
+                            .toList()
+                            + " got hit by rocket explosion"
+                    );
+                }
+                if (gameInstance != null) {
+                    ExplosionState explosionState = new ExplosionState();
+                    explosionState.setX(bullet.getX());
+                    explosionState.setY(bullet.getY());
+                    gameInstance.addExplosion(explosionState);
+                }
+                bulletIterator.remove();
+
+            } else {
 
             // Hitting another player (not the shooter itself).
             Player hit = findHitPlayer(bulletX, bulletY, bullet.getShotById(), players);
             if (hit != null) {
-                hit.decreaseLives();
+                hit.decreaseLives((int)BULLET_DAMAGE);
                 Log.info("Player " + hit.getId() + " hit by bullet from " + bullet.getShotById());
                 bulletIterator.remove();
                 continue;
             }
+
+            }
+
 
             // Hitting a blocking static body.
             if (hitsBlockingStaticBody(bulletX, bulletY, bullet.getShotById(), playersById, buildingById)) {
@@ -76,6 +115,38 @@ public class BulletCollisionHandler {
             }
         }
         return null;
+    }
+
+    /**
+     * Finds the players that were in blast radius.
+     * @return list of players.
+     */
+    private List<Player> findHitPlayersInRange(float bulletX, float bulletY, int shooterId, List<Player> players) {
+        List<Player> hitPlayers = new ArrayList<>();
+        List<Fixture> hitFixtures = new ArrayList<>();
+
+        world.QueryAABB(fixture -> {
+                    hitFixtures.add(fixture);
+                    return true;
+                },
+                bulletX - Rocket.getBLAST_RADIUS(),
+                bulletY - Rocket.getBLAST_RADIUS(),
+                bulletX + Rocket.getBLAST_RADIUS(),
+                bulletY + Rocket.getBLAST_RADIUS()
+        );
+
+        for (Player player : players) {
+            if (player.getId() == shooterId) continue;
+            Body body = player.getBody();
+            if (body == null) continue;
+
+            for (Fixture fixture : body.getFixtureList()) {
+                if (hitFixtures.contains(fixture)) {
+                    hitPlayers.add(player);
+                }
+            }
+        }
+        return hitPlayers;
     }
 
     /**

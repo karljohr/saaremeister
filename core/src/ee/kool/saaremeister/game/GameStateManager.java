@@ -33,6 +33,7 @@ public class GameStateManager {
         latestGameStateMessage.setCaptureZones(new ArrayList<>());
         latestGameStateMessage.setGameOver(false);
         latestGameStateMessage.setWinnerPlayerId(-1);
+        latestGameStateMessage.setExplosionStates(new ArrayList<>());
     }
 
     /**

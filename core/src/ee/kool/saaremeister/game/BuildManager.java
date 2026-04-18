@@ -27,15 +27,15 @@ import java.util.Map;
  */
 public class BuildManager {
 
-    private TiledMapTileLayer layer;
-    private TiledMap map;
+    private final TiledMapTileLayer layer;
+    private final TiledMap map;
     private TiledMapTile tile;
-    private List<BuildingState> lastTiles;
+    private final List<BuildingState> lastTiles;
     private int selectedBuilding;
     private int selectedVariation;
-    private GameScreen game;
-    private Map<Integer, Integer> previousHealthById;
-    private Map<Integer, Long> healthBarVisibleUntilById;
+    private final GameScreen game;
+    private final Map<Integer, Integer> previousHealthById;
+    private final Map<Integer, Long> healthBarVisibleUntilById;
     private List<BuildingState> currentBuildingStates;
     private List<BuildingState> renderedBuildings;
 

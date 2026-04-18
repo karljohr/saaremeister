@@ -4,10 +4,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.*;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.listener.ServerListener;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
 import lombok.Getter;
+import message.dto.ExplosionState;
 import message.dto.StaticBodyState;
 
 import java.time.Duration;
@@ -30,6 +32,7 @@ public class GameInstance extends Thread {
     @Getter
     private final List<Player> players = new ArrayList<>();
     private final Queue<Bullet> pendingBullets = new ConcurrentLinkedDeque<>();
+    private final Queue<ExplosionState> pendingExplosions = new ConcurrentLinkedDeque<>();
     private final List<Bullet> bullets = new ArrayList<>();
     private final List<CaptureZone> captureZones = new ArrayList<>();
     private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
@@ -52,6 +55,7 @@ public class GameInstance extends Thread {
 
         this.world = new World(new Vector2(0, 0), true);
         this.bulletCollisionHandler = new BulletCollisionHandler(world);
+        this.bulletCollisionHandler.setGameInstance(this);
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         staticBodyData = box2dWorldGenerator.initializeWorld(world);
@@ -85,6 +89,7 @@ public class GameInstance extends Thread {
                 matchRules,
                 players,
                 pendingBullets,
+                pendingExplosions,
                 bullets,
                 captureZones,
                 connections,
@@ -120,6 +125,10 @@ public class GameInstance extends Thread {
      */
     public void addBullet(Bullet bullet) {
         pendingBullets.add(bullet);
+    }
+
+    public void addExplosion(ExplosionState explosionState) {
+        pendingExplosions.add(explosionState);
     }
 
     /**

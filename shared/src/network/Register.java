@@ -55,5 +55,8 @@ public class Register {
         // Building
         kryo.register(PlayerBuildMessage.class);
         kryo.register(BuildingState.class);
+
+        kryo.register(RocketState.class);
+        kryo.register(ExplosionState.class);
     }
 }

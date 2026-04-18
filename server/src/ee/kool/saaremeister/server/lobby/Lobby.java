@@ -90,7 +90,7 @@ public class Lobby {
             return;
         }
 
-        gameInstance = new GameInstance(serverListener, lobbyManager, lobbyId);
+        gameInstance = new GameInstance(lobbyManager, lobbyId);
         gameInstance.addLobbyConnections(players);
         gameInstance.start();
         StartGameMessage startMessage = new StartGameMessage();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="260" height="260" tilewidth="32" tileheight="16" infinite="0" nextlayerid="27" nextobjectid="1331">
+<map version="1.10" tiledversion="1.12.0" orientation="isometric" renderorder="right-down" width="260" height="260" tilewidth="32" tileheight="16" infinite="0" parallaxoriginx="-4160" parallaxoriginy="0" nextlayerid="29" nextobjectid="1345">
  <tileset firstgid="1" source="blocks.tsx"/>
  <tileset firstgid="17" source="tank.tsx"/>
  <tileset firstgid="20" source="buildings.tsx"/>
@@ -290,6 +290,56 @@
    <properties>
     <property name="id" type="int" value="4"/>
    </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="28" name="spawnpoints">
+  <object id="1335" name="master_spawn_4" x="92" y="4680">
+   <properties>
+    <property name="role" value="MASTER"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="1336" name="master_spawn_3" x="224" y="4444">
+   <properties>
+    <property name="role" value="MASTER"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="1337" name="master_spawn_2" x="500" y="4644">
+   <properties>
+    <property name="role" value="MASTER"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="1339" name="officer_spawn_2" x="-972" y="4236">
+   <properties>
+    <property name="role" value="OFFICER"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="1340" name="officer_spawn_3" x="-8" y="3200">
+   <properties>
+    <property name="role" value="OFFICER"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="1341" name="officer_spawn_4" x="1408" y="4664">
+   <properties>
+    <property name="role" value="OFFICER"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="1342" name="officer_spawn_1" x="484" y="5648">
+   <properties>
+    <property name="role" value="OFFICER"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="1343" name="master_spawn_1" x="96" y="4176">
+   <properties>
+    <property name="role" value="MASTER"/>
+   </properties>
+   <point/>
   </object>
  </objectgroup>
  <layer id="15" name="cz4_enemy" width="260" height="260" offsetx="-4160" offsety="0">

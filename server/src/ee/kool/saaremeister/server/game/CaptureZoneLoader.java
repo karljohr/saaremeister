@@ -16,7 +16,7 @@ import java.util.List;
 import static constant.Constants.PPM;
 
 /**
- * Loads the capture zones.
+ * Loads the capture zones into the game from the TMX map.
  */
 public class CaptureZoneLoader {
 
@@ -53,12 +53,15 @@ public class CaptureZoneLoader {
             Vector2 p3 = mapPixelToWorldPixels(map, isoTransform, tmp, r.x + r.width, r.y + r.height);
             Vector2 p4 = mapPixelToWorldPixels(map, isoTransform, tmp, r.x, r.y + r.height);
 
-            float minX = Math.min(Math.min(p1.x, p2.x), Math.min(p3.x, p4.x));
-            float maxX = Math.max(Math.max(p1.x, p2.x), Math.max(p3.x, p4.x));
-            float minY = Math.min(Math.min(p1.y, p2.y), Math.min(p3.y, p4.y));
-            float maxY = Math.max(Math.max(p1.y, p2.y), Math.max(p3.y, p4.y));
+            // Keep the transformed isometric quad (clockwise order).
+            float[] polygonVertices = new float[]{
+                    p1.x, p1.y,
+                    p2.x, p2.y,
+                    p3.x, p3.y,
+                    p4.x, p4.y
+            };
 
-            zones.add(new CaptureZone(zoneId, minX, minY, maxX - minX, maxY - minY));
+            zones.add(new CaptureZone(zoneId, polygonVertices));
         }
 
         return zones;

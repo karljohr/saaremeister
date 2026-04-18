@@ -15,6 +15,6 @@ public class GameStateMessage {
     private boolean allPlayersHaveJoined;
     private List<BuildingState>  buildingStates;
     private boolean gameOver;
-    private int winnerPlayerId;
     private List<ExplosionState> explosionStates;
+    private PlayerRole winnerPlayerRole;
 }

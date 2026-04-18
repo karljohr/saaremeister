@@ -1,5 +1,6 @@
 package ee.kool.saaremeister.server.game;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
@@ -14,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static constant.Constants.PLAYER_COUNT_INGAME_LIMIT;
+import static constant.Constants.PPM;
 
 /**
  * Manages the connections to the game and assigns roles to players.
@@ -31,6 +33,7 @@ public class GameConnectionManager {
     private final Map<Integer, Player> activePlayers;
     private final Set<Connection> connections;
     private final List<StaticBodyState> staticBodyData;
+    private final Map<PlayerRole, List<Vector2>> spawnPoints;
 
     public GameConnectionManager(
             LobbyManager lobbyManager,
@@ -43,7 +46,8 @@ public class GameConnectionManager {
             List<CaptureZone> captureZones,
             Map<Integer, Player> activePlayers,
             Set<Connection> connections,
-            List<StaticBodyState> staticBodyData
+            List<StaticBodyState> staticBodyData,
+            Map<PlayerRole, List<Vector2>> spawnPoints
     ) {
         this.lobbyManager = lobbyManager;
         this.gameStateHandler = gameStateHandler;
@@ -56,6 +60,7 @@ public class GameConnectionManager {
         this.activePlayers = activePlayers;
         this.connections = connections;
         this.staticBodyData = staticBodyData;
+        this.spawnPoints = spawnPoints;
     }
 
     /**
@@ -97,6 +102,8 @@ public class GameConnectionManager {
         players.add(newPlayer);
         connections.add(connection);
 
+       SpawnPointLoader.setRandomSpawnPoint(newPlayer, role, spawnPoints);
+
         connection.addListener(new ShopPurchaseListener(activePlayers));
 
         // Debug hitbox info
@@ -117,7 +124,7 @@ public class GameConnectionManager {
 
         if (p != null) {
             players.remove(p);
-            captureZones.forEach(zone -> zone.clearPlayer(p.getId()));
+            captureZones.forEach(zone -> zone.clearPlayer(p.getRole()));
         }
 
         var gameStateMessage = gameStateHandler.getGameStateMessage(

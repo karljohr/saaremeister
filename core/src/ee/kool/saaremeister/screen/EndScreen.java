@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import ee.kool.saaremeister.Main;
 import lombok.Getter;
 import lombok.Setter;
+import message.dto.PlayerRole;
 
 /**
  * Shows in full screen, whether the player won or lost.
@@ -22,9 +23,9 @@ public class EndScreen extends ScreenAdapter {
     private final Stage stage;
     private final Skin skin;
     @Getter @Setter
-    private int gameWinnerId;
+    private int gameWinnerRole;
 
-    public EndScreen(Game game, int gameWinnerId, int myId) {
+    public EndScreen(Game game, PlayerRole gameWinnerRole, PlayerRole myRole) {
         this.game = game;
         this.stage = new Stage();
         this.skin = ((Main) game).getSkin();
@@ -32,7 +33,7 @@ public class EndScreen extends ScreenAdapter {
         // Will make the stage listen for user input.
         Gdx.input.setInputProcessor(stage);
 
-        String resultMessage = "Sa " + (gameWinnerId != myId ? "kaotasid!" : "v6itsid!");
+        String resultMessage = "Sa " + (gameWinnerRole != myRole ? "kaotasid!" : "v6itsid!");
         Label resultLabel = new Label(resultMessage, skin, "title");
 
         Label instructionLabel = new Label("Vajuta ESC, et minna tagasi avaekraanile", skin, "big");

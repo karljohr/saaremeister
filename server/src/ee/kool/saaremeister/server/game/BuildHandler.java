@@ -117,9 +117,13 @@ public class BuildHandler {
                     .map(tile -> new Vector2(tile.getX(), tile.getY()))
                     .toList()
                     .contains(new Vector2(x, y));
-        } else {
-            return build.getTileX() == x || build.getTileY() == y;
         }
+        if (build instanceof RocketLauncher) {
+            return Math.abs(build.getTileX() - x) <= 1
+                    && Math.abs(build.getTileY() - y) <= 1;
+        }
+
+        return build.getTileX() == x && build.getTileY() == y;
     }
 
     /**

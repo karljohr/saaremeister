@@ -212,8 +212,10 @@ public class Player {
         return false;
     }
 
+    // Dont count slot 1 since its permanent for gun
+    // Using this only for counting potions
     public boolean isHotbarFull() {
-        return hotbarItemCount >= 3;
+        return hotbarItemCount >= 2;
     }
 
     public void addHotbarItem() {

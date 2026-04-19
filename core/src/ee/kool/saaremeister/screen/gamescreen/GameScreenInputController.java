@@ -124,6 +124,29 @@ public class GameScreenInputController {
         });
 
         connection.replayCachedChatUpdates(lobbyId);
+
+        connection.getClient().addListener(new com.esotericsoftware.kryonet.Listener() {
+            @Override
+            public void received(com.esotericsoftware.kryonet.Connection conn, Object object) {
+                if (object instanceof message.ShopPurchaseMessage msg) {
+                    Gdx.app.postRunnable(() -> {
+                        message.dto.ShopItem item = common.ShopRegistry.getItemById(msg.getItemId());
+                        if (item != null) {
+                            // Buildings work through ShopOverlay
+                            if (item.getCategory() != constant.Category.EHITISED) {
+                                boolean added = hud.getHotbar().addItem(item);
+                                Gdx.app.log("SHOP", "Ese lisatud hotbari: " + item.getName() + " (" + added + ")");
+                            }
+                        }
+
+                        // Update shop view (for hiding worse armor)
+                        if (shopOverlay != null && shopOverlay.isOpen()) {
+                            shopOverlay.refreshGrid();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     /**

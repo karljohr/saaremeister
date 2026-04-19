@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.kool.saaremeister.component.LabelComponent;
 import common.ShopRegistry;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
+import message.dto.PlayerRole;
 import message.dto.ShopItem;
 import constant.Category;
 import lombok.Getter;
@@ -107,6 +108,7 @@ public class ShopOverlay implements Disposable {
         Table categoryRow = new Table();
         categoryRow.defaults().pad(4);
         for (Category cat : Category.values()) {
+            if (isOfficer() && cat == Category.EHITISED) continue;
             TextButton btn = shopCategoryButton(13, cat.getDisplayName(), () -> {
                 currentCategory = cat;
                 refreshGrid();
@@ -130,7 +132,7 @@ public class ShopOverlay implements Disposable {
     /**
      * Refreshes the item grid based on the current category.
      */
-    private void refreshGrid() {
+    public void refreshGrid() {
         itemGrid.clearChildren();
 
         // Find players armor type
@@ -146,8 +148,15 @@ public class ShopOverlay implements Disposable {
         }
         List<String> itemsInHotbar = game.getHud().getHotbar().getAllItems();
 
+        // Check if player is officer
+        boolean officer = isOfficer();
+        if (officer && currentCategory == Category.EHITISED) {
+            currentCategory = Category.KOIK;
+        }
+
         List<ShopItem> filteredItems = new ArrayList<>();
         for (ShopItem item : ShopRegistry.ITEMS) {
+            if (officer && item.getCategory() == Category.EHITISED) continue;
             if (currentCategory != Category.KOIK && item.getCategory() != currentCategory) continue;
 
             // Armor check
@@ -344,6 +353,11 @@ public class ShopOverlay implements Disposable {
 
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+    }
+
+    private boolean isOfficer() {
+        var msg = game.getGameStateManager().getLatestGameStateMessage();
+        return game.getGameStateManager().resolveMyRole(msg) == PlayerRole.OFFICER;
     }
 
     @Override

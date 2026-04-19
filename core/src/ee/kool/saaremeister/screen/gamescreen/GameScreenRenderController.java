@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import ee.kool.saaremeister.game.Arena;
 import ee.kool.saaremeister.game.BuildManager;
 import ee.kool.saaremeister.screen.overlay.Hud;
+import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
 
@@ -25,6 +26,7 @@ public class GameScreenRenderController {
     private final GameWorldView worldView;
     private final GameScreenState state;
     private final BuildManager buildManager;
+    private final PauseOverlay pauseOverlay;
 
     public GameScreenRenderController(
             SpriteBatch spriteBatch,
@@ -35,7 +37,8 @@ public class GameScreenRenderController {
             DebugRenderer debugRenderer,
             GameWorldView worldView,
             GameScreenState state,
-            BuildManager buildManager
+            BuildManager buildManager,
+            PauseOverlay pauseOverlay
     ) {
         this.spriteBatch = spriteBatch;
         this.shapeRenderer = shapeRenderer;
@@ -46,6 +49,7 @@ public class GameScreenRenderController {
         this.worldView = worldView;
         this.state = state;
         this.buildManager = buildManager;
+        this.pauseOverlay = pauseOverlay;
     }
 
     /**
@@ -92,6 +96,7 @@ public class GameScreenRenderController {
 
         shopOverlay.render(delta);
         hud.render(delta); // render the HUD last to ensure it appears on top of all other content
+        pauseOverlay.render(delta);
 
         // Render debug
         if (state.isDebugMode()) {

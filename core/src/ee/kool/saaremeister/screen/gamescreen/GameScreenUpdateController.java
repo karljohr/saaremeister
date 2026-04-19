@@ -65,7 +65,7 @@ public class GameScreenUpdateController {
 
         // Stops movement and shooting if the chat is focused and vice versa.
         boolean chatFocused = hud.isChatInputFocused();
-        if (!chatFocused && !state.isShopOpen()) {
+        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
             playerInputManager.handleMovementInput();
             playerInputManager.handleShootingInput();
         } else if (!state.wasChatFocused()) {
@@ -74,7 +74,7 @@ public class GameScreenUpdateController {
         }
         state.setWasChatFocused(chatFocused);
 
-        if (!chatFocused && !state.isShopOpen()) {
+        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
             // Hotbar keys
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) hud.selectHotbarSlot(0);
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) hud.selectHotbarSlot(1);
@@ -84,8 +84,6 @@ public class GameScreenUpdateController {
             playerInputManager.handleShootingInput();
         }
 
-        handleScreenNavigation();
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             state.setDebugMode(!state.isDebugMode());
             arena.getPlayers().stream()
@@ -94,7 +92,7 @@ public class GameScreenUpdateController {
                     .ifPresent(me -> System.out.println(me.getX() + ":" + me.getY()));
         }
 
-        if (state.isBuildMode()) {
+        if (state.isBuildMode() && !state.isPaused()) {
             Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             worldView.getCamera().unproject(mouse);
             buildManager.renderProjection(mouse.x, mouse.y);
@@ -143,18 +141,5 @@ public class GameScreenUpdateController {
         // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
 
         hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
-    }
-
-    /**
-     * Handles screen navigation, for example, GameScreen -> TitleScreen.
-     */
-    private void handleScreenNavigation() {
-        // navigate to TitleScreen and leave the game instance
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new TitleScreen(game));
-            LobbyExitMessage exitMessage = new LobbyExitMessage();
-            exitMessage.setLobbyId(lobbyId);
-            ServerConnection.getInstance().getClient().sendTCP(exitMessage);
-        }
     }
 }

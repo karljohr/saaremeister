@@ -128,7 +128,6 @@ public class GameTickProcessor {
             }
             connections.forEach(connection -> connection.sendTCP(finalGameStateMessage));
             gameDisposer.dispose();
-            lobbyManager.disposeLobby(lobbyId);
             return false;
         }
         return true;

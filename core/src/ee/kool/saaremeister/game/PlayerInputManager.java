@@ -2,6 +2,7 @@ package ee.kool.saaremeister.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector2;
 import ee.kool.saaremeister.component.Hotbar;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.PlayerMovementMessage;
@@ -12,6 +13,8 @@ import message.dto.Direction;
  * Listens for the user input and forwards update messages to the server.
  */
 public class PlayerInputManager {
+
+    private Direction facing = Direction.DOWN;
 
     /**
      * Handles the player movement input.
@@ -40,6 +43,13 @@ public class PlayerInputManager {
             }
         }
 
+        // Set facing direction for shooting
+        if (movementMessage.getDirectionY() != null) {
+            facing = movementMessage.getDirectionY();
+        } else if (movementMessage.getDirectionX() != null) {
+            facing = movementMessage.getDirectionX();
+        }
+
         if (movementMessage.getDirectionX() == null && movementMessage.getDirectionY() == null) return;
 
         ServerConnection
@@ -59,22 +69,22 @@ public class PlayerInputManager {
     /**
      * Handles the player's shooting input.
      */
+    public void handleShootingInput(float px, float py, float mx, float my) {
+        if (!Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) return;
+
+        Vector2 aim = new Vector2(mx - px, my - py);
+        if (aim.isZero(0.001f)) return;
+
+        PlayerShootingMessage msg = new PlayerShootingMessage();
+        msg.setAim(aim.nor());
+        ServerConnection.getInstance().getClient().sendTCP(msg);
+    }
+
     public void handleShootingInput() {
-        var shootingMessage = new PlayerShootingMessage();
+        if (!Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) return;
 
-        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.LEFT)) {
-            shootingMessage.setDirection(Direction.LEFT);
-        } else if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.RIGHT)) {
-            shootingMessage.setDirection(Direction.RIGHT);
-        } else if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.UP)) {
-            shootingMessage.setDirection(Direction.UP);
-        } else if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.DOWN)) {
-            shootingMessage.setDirection(Direction.DOWN);
-        }
-
-        if (shootingMessage.getDirection() == null) return;
-
-        ServerConnection.getInstance().getClient().sendTCP(shootingMessage);
+        PlayerShootingMessage msg = new PlayerShootingMessage();
+        ServerConnection.getInstance().getClient().sendTCP(msg);
     }
 
     public void handleActionInput(Hotbar hotbar) {
@@ -90,7 +100,7 @@ public class PlayerInputManager {
         if (selectedIndex == 0 && "Püstol".equals(selected)) {
             handleShootingInput();
         }
-        // For potions left click
+        // For potions left-click
         else if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             System.out.println("Kasutati: " + selected);
             hotbar.clearSlot(hotbar.getSelectedIndex());

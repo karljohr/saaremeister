@@ -1,7 +1,6 @@
 package ee.kool.saaremeister.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import ee.kool.saaremeister.network.ServerConnection;
@@ -62,8 +61,7 @@ public class Arena {
                         players.add(newPlayer);
                         return newPlayer;
                     });
-            player.setX(playerState.getX());
-            player.setY(playerState.getY());
+            player.applyServerState(playerState.getX(), playerState.getY());
         });
 
         if (myRole == null) {

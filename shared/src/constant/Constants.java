@@ -23,7 +23,7 @@ public class Constants {
     public static final int MAX_SLOTS = 15;
 
     // Player
-    public static final float PLAYER_SPEED = 500.0f;
+    public static final float PLAYER_SPEED = 200.0f;
     public static final int PLAYER_PIXEL_HEIGHT = 32;
     public static final int PLAYER_PIXEL_WIDTH = 32;
 
@@ -36,8 +36,8 @@ public class Constants {
     public static final int OFFICER_MONEY = 500;
 
     // Bullet
-    public static final float BULLET_SPEED = 5.0f;
-    public static final long BULLET_TIMEOUT_MILLISECONDS = 650;
+    public static final float BULLET_SPEED = 8.0f;
+    public static final long BULLET_TIMEOUT_MILLISECONDS = 500;
     public static final float BULLET_WIDTH_IN_PIXELS = 8;
     public static final float BULLET_HEIGHT_IN_PIXELS = 8;
     public static final float BULLET_DAMAGE = 1;

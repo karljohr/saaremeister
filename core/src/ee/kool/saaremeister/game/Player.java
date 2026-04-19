@@ -1,9 +1,12 @@
 package ee.kool.saaremeister.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import ee.kool.saaremeister.utility.Sprites;
 import lombok.Getter;
 import lombok.Setter;
+import message.dto.Direction;
 
 import static constant.Constants.PLAYER_PIXEL_HEIGHT;
 import static constant.Constants.PLAYER_PIXEL_WIDTH;
@@ -21,6 +24,10 @@ public class Player {
     @Getter
     private float y;
 
+    private float stateTime = 0f;
+    private boolean moving = false;
+    private Direction facing = Direction.DOWN;
+
     /**
      * Creates a new Player instance.
      */
@@ -36,18 +43,49 @@ public class Player {
     }
 
     /**
-     * Renders the player on the screen.
+     * Applies the server state to the player (position, current movement, and facing).
+     */
+    public void applyServerState(float nx, float ny) {
+        float dx = nx - x;
+        float dy = ny - y;
+
+        float eps = 0.1f;
+        boolean movedX = Math.abs(dx) > eps;
+        boolean movedY = Math.abs(dy) > eps;
+        moving = movedX || movedY;
+
+        if (moving) {
+            if (movedY) {
+                // Diagonal or vertical: always use vertical animation
+                facing = dy > 0 ? Direction.DOWN : Direction.UP;
+            } else if (movedX) {
+                // Horizontal only
+                facing = dx > 0 ? Direction.RIGHT : Direction.LEFT;
+            }
+        }
+
+        x = nx;
+        y = ny;
+    }
+
+    /**
+     * Renders the player on the screen. Picks the correct animation frame based on the player's state.
      */
     public void render(SpriteBatch spriteBatch) {
         // x/y are in world units (pixels/PPM). Draw sprite centered with size also in world units.
         float w = PLAYER_PIXEL_WIDTH;
         float h = PLAYER_PIXEL_HEIGHT;
-        spriteBatch.draw(
-                Sprites.playerTexture,
-                x - w / 2f,
-                y - h / 2f,
-                w,
-                h
-        );
+
+        if (moving) {
+            stateTime += Gdx.graphics.getDeltaTime();
+        } else {
+            stateTime = 0f;
+        }
+
+        TextureRegion frame = moving
+                ? Sprites.getPlayerAnimation(facing).getKeyFrame(stateTime, true)
+                : Sprites.getPlayerIdleFrame(facing);
+
+        spriteBatch.draw(frame, x - w / 2f, y - h / 2f, w, h);
     }
 }

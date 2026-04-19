@@ -10,10 +10,8 @@ import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.EndScreen;
-import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import message.GameStateMessage;
-import message.LobbyExitMessage;
 import message.dto.PlayerRole;
 
 /**
@@ -25,7 +23,6 @@ public class GameScreenUpdateController {
     private final Game game;
     private final int myId;
     private PlayerRole myRole;
-    private final int lobbyId;
     private final GameStateManager gameStateManager;
     private final PlayerInputManager playerInputManager;
     private final Arena arena;
@@ -37,7 +34,6 @@ public class GameScreenUpdateController {
     public GameScreenUpdateController(
             Game game,
             int myId,
-            int lobbyId,
             GameStateManager gameStateManager,
             PlayerInputManager playerInputManager,
             Arena arena,
@@ -48,7 +44,6 @@ public class GameScreenUpdateController {
     ) {
         this.game = game;
         this.myId = myId;
-        this.lobbyId = lobbyId;
         this.gameStateManager = gameStateManager;
         this.playerInputManager = playerInputManager;
         this.arena = arena;
@@ -67,7 +62,6 @@ public class GameScreenUpdateController {
         boolean chatFocused = hud.isChatInputFocused();
         if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
             playerInputManager.handleMovementInput();
-            playerInputManager.handleShootingInput();
         } else if (!state.wasChatFocused()) {
             playerInputManager.stopMovement();
             playerInputManager.stopShooting();
@@ -81,7 +75,6 @@ public class GameScreenUpdateController {
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) hud.selectHotbarSlot(2);
 
             playerInputManager.handleMovementInput();
-            playerInputManager.handleShootingInput();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
@@ -135,10 +128,20 @@ public class GameScreenUpdateController {
         worldView.getCamera().update();
         worldView.getRenderer().setView(worldView.getCamera());
 
+        // Shooting direction based on mouse position.
+        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
+            arena.getPlayers().stream()
+                    .filter(p -> p.getId() == myId)
+                    .findFirst()
+                    .ifPresent(me -> {
+                        Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+                        worldView.getViewport().unproject(mouse);       // viewport for FitViewport correctness
+                        playerInputManager.handleShootingInput(me.getX(), me.getY(), mouse.x, mouse.y);
+                    });
+        }
+
         buildManager.renderBatch(currentGameState.getBuildingStates());
         buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
-
-        // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
 
         hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
     }

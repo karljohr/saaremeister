@@ -15,10 +15,8 @@ public class TitleScreen extends ScreenAdapter {
 
     private final Game game;
     private final Stage stage;
-    private final Skin skin;
     private int pendingLobbyId = 0;
     private final TextField nameField;
-    private final Label createUsernameLabel;
 
     /**
      * TitleScreen represents the main menu of the game, where players can choose to start the game or exit.
@@ -26,7 +24,7 @@ public class TitleScreen extends ScreenAdapter {
      */
     public TitleScreen(Game game) {
         this.game = game;
-        this.skin = ((Main) game).getSkin();
+        Skin skin = ((Main) game).getSkin();
         stage = new Stage();
 
         // NB! an important line - will make the stage listen for user input,
@@ -41,7 +39,7 @@ public class TitleScreen extends ScreenAdapter {
                 new TextField.TextFieldStyle(skin.get(TextField.TextFieldStyle.class));
         inputStyle.font = skin.getFont("button");
         nameField = new TextField("", inputStyle);
-        createUsernameLabel = new Label("Sisesta oma nimi:", skin, "big");
+        Label createUsernameLabel = new Label("Sisesta oma nimi:", skin, "big");
 
         // menu buttons
         TextButton startButton = new TextButton("Liitu lobbysse", skin);

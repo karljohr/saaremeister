@@ -1,5 +1,6 @@
 package ee.kool.saaremeister.server.game.object;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
@@ -21,6 +22,7 @@ import message.dto.PlayerState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static constant.Constants.*;
 
@@ -190,11 +192,11 @@ public class Player {
         buildHandler.build(message, this);
     }
 
-    public void shoot(Direction direction) {
-        gameInstance.addBullet(
-                new Bullet(x, y, direction, id)
-        );
-        Log.info("spawning bullet for " + id + " at " + x + "," + y + " dir=" + direction);
+    /**
+     * Shoot a bullet depending on the mouse position.
+     */
+    public void shoot(Vector2 aim) {
+        gameInstance.addBullet(new Bullet(x, y, aim.cpy().nor(), id));
     }
 
     /**
@@ -242,12 +244,12 @@ public class Player {
      */
     public void refundBuildingPermit(int id) {
         removeBuildingPermit(id);
-        money += ShopRegistry
-                .getItemById(
-                        BuildingInfo.getShopId(
-                                BuildingInfo.getBuildingFromVariation(id)
-                        )
-                )
+        money += Objects.requireNonNull(ShopRegistry
+                        .getItemById(
+                                BuildingInfo.getShopId(
+                                        BuildingInfo.getBuildingFromVariation(id)
+                                )
+                        ))
                 .getPrice();
     }
 

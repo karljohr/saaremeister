@@ -1,6 +1,5 @@
 package ee.kool.saaremeister.screen.overlay;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,31 +14,28 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import ee.kool.saaremeister.Main;
-import ee.kool.saaremeister.network.ServerConnection;
-import ee.kool.saaremeister.screen.TitleScreen;
-import ee.kool.saaremeister.screen.gamescreen.GameScreenState;
 import lombok.Getter;
-import message.LobbyExitMessage;
 
+/**
+ * Pause overlay for a game instance so that pressing ESC wouldn't immediately disconnect the player.
+ */
 public class PauseOverlay implements Disposable {
 
     @Getter
     private final Stage stage;
     private final Table root;
 
-    private final Skin skin;
-
     private final Texture dimTexture;
 
     private static final Color WINDOW_BACKGROUND = new Color(192 / 255f, 192 / 255f, 192 / 255f, 1f);
     private static final Color DIM = new Color(0f, 0f, 0f, 0.65f);
 
-
+    /**
+     * Creates a new pause overlay.
+     */
     public PauseOverlay(SpriteBatch spriteBatch, Runnable onResume, Runnable onLeave, Skin skin) {
         ScreenViewport viewport = new ScreenViewport();
         stage = new Stage(viewport, spriteBatch);
-        this.skin = skin;
 
         dimTexture = createDimTexture();
 

@@ -14,7 +14,7 @@ import message.dto.BuildingState;
 @Getter
 public abstract class Building {
     protected final int uniqueId;
-    protected final int id;
+    protected int id;
     protected final int tileX;
     protected final int tileY;
     protected float x;

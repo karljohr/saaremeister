@@ -11,6 +11,7 @@ import ee.kool.saaremeister.server.game.object.buildings.Building;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
 import ee.kool.saaremeister.server.game.object.buildings.OffenceBuilding;
+import ee.kool.saaremeister.server.game.object.buildings.RocketLauncher;
 import lombok.Getter;
 import message.PlayerBuildMessage;
 import message.dto.BuildingState;
@@ -144,35 +145,57 @@ public class BuildHandler {
     public void buildFromQueue() {
         if (buildMessageQueue.isEmpty()) return;
         BuildingState buildingState = buildMessageQueue.removeFirst();
-        if (BuildingInfo.getBuildingType(buildingState.id) == BuildingInfo.BuildingType.OFFENCE) {
-            buildings.add(
-                    new OffenceBuilding(
-                            buildingState.id,
-                            buildingState.x,
-                            buildingState.y,
-                            world,
-                            gameInstance,
-                            BuildingInfo.getBuildingHealth(
-                                    BuildingInfo.getBuildingFromVariation(buildingState.id)
-                            ),
-                            BuildingInfo.getRange(
-                                    BuildingInfo.getBuildingFromVariation(buildingState.id)
-                            )
-                    )
-            );
-        } else {
-            buildings.add(
-                    new DefenceBuilding(
-                            buildingState.id,
-                            buildingState.x,
-                            buildingState.y,
-                            world,
-                            BuildingInfo.getBuildingHealth(
-                                            BuildingInfo.getBuildingFromVariation(buildingState.id)
-                            )
-                    )
-            );
+
+        switch (BuildingInfo.getBuildingType(buildingState.id)) {
+            case OFFENCE -> {
+                buildings.add(
+                        new OffenceBuilding(
+                                buildingState.id,
+                                buildingState.x,
+                                buildingState.y,
+                                world,
+                                gameInstance,
+                                BuildingInfo.getBuildingHealth(
+                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
+                                ),
+                                BuildingInfo.getRange(
+                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
+                                )
+                        )
+                );
+            }
+            case DEFENCE -> {
+                buildings.add(
+                        new DefenceBuilding(
+                                buildingState.id,
+                                buildingState.x,
+                                buildingState.y,
+                                world,
+                                BuildingInfo.getBuildingHealth(
+                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
+                                )
+                        )
+                );
+            }
+            case ROCKET_LAUNCHER -> {
+                buildings.add(
+                        new RocketLauncher(
+                                buildingState.id,
+                                buildingState.x,
+                                buildingState.y,
+                                world,
+                                gameInstance,
+                                BuildingInfo.getBuildingHealth(
+                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
+                                ),
+                                BuildingInfo.getRange(
+                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
+                                )
+                        )
+                );
+            }
         }
+
         Log.info("[BuildHandler] Building " + BuildingInfo.getBuildingType(buildingState.id) + " placed at " + buildingState.x + ";" + buildingState.y);
     }
 

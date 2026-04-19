@@ -19,6 +19,7 @@ import ee.kool.saaremeister.component.Hotbar;
 import ee.kool.saaremeister.component.LabelComponent;
 import lombok.Getter;
 import message.GameStateMessage;
+import message.dto.PlayerRole;
 
 import java.util.List;
 
@@ -41,6 +42,7 @@ public class Hud implements Disposable {
     @Getter
     private final Hotbar hotbar;
     private final Table buildLegend;
+    private PlayerRole playerRole = null;
 
     public Hud(SpriteBatch spriteBatch, int lobbyId, String username, Skin skin) {
         stage = new Stage(new ScreenViewport(), spriteBatch);
@@ -140,7 +142,7 @@ public class Hud implements Disposable {
     /**
      * Updates the HUD with the given GameStateMessage.
      */
-    public void update(GameStateMessage msg, int myId) {
+    public void update(GameStateMessage msg, int myId, PlayerRole myRole) {
         // Updates the player's money and lives. Lives are set to 0 if the player is currently not in the game (dead).
         var me = msg.getPlayerStates().stream()
                 .filter(p -> p.getId() == myId)
@@ -149,6 +151,7 @@ public class Hud implements Disposable {
             moneyLabel.setText(String.valueOf(me.get().getMoney()));
             livesLabel.setText("Elud: " + me.get().getLives());
             defenseLabel.setText("Kaitse: " + me.get().getDefense());
+
         } else {
             livesLabel.setText("Elud: 0");
             defenseLabel.setText("Kaitse: 0");
@@ -161,7 +164,7 @@ public class Hud implements Disposable {
         int ownedZones = 0;
         if (msg.getCaptureZones() != null) {
             ownedZones = (int) msg.getCaptureZones().stream()
-                    .filter(zone -> zone.getOwnerPlayerId() == myId)
+                    .filter(zone -> zone.getOwnerRole() == myRole)
                     .count();
         }
         zonesLabel.setText("Tsoonid: " + ownedZones + "/4");

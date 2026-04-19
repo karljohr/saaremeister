@@ -3,11 +3,12 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
-import ee.kool.saaremeister.server.game.object.Bullet;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import message.dto.CaptureZoneState;
+import message.dto.ExplosionState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class GameTickProcessor {
 
     private final List<Player> players;
     private final Queue<Bullet> pendingBullets;
+    private final Queue<ExplosionState> pendingExplosions;
     private final List<Bullet> bullets;
     private final List<CaptureZone> captureZones;
     private final Set<Connection> connections;
@@ -46,6 +48,7 @@ public class GameTickProcessor {
             MatchRules matchRules,
             List<Player> players,
             Queue<Bullet> pendingBullets,
+            Queue<ExplosionState> pendingExplosions,
             List<Bullet> bullets,
             List<CaptureZone> captureZones,
             Set<Connection> connections,
@@ -60,6 +63,7 @@ public class GameTickProcessor {
         this.matchRules = matchRules;
         this.players = players;
         this.pendingBullets = pendingBullets;
+        this.pendingExplosions = pendingExplosions;
         this.bullets = bullets;
         this.captureZones = captureZones;
         this.connections = connections;
@@ -92,6 +96,12 @@ public class GameTickProcessor {
         }
         bulletCollisionHandler.handleBulletCollisions(bullets, players, buildHandler.getBuildings());
 
+        var explosionStates = new ArrayList<ExplosionState>();
+        ExplosionState explosionState;
+        while ((explosionState = pendingExplosions.poll()) != null) {
+            explosionStates.add(explosionState);
+        }
+
         // Check if any players are dead and need to be given the respawn timer.
         matchRules.checkRespawn(players);
 
@@ -100,7 +110,12 @@ public class GameTickProcessor {
 
         // Update player positions.
         players.forEach(Player::updateFromPhysics);
-        var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
+        var gameStateMessage = gameStateHandler.getGameStateMessage(
+                players,
+                bullets,
+                buildHandler.getBuildings(),
+                explosionStates
+        );
 
         // Capture Zone updates according to the players (not) inside it.
         captureZones.forEach(zone -> zone.update(players, deltaTime));
@@ -114,22 +129,25 @@ public class GameTickProcessor {
 
         // If there is a match end reason, stop the game.
         MatchRules.MatchEndReason endReason = matchRules.determineEndReason(
-                captureZones, connections, gameStateHandler.getGameTime()
+                captureZones, connections, players, gameStateHandler.getGameTime()
         );
         if (endReason != MatchRules.MatchEndReason.NONE) {
-            int winnerPlayerId = matchRules.getGameWinnerId();
-            gameStateHandler.setWinnerPlayerId(winnerPlayerId);
+            var winnerPlayerRole = matchRules.getGameWinnerRole();
+            gameStateHandler.setWinnerPlayerRole(winnerPlayerRole);
             gameStateHandler.setGameOver(true);
-            var finalGameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings());
+            var finalGameStateMessage = gameStateHandler.getGameStateMessage(
+                    players,
+                    bullets,
+                    buildHandler.getBuildings(),
+                    explosionStates
+            );
             switch (endReason) {
                 case NO_PLAYERS_CONNECTED -> Log.info("No players connected, stopping game.");
-                case ALL_ZONES_CAPTURED -> Log.info("All zones captured by one player, stopping game.");
-                case TIME_LIMIT_REACHED_WITH_RESULT -> Log.info("Time limit reached, someone won, stopping game.");
-                case TIME_LIMIT_REACHED_WITH_DRAW -> Log.info("Time limit reached, no one won, stopping game.");
+                case ALL_ZONES_CAPTURED -> Log.info("All zones captured by the officers, stopping game.");
+                case TIME_LIMIT_REACHED -> Log.info("Time limit reached, Island Master won, stopping game.");
             }
             connections.forEach(connection -> connection.sendTCP(finalGameStateMessage));
             gameDisposer.dispose();
-            lobbyManager.disposeLobby(lobbyId);
             return false;
         }
         return true;

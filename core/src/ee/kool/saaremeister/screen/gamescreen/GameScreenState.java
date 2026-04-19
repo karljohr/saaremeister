@@ -8,6 +8,7 @@ public class GameScreenState {
     private boolean wasChatFocused;
     private boolean buildMode;
     private boolean debugMode;
+    private boolean paused;
 
     boolean isShopOpen() {
         return shopOpen;
@@ -40,4 +41,8 @@ public class GameScreenState {
     void setDebugMode(boolean debugMode) {
         this.debugMode = debugMode;
     }
+
+    boolean isPaused() {return paused;}
+
+    public void setPaused(boolean paused) {this.paused = paused;}
 }

@@ -1,15 +1,20 @@
 package ee.kool.saaremeister.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import ee.kool.saaremeister.network.ServerConnection;
+import ee.kool.saaremeister.utility.ExplosionEffect;
 import ee.kool.saaremeister.utility.Sprites;
 import lombok.Getter;
 import message.GameStateMessage;
 import message.dto.BulletState;
 import message.dto.CaptureZoneState;
+import message.dto.ExplosionState;
+import message.dto.PlayerRole;
 import message.dto.PlayerState;
+import message.dto.RocketState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +29,11 @@ public class Arena {
     @Getter
     private final List<Player> players = new ArrayList<>();
     private List<BulletState> bullets = new ArrayList<>();
+    private List<RocketState> rockets = new ArrayList<>();
     private List<CaptureZoneState> captureZones = new ArrayList<>();
     private final int myId = ServerConnection.getInstance().getClient().getID();
+    private final List<ExplosionEffect> explosions = new ArrayList<>();
+    private PlayerRole myRole = null;
 
     public enum ZoneVisualState {
         CONTESTED,
@@ -57,7 +65,25 @@ public class Arena {
             player.setX(playerState.getX());
             player.setY(playerState.getY());
         });
+
+        if (myRole == null) {
+            myRole = gameStateMessage.getPlayerStates().stream()
+                    .filter(p -> p.getId() == myId)
+                    .map(PlayerState::getRole)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+
+        var explosionStates = gameStateMessage.getExplosionStates();
+        if (explosionStates != null) {
+            for (ExplosionState explosionState : explosionStates) {
+                explosions.add(new ExplosionEffect(explosionState.getX(), explosionState.getY()));
+            }
+        }
+
         this.bullets = gameStateMessage.getBulletStates();
+        this.rockets = gameStateMessage.getRocketStates();
         this.captureZones = gameStateMessage.getCaptureZones() != null
                 ? gameStateMessage.getCaptureZones()
                 : new ArrayList<>();
@@ -73,22 +99,9 @@ public class Arena {
     }
 
     /**
-     * Render all capture zones.
+     * Render all projectiles.
      */
-    public void renderCaptureZones(ShapeRenderer shapeRenderer) {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
-        for (CaptureZoneState captureZone : captureZones) {
-            shapeRenderer.setColor(getZoneColor(captureZone));
-            shapeRenderer.rect(captureZone.getX(), captureZone.getY(), captureZone.getWidth(), captureZone.getHeight());
-        }
-        shapeRenderer.end();
-    }
-
-    /**
-     * Render all bullets.
-     */
-    public void renderBullets(SpriteBatch spriteBatch) {
+    public void renderProjectiles(SpriteBatch spriteBatch) {
         bullets.forEach(bullet -> {
             spriteBatch.draw(
                     Sprites.bulletTexture,
@@ -98,23 +111,15 @@ public class Arena {
                     BULLET_HEIGHT_IN_PIXELS
             );
         });
-    }
-
-    /**
-     * Returns the color of the capture zone based on the capture zone owner.
-     * Neutral zones are gray, owned zones are green, captured zones are red.
-     */
-    private Color getZoneColor(CaptureZoneState captureZoneState) {
-        if (captureZoneState.isContested()) {
-            return new Color(1f, 1f, 0f, 0.35f);
-        }
-        if (captureZoneState.getOwnerPlayerId() == NEUTRAL_OWNER_ID) {
-            return new Color(0.6f, 0.6f, 0.6f, 0.25f);
-        }
-        if (captureZoneState.getOwnerPlayerId() == myId) {
-            return new Color(0f, 1f, 0f, 0.30f);
-        }
-        return new Color(1f, 0f, 0f, 0.30f);
+        rockets.forEach(rocket -> {
+            spriteBatch.draw(
+                    rocket.isFalling() ? Sprites.rocketDownTexture : Sprites.rocketTexture,
+                    rocket.getX(),
+                    rocket.getY() + rocket.getHeight(),
+                    ROCKET_WIDTH_IN_PIXELS,
+                    ROCKET_HEIGHT_IN_PIXELS
+            );
+        });
     }
 
     /**
@@ -126,9 +131,28 @@ public class Arena {
                 .findFirst()
                 .orElse(null);
 
-        if (zoneState == null || zoneState.getOwnerPlayerId() == NEUTRAL_OWNER_ID) return ZoneVisualState.NEUTRAL;
+        if (zoneState == null || zoneState.getOwnerRole() == null) return ZoneVisualState.NEUTRAL;
         if (zoneState.isContested()) return ZoneVisualState.CONTESTED;
-        if (zoneState.getOwnerPlayerId() == myId) return ZoneVisualState.MINE;
+        if (zoneState.getOwnerRole() == myRole) return ZoneVisualState.MINE;
         return ZoneVisualState.ENEMY;
+    }
+
+    public void renderExplosions(ShapeRenderer shapeRenderer) {
+        float delta = Gdx.graphics.getDeltaTime();
+        explosions.removeIf(explosion -> {
+            explosion.setTimeAlive(explosion.getTimeAlive() + delta);
+            return explosion.getTimeAlive() >= 0.6f;
+        });
+
+        for (ExplosionEffect explosion : explosions) {
+            float t = explosion.getTimeAlive() / 0.6f;
+            float radius = 8f + 28f * t;
+
+            shapeRenderer.setColor(1f, 0.9f, 0.4f, 1f - t);
+            shapeRenderer.circle(explosion.getX(), explosion.getY(), radius);
+
+            shapeRenderer.setColor(1f, 0.45f, 0.1f, 0.8f * (1f - t));
+            shapeRenderer.circle(explosion.getX(), explosion.getY(), radius * 0.65f);
+        }
     }
 }

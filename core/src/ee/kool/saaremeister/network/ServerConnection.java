@@ -190,7 +190,7 @@ public class ServerConnection {
      */
     public void setStaticBodiesListener(Consumer<StaticBodyState[]> listener) {
         this.staticBodiesListener = listener;
-        if (cachedStaticBodies != null) {
+        if (listener != null && cachedStaticBodies != null) {
             listener.accept(cachedStaticBodies);
         }
     }

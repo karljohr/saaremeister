@@ -12,31 +12,37 @@ import java.util.Map;
 public final class BuildingInfo {
     private static final Map<Integer, Integer> SHOP_ID_TO_TILE_ID = Map.of(
             8, 148,
-            9, 156
+            9, 156,
+            10, 149
     );
 
     public enum BuildingType {
         DEFENCE,
-        OFFENCE
+        OFFENCE,
+        ROCKET_LAUNCHER
     }
 
     private final static Map<BuildingType, List<Integer>> ID_TO_BUILDING_TYPE = Map.of(
             BuildingType.DEFENCE, List.of(156, 157),
-            BuildingType.OFFENCE, List.of(148)
+            BuildingType.OFFENCE, List.of(148),
+            BuildingType.ROCKET_LAUNCHER, List.of(149)
     );
 
     private final static Map<Integer, List<Integer>> BUILDING_VARIATIONS = Map.of(
             156, List.of(156, 157),
-            148, List.of(148)
+            148, List.of(148),
+            149, List.of(149)
     );
 
     private static final Map<Integer, Integer> BUILDING_TO_HEALTH = Map.of(
             156, 20,
-            148, 10
+            148, 10,
+            149, 10
     );
 
     private static final Map<Integer, Integer> BUILDING_TO_RANGE = Map.of(
-            148, 400
+            148, 400,
+            149, 500
     );
 
     private BuildingInfo() {
@@ -102,7 +108,16 @@ public final class BuildingInfo {
      * @return BuildingType enum
      */
     public static BuildingType getBuildingType(int id) {
-        return ID_TO_BUILDING_TYPE.get(BuildingType.OFFENCE).contains(id) ? BuildingType.OFFENCE : BuildingType.DEFENCE;
+        if (ID_TO_BUILDING_TYPE.get(BuildingType.DEFENCE).contains(id)) {
+            return BuildingType.DEFENCE;
+        }
+        if (ID_TO_BUILDING_TYPE.get(BuildingType.OFFENCE).contains(id)) {
+            return BuildingType.OFFENCE;
+        }
+        if (ID_TO_BUILDING_TYPE.get(BuildingType.ROCKET_LAUNCHER).contains(id)) {
+            return BuildingType.ROCKET_LAUNCHER;
+        }
+        throw new IllegalArgumentException("Unknown building tile id: " + id);
     }
 
     /**

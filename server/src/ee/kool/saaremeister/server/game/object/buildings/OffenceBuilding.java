@@ -2,9 +2,8 @@ package ee.kool.saaremeister.server.game.object.buildings;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.GameInstance;
-import ee.kool.saaremeister.server.game.object.Bullet;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.Officer;
 import ee.kool.saaremeister.server.game.object.Player;
 
@@ -19,10 +18,10 @@ import static constant.Constants.PPM;
  */
 public class OffenceBuilding extends Building {
 
-    private final int shootingFrequency = 650;
-    private LocalTime lastShotTime = LocalTime.MIN;
-    private final GameInstance gameInstance;
-    private int range;
+    protected int shootingFrequency = 650;
+    protected LocalTime lastShotTime = LocalTime.MIN;
+    protected final GameInstance gameInstance;
+    protected int range;
 
 
     public OffenceBuilding(int id,
@@ -53,7 +52,7 @@ public class OffenceBuilding extends Building {
         lastShotTime = now;
 
         Player closestPlayer = findClosestPlayer();
-        Log.info("[BUILDING] shooting at " + closestPlayer);
+        // Log.info("[BUILDING] shooting at " + closestPlayer);
         if (closestPlayer == null) {
             return;
         }
@@ -69,7 +68,7 @@ public class OffenceBuilding extends Building {
     /**
      * Finds the closest player to the offense building.
      */
-    private Player findClosestPlayer() {
+    protected Player findClosestPlayer() {
         return gameInstance
                 .getPlayers()
                 .stream()
@@ -93,7 +92,7 @@ public class OffenceBuilding extends Building {
     /**
      * Returns the vector pointing from the offense building to the player.
      */
-    private Vector2 buildingToPlayerAim(Player player) {
+    protected Vector2 buildingToPlayerAim(Player player) {
         float vectorX = player.getX() - this.getX();
         float vectorY = player.getY() - this.getY();
 
@@ -113,7 +112,7 @@ public class OffenceBuilding extends Building {
      * @param y2 y coordinate of the second point.
      * @return distance between the 2 points.
      */
-    private float calcDistanceBetweenTwoPoints(float x1, float y1,
+    protected float calcDistanceBetweenTwoPoints(float x1, float y1,
                                              float x2, float y2) {
         return new Vector2(x2 - x1, y2 - y1).len();
     }

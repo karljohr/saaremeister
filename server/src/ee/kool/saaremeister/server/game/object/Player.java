@@ -7,6 +7,7 @@ import common.ShopRegistry;
 import constant.BuildingInfo;
 import ee.kool.saaremeister.server.game.BuildHandler;
 import ee.kool.saaremeister.server.game.GameInstance;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.listener.BuildingListener;
 import ee.kool.saaremeister.server.listener.PlayerMovementListener;
 import ee.kool.saaremeister.server.listener.PlayerShootingListener;
@@ -173,9 +174,9 @@ public class Player {
     /**
      * Decreases the player's lives.
      */
-    public void decreaseLives() {
+    public void decreaseLives(int damage) {
         if (lives > 0) {
-            setLives(lives - (int) BULLET_DAMAGE);
+            setLives(lives - damage);
         }
     }
 

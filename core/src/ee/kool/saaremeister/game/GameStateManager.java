@@ -6,6 +6,8 @@ import ee.kool.saaremeister.network.listener.GameStateMessageListener;
 import lombok.Getter;
 import lombok.Setter;
 import message.GameStateMessage;
+import message.dto.PlayerRole;
+import message.dto.PlayerState;
 
 import java.util.ArrayList;
 
@@ -19,6 +21,7 @@ public class GameStateManager {
     private Client client;
     private final GameStateMessageListener gameStateMessageListener;
     private GameStateMessage latestGameStateMessage;
+    private PlayerRole myRole;
 
     public GameStateManager() {
         this.client = ServerConnection.getInstance().getClient();
@@ -28,11 +31,26 @@ public class GameStateManager {
         latestGameStateMessage = new GameStateMessage();
         latestGameStateMessage.setPlayerStates(new ArrayList<>());
         latestGameStateMessage.setBulletStates(new ArrayList<>());
+        latestGameStateMessage.setBuildingStates(new ArrayList<>());
         latestGameStateMessage.setGameTime(0);
         latestGameStateMessage.setAllPlayersHaveJoined(false);
         latestGameStateMessage.setCaptureZones(new ArrayList<>());
         latestGameStateMessage.setGameOver(false);
-        latestGameStateMessage.setWinnerPlayerId(-1);
+        latestGameStateMessage.setExplosionStates(new ArrayList<>());
+        latestGameStateMessage.setWinnerPlayerRole(null);
+    }
+
+    /**
+     * Resolves the player's role.
+     */
+    public PlayerRole resolveMyRole(GameStateMessage msg) {
+        if (myRole != null || msg == null) return myRole;
+        myRole = msg.getPlayerStates().stream()
+                .filter(p -> p.getId() == client.getID())
+                .map(PlayerState::getRole)
+                .findFirst()
+                .orElse(null);
+        return myRole;
     }
 
     /**

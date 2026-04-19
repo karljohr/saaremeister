@@ -4,10 +4,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.*;
-import ee.kool.saaremeister.server.listener.ServerListener;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import com.badlogic.gdx.physics.box2d.World;
 import lombok.Getter;
+import message.dto.ExplosionState;
+import message.dto.PlayerRole;
 import message.dto.StaticBodyState;
 
 import java.time.Duration;
@@ -22,22 +24,13 @@ import static constant.Constants.*;
  */
 public class GameInstance extends Thread {
 
-    private final ServerListener serverListener;
-    private final LobbyManager lobbyManager;
-    private final int lobbyId;
-    private final GameStateHandler gameStateHandler = new GameStateHandler();
-    private final Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
     @Getter
     private final List<Player> players = new ArrayList<>();
     private final Queue<Bullet> pendingBullets = new ConcurrentLinkedDeque<>();
-    private final List<Bullet> bullets = new ArrayList<>();
-    private final List<CaptureZone> captureZones = new ArrayList<>();
-    private final Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
-    private final World world;
-    private List<StaticBodyState> staticBodyData;
-    private final BuildHandler buildHandler;
-    private final MatchRules matchRules = new MatchRules();
-    private final BulletCollisionHandler bulletCollisionHandler;
+
+    @Getter
+    private final Map<PlayerRole, List<Vector2>> spawnPoints;
+    private final Queue<ExplosionState> pendingExplosions = new ConcurrentLinkedDeque<>();
 
     private final GameConnectionManager connectionManager;
     private final GameTickProcessor tickProcessor;
@@ -45,21 +38,27 @@ public class GameInstance extends Thread {
     /**
      * Creates a new game instance.
      */
-    public GameInstance(ServerListener serverListener, LobbyManager lobbyManager, int lobbyId) {
-        this.serverListener = serverListener;
-        this.lobbyManager = lobbyManager;
-        this.lobbyId = lobbyId;
-
-        this.world = new World(new Vector2(0, 0), true);
-        this.bulletCollisionHandler = new BulletCollisionHandler(world);
+    public GameInstance(LobbyManager lobbyManager, int lobbyId) {
+        World world = new World(new Vector2(0, 0), true);
+        BulletCollisionHandler bulletCollisionHandler = new BulletCollisionHandler(world);
+        World world1 = new World(new Vector2(0, 0), true);
+        BulletCollisionHandler bulletCollisionHandler1 = new BulletCollisionHandler(world);
+        bulletCollisionHandler1.setGameInstance(this);
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
-        staticBodyData = box2dWorldGenerator.initializeWorld(world);
+        List<StaticBodyState> staticBodyData = box2dWorldGenerator.initializeWorld(world);
 
-        this.buildHandler = new BuildHandler(world, this);
+        BuildHandler buildHandler = new BuildHandler(world, this);
 
         CaptureZoneLoader captureZoneLoader = new CaptureZoneLoader();
-        captureZones.addAll(captureZoneLoader.loadCaptureZones());
+        List<CaptureZone> captureZones = new ArrayList<>(captureZoneLoader.loadCaptureZones());
+
+        GameStateHandler gameStateHandler = new GameStateHandler();
+        Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
+        List<Bullet> bullets = new ArrayList<>();
+        Map<Integer, Player> activePlayers = new ConcurrentHashMap<>();
+        SpawnPointLoader spawnPointLoader = new SpawnPointLoader();
+        spawnPoints = spawnPointLoader.loadSpawnPoints();
 
         this.connectionManager = new GameConnectionManager(
                 lobbyManager,
@@ -72,11 +71,13 @@ public class GameInstance extends Thread {
                 captureZones,
                 activePlayers,
                 connections,
-                staticBodyData
+                staticBodyData,
+                spawnPoints
         );
 
         GameDisposer gameDisposer = new GameDisposer(players, connections, lobbyManager, lobbyId);
 
+        MatchRules matchRules = new MatchRules();
         this.tickProcessor = new GameTickProcessor(
                 world,
                 gameStateHandler,
@@ -85,6 +86,7 @@ public class GameInstance extends Thread {
                 matchRules,
                 players,
                 pendingBullets,
+                pendingExplosions,
                 bullets,
                 captureZones,
                 connections,
@@ -102,13 +104,6 @@ public class GameInstance extends Thread {
     }
 
     /**
-     * Returns true if the game instance has enough players to start.
-     */
-    public boolean hasEnoughPlayers() {
-        return connectionManager.hasEnoughPlayers();
-    }
-
-    /**
      * Removes a connection from the game instance.
      */
     public void removeConnection(Connection connection) {
@@ -120,6 +115,10 @@ public class GameInstance extends Thread {
      */
     public void addBullet(Bullet bullet) {
         pendingBullets.add(bullet);
+    }
+
+    public void addExplosion(ExplosionState explosionState) {
+        pendingExplosions.add(explosionState);
     }
 
     /**

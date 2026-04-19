@@ -25,6 +25,7 @@ import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.EndScreen;
 import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.screen.overlay.Hud;
+import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import lombok.Getter;
@@ -37,22 +38,19 @@ import java.util.Arrays;
 
 public class GameScreen extends ScreenAdapter {
 
-    private final Game game;
     @Getter
     private final int myId;
-    private final int lobbyId;
 
     @Getter
     private final GameStateManager gameStateManager;
-    private final PlayerInputManager playerInputManager;
     private final SpriteBatch spriteBatch;
     private final ShapeRenderer shapeRenderer;
-    private final Arena arena;
     @Getter
     private final Hud hud;
     private final ShopOverlay shopOverlay;
     private final BuildManager buildManager;
     private final DebugRenderer debugRenderer;
+    private final PauseOverlay pauseOverlay;
 
     private final GameScreenState screenState;
     private final GameWorldView worldView;
@@ -66,17 +64,15 @@ public class GameScreen extends ScreenAdapter {
      * @param game Current game instance, used for navigating between screens, for example, GameScreen -> TitleScreen
      */
     public GameScreen(Game game, int lobbyId, String username) {
-        this.game = game;
         this.myId = ServerConnection.getInstance().getClient().getID();
-        this.lobbyId = lobbyId;
 
         Skin skin = ((Main) game).getSkin();
 
         this.gameStateManager = new GameStateManager();  // receives game state from the server
-        this.playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
+        PlayerInputManager playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
         this.spriteBatch = new SpriteBatch();  // where all the content is rendered
         this.shapeRenderer = new ShapeRenderer();
-        this.arena = new Arena();  // manages players and bullets
+        Arena arena = new Arena();  // manages players and bullets
         this.hud = new Hud(spriteBatch, lobbyId, username, skin);  // info overlay
         this.shopOverlay = new ShopOverlay(spriteBatch, this);
 
@@ -84,9 +80,19 @@ public class GameScreen extends ScreenAdapter {
         this.worldView = new GameWorldView();
         this.buildManager = new BuildManager(worldView.getMap(), this);
 
+        this.pauseOverlay = new PauseOverlay(
+                spriteBatch,
+                () -> {
+                    screenState.setPaused(false);
+                },
+                () -> {
+                    leaveMatch(game, lobbyId);
+                },
+                ((Main) game).getSkin()
+        );
         this.debugRenderer = new DebugRenderer();
 
-        this.inputController = new GameScreenInputController(hud, shopOverlay, screenState, lobbyId);
+        this.inputController = new GameScreenInputController(hud, shopOverlay, screenState, lobbyId, pauseOverlay);
         this.updateController = new GameScreenUpdateController(
                 game,
                 myId,
@@ -108,7 +114,8 @@ public class GameScreen extends ScreenAdapter {
                 debugRenderer,
                 worldView,
                 screenState,
-                buildManager
+                buildManager,
+                pauseOverlay
         );
 
         ServerConnection.getInstance().setStaticBodiesListener(bodies -> Gdx.app.postRunnable(() ->
@@ -140,6 +147,7 @@ public class GameScreen extends ScreenAdapter {
         worldView.resize(width, height);
         hud.getStage().getViewport().update(width, height, true);
         shopOverlay.resize(width, height);
+        pauseOverlay.resize(width, height);
     }
 
     /**
@@ -154,6 +162,7 @@ public class GameScreen extends ScreenAdapter {
         hud.dispose();
         shopOverlay.dispose();
         debugRenderer.dispose();
+        pauseOverlay.dispose();
     }
 
     /**
@@ -175,5 +184,21 @@ public class GameScreen extends ScreenAdapter {
     public void leaveBuildMode() {
         screenState.setBuildMode(false);
         hud.changeBuildLegendVisibility();
+    }
+
+    /**
+     * Handles player leaving a match.
+     * @param game
+     * @param lobbyId
+     */
+    public void leaveMatch(Game game, int lobbyId) {
+        LobbyExitMessage exitMessage = new LobbyExitMessage();
+        exitMessage.setLobbyId(lobbyId);
+        ServerConnection.getInstance().getClient().sendTCP(exitMessage);
+
+        ServerConnection.getInstance().setStaticBodiesListener(null);
+
+        game.setScreen(new TitleScreen(game));
+        dispose();
     }
 }

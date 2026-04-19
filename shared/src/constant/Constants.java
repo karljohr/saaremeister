@@ -42,6 +42,10 @@ public class Constants {
     public static final float BULLET_HEIGHT_IN_PIXELS = 8;
     public static final float BULLET_DAMAGE = 1;
 
+    // Rocket
+    public static final float ROCKET_WIDTH_IN_PIXELS = 16;
+    public static final float ROCKET_HEIGHT_IN_PIXELS = 16;
+
     // Lobby
     public static final int LOBBY_MAX_PLAYERS = 5;
 

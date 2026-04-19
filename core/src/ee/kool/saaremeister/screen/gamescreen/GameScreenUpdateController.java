@@ -14,6 +14,7 @@ import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import message.GameStateMessage;
 import message.LobbyExitMessage;
+import message.dto.PlayerRole;
 
 /**
  * Updates the in-game screen each frame by handling input, build mode, camera movement, screen transitions, and
@@ -23,6 +24,7 @@ public class GameScreenUpdateController {
 
     private final Game game;
     private final int myId;
+    private PlayerRole myRole;
     private final int lobbyId;
     private final GameStateManager gameStateManager;
     private final PlayerInputManager playerInputManager;
@@ -63,7 +65,7 @@ public class GameScreenUpdateController {
 
         // Stops movement and shooting if the chat is focused and vice versa.
         boolean chatFocused = hud.isChatInputFocused();
-        if (!chatFocused && !state.isShopOpen()) {
+        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
             playerInputManager.handleMovementInput();
             playerInputManager.handleActionInput(hud.getHotbar());
         } else if (!state.wasChatFocused()) {
@@ -72,7 +74,7 @@ public class GameScreenUpdateController {
         }
         state.setWasChatFocused(chatFocused);
 
-        if (!chatFocused && !state.isShopOpen()) {
+        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
             // Hotbar keys
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) hud.selectHotbarSlot(0);
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) hud.selectHotbarSlot(1);
@@ -82,8 +84,6 @@ public class GameScreenUpdateController {
             playerInputManager.handleActionInput(hud.getHotbar());
         }
 
-        handleScreenNavigation();
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             state.setDebugMode(!state.isDebugMode());
             arena.getPlayers().stream()
@@ -92,7 +92,7 @@ public class GameScreenUpdateController {
                     .ifPresent(me -> System.out.println(me.getX() + ":" + me.getY()));
         }
 
-        if (state.isBuildMode()) {
+        if (state.isBuildMode() && !state.isPaused()) {
             Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             worldView.getCamera().unproject(mouse);
             buildManager.renderProjection(mouse.x, mouse.y);
@@ -102,12 +102,24 @@ public class GameScreenUpdateController {
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
 
         if (currentGameState.isGameOver()) {
-            int gameWinnerId = currentGameState.getWinnerPlayerId();
-            game.setScreen(new EndScreen(game, gameWinnerId, myId));
+            var gameWinnerRole = currentGameState.getWinnerPlayerRole();
+            game.setScreen(new EndScreen(game, gameWinnerRole, myRole));
             return;
         }
 
         if (currentGameState == null) return;
+
+        // resolve once (role does not change mid-game)
+        if (myRole == null) {
+            myRole = gameStateManager.resolveMyRole(currentGameState);
+        }
+
+        if (currentGameState.isGameOver()) {
+            var gameWinnerRole = currentGameState.getWinnerPlayerRole();
+            game.setScreen(new EndScreen(game, gameWinnerRole, myRole));
+            return;
+        }
+
         arena.update(currentGameState);
 
         // Dynamic camera
@@ -128,19 +140,6 @@ public class GameScreenUpdateController {
 
         // TODO: playerInputManager.handleShootingInput(); // send player shooting info to server
 
-        hud.update(currentGameState, myId);  // update info overlay time, lives, etc.
-    }
-
-    /**
-     * Handles screen navigation, for example, GameScreen -> TitleScreen.
-     */
-    private void handleScreenNavigation() {
-        // navigate to TitleScreen and leave the game instance
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new TitleScreen(game));
-            LobbyExitMessage exitMessage = new LobbyExitMessage();
-            exitMessage.setLobbyId(lobbyId);
-            ServerConnection.getInstance().getClient().sendTCP(exitMessage);
-        }
+        hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
     }
 }

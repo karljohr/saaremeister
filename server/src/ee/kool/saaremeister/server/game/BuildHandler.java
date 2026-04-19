@@ -128,6 +128,7 @@ public class BuildHandler {
     public void build(PlayerBuildMessage message, Player player) {
         if (!validate(message.getTileX(), message.getTileY(), message.id)) {
             Log.info("[BuildHandler] Player(" + player.getId() + ") tried to build on an invalid tile (" + message.getTileX() + "; " + message.getTileY() + ")");
+            player.refundBuildingPermit(message.id);
             return;
         }
         if (player.getBuildingPermitById().contains(BuildingInfo.getBuildingFromVariation(message.id))) {

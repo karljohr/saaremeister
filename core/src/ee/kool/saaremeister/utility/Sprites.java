@@ -18,10 +18,10 @@ public class Sprites {
     private static final TextureRegion[][] playerGrid = TextureRegion.split(playerTexture, 16, 16);
 
     // Row mapping for player.png (64x64 = 4x4 frames of 16x16)
-    public static final Animation<TextureRegion> moveDown = new Animation<>(0.2f, playerGrid[1]);
-    public static final Animation<TextureRegion> moveUp = new Animation<>(0.2f, playerGrid[0]);
-    public static final Animation<TextureRegion> moveRight = new Animation<>(0.2f, playerGrid[2]);
-    public static final Animation<TextureRegion> moveLeft = new Animation<>(0.2f, playerGrid[3]);
+    public static final Animation<TextureRegion> moveDown = new Animation<>(0.1f, playerGrid[1]);
+    public static final Animation<TextureRegion> moveUp = new Animation<>(0.1f, playerGrid[0]);
+    public static final Animation<TextureRegion> moveRight = new Animation<>(0.1f, playerGrid[2]);
+    public static final Animation<TextureRegion> moveLeft = new Animation<>(0.1f, playerGrid[3]);
 
     /**
      * Returns the animation for the player based on the direction.

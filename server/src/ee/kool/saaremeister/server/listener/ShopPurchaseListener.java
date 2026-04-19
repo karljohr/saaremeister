@@ -4,6 +4,7 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
 import constant.BuildingInfo;
 import constant.Category;
+import ee.kool.saaremeister.server.game.object.Officer;
 import ee.kool.saaremeister.server.game.object.Player;
 import message.dto.ShopItem;
 
@@ -40,7 +41,10 @@ public class ShopPurchaseListener extends Listener {
                         return;
                     }
                     // Use the price defined in the ShopItem
-                    boolean success = p.attemptPurchase(item.getPrice());
+                    if (item.getCategory() == Category.EHITISED && p instanceof Officer) {
+                        Log.info(p.getUsername() + " doesn't have the right to buy items from the EHITISED category");
+                    } else {
+                        boolean success = p.attemptPurchase(item.getPrice());
 
                     if (success) {
                         Log.info("Purchased " + item.getName() + " for " + p.getUsername() + ". New balance: " + p.getMoney());
@@ -59,8 +63,9 @@ public class ShopPurchaseListener extends Listener {
 
                         conn.sendTCP(msg);
 
-                    } else {
-                        Log.info(p.getUsername() + " didn't have enough money for " + item.getName());
+                        } else {
+                            Log.info(p.getUsername() + " didn't have enough money for " + item.getName());
+                        }
                     }
                 } else {
                     Log.error("Received purchase request for non-existent item ID: " + msg.getItemId());

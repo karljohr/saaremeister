@@ -25,6 +25,7 @@ import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.EndScreen;
 import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.screen.overlay.Hud;
+import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import lombok.Getter;
@@ -49,6 +50,7 @@ public class GameScreen extends ScreenAdapter {
     private final ShopOverlay shopOverlay;
     private final BuildManager buildManager;
     private final DebugRenderer debugRenderer;
+    private final PauseOverlay pauseOverlay;
 
     private final GameScreenState screenState;
     private final GameWorldView worldView;
@@ -78,9 +80,19 @@ public class GameScreen extends ScreenAdapter {
         this.worldView = new GameWorldView();
         this.buildManager = new BuildManager(worldView.getMap(), this);
 
+        this.pauseOverlay = new PauseOverlay(
+                spriteBatch,
+                () -> {
+                    screenState.setPaused(false);
+                },
+                () -> {
+                    leaveMatch(game, lobbyId);
+                },
+                ((Main) game).getSkin()
+        );
         this.debugRenderer = new DebugRenderer();
 
-        this.inputController = new GameScreenInputController(hud, shopOverlay, screenState, lobbyId);
+        this.inputController = new GameScreenInputController(hud, shopOverlay, screenState, lobbyId, pauseOverlay);
         this.updateController = new GameScreenUpdateController(
                 game,
                 myId,
@@ -102,7 +114,8 @@ public class GameScreen extends ScreenAdapter {
                 debugRenderer,
                 worldView,
                 screenState,
-                buildManager
+                buildManager,
+                pauseOverlay
         );
 
         ServerConnection.getInstance().setStaticBodiesListener(bodies -> Gdx.app.postRunnable(() ->
@@ -134,6 +147,7 @@ public class GameScreen extends ScreenAdapter {
         worldView.resize(width, height);
         hud.getStage().getViewport().update(width, height, true);
         shopOverlay.resize(width, height);
+        pauseOverlay.resize(width, height);
     }
 
     /**
@@ -148,6 +162,7 @@ public class GameScreen extends ScreenAdapter {
         hud.dispose();
         shopOverlay.dispose();
         debugRenderer.dispose();
+        pauseOverlay.dispose();
     }
 
     /**
@@ -169,5 +184,21 @@ public class GameScreen extends ScreenAdapter {
     public void leaveBuildMode() {
         screenState.setBuildMode(false);
         hud.changeBuildLegendVisibility();
+    }
+
+    /**
+     * Handles player leaving a match.
+     * @param game
+     * @param lobbyId
+     */
+    public void leaveMatch(Game game, int lobbyId) {
+        LobbyExitMessage exitMessage = new LobbyExitMessage();
+        exitMessage.setLobbyId(lobbyId);
+        ServerConnection.getInstance().getClient().sendTCP(exitMessage);
+
+        ServerConnection.getInstance().setStaticBodiesListener(null);
+
+        game.setScreen(new TitleScreen(game));
+        dispose();
     }
 }

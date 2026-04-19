@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.Hud;
+import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 
 /**
@@ -17,6 +18,7 @@ public class GameScreenInputController {
     private final ShopOverlay shopOverlay;
     private final GameScreenState state;
     private final int lobbyId;
+    private final PauseOverlay pauseOverlay;
 
     /**
      * Handles B before Scene2D so the shop toggles reliably (and chat does not eat the key).
@@ -32,17 +34,47 @@ public class GameScreenInputController {
         }
     };
 
-    public GameScreenInputController(Hud hud, ShopOverlay shopOverlay, GameScreenState state, int lobbyId) {
+    private final InputProcessor pauseHotKeyProcessor = new InputAdapter() {
+        @Override
+        public boolean keyDown(int keycode) {
+            if (keycode == Input.Keys.ESCAPE) {
+                togglePause();
+                return true;
+            }
+            return false;
+        }
+    };
+
+    public GameScreenInputController(Hud hud,
+                                     ShopOverlay shopOverlay,
+                                     GameScreenState state,
+                                     int lobbyId,
+                                     PauseOverlay pauseOverlay)
+    {
         this.hud = hud;
         this.shopOverlay = shopOverlay;
         this.state = state;
         this.lobbyId = lobbyId;
+        this.pauseOverlay = pauseOverlay;
     }
 
     private void toggleShop() {
+        if (state.isPaused()) return;
         boolean open = !state.isShopOpen();
         state.setShopOpen(open);
         shopOverlay.setOpen(open);
+    }
+
+    private void togglePause() {
+        boolean paused = !state.isPaused();
+        state.setPaused(paused);
+        pauseOverlay.setOpen(paused);
+
+        if (paused) {
+            state.setShopOpen(false);
+            shopOverlay.setOpen(false);
+            hud.clearChatInputFocus();
+        }
     }
 
     /**
@@ -56,7 +88,7 @@ public class GameScreenInputController {
             @Override
             public boolean scrolled(float amountX, float amountY) {
                 // amountY is 1.0 (down) or -1.0 (up)
-                if (amountY != 0 && !hud.isChatInputFocused() && !state.isShopOpen()) {
+                if (amountY != 0 && !hud.isChatInputFocused() && !state.isShopOpen() && !state.isPaused()) {
                     hud.scrollHotbar((int) amountY);
                     return true;
                 }
@@ -64,7 +96,9 @@ public class GameScreenInputController {
             }
         });
 
+        multiplexer.addProcessor(pauseHotKeyProcessor);
         multiplexer.addProcessor(shopHotkeyProcessor);
+        multiplexer.addProcessor(pauseOverlay.getStage());
         multiplexer.addProcessor(shopOverlay.getStage());
         multiplexer.addProcessor(hud.getStage());
 

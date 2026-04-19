@@ -96,6 +96,8 @@ public class GameConnectionManager {
         players.add(newPlayer);
         connections.add(connection);
 
+        connection.addListener(new ee.kool.saaremeister.server.listener.ItemUsedListener(activePlayers));
+
         connection.addListener(new ShopPurchaseListener(activePlayers));
 
         // Debug hitbox info

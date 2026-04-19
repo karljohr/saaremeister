@@ -65,7 +65,7 @@ public class GameScreenUpdateController {
         boolean chatFocused = hud.isChatInputFocused();
         if (!chatFocused && !state.isShopOpen()) {
             playerInputManager.handleMovementInput();
-            playerInputManager.handleShootingInput();
+            playerInputManager.handleActionInput(hud.getHotbar());
         } else if (!state.wasChatFocused()) {
             playerInputManager.stopMovement();
             playerInputManager.stopShooting();
@@ -79,7 +79,7 @@ public class GameScreenUpdateController {
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) hud.selectHotbarSlot(2);
 
             playerInputManager.handleMovementInput();
-            playerInputManager.handleShootingInput();
+            playerInputManager.handleActionInput(hud.getHotbar());
         }
 
         handleScreenNavigation();

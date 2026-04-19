@@ -132,7 +132,7 @@ public class ShopOverlay implements Disposable {
     /**
      * Refreshes the item grid based on the current category.
      */
-    private void refreshGrid() {
+    public void refreshGrid() {
         itemGrid.clearChildren();
 
         // Find players armor type

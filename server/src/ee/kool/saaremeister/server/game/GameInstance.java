@@ -41,9 +41,7 @@ public class GameInstance extends Thread {
     public GameInstance(LobbyManager lobbyManager, int lobbyId) {
         World world = new World(new Vector2(0, 0), true);
         BulletCollisionHandler bulletCollisionHandler = new BulletCollisionHandler(world);
-        World world1 = new World(new Vector2(0, 0), true);
-        BulletCollisionHandler bulletCollisionHandler1 = new BulletCollisionHandler(world);
-        bulletCollisionHandler1.setGameInstance(this);
+        bulletCollisionHandler.setGameInstance(this);
 
         Box2dWorldGenerator box2dWorldGenerator = new Box2dWorldGenerator();
         List<StaticBodyState> staticBodyData = box2dWorldGenerator.initializeWorld(world);

@@ -30,13 +30,17 @@ public class PlayerShootingListener extends Listener {
     public void received(Connection connection, Object object) {
         if (!player.isAlive()) return;
         if (!(object instanceof PlayerShootingMessage msg)) return;
-        if (msg.getDirection() == null) return;
+
         LocalTime now = LocalTime.now();
         if (now.isBefore(lastShotTime.plus(Duration.ofMillis(BULLET_TIMEOUT_MILLISECONDS)))) {
             return;
         }
+
         lastShotTime = now;
-        player.shoot(msg.getDirection());
-        Log.info("shot msg from " + connection.getID() + ", dir=" + msg.getDirection());
+        if (msg.getAim() != null && !msg.getAim().isZero(0.001f)) {
+            player.shoot(msg.getAim());
+        }
+
+        Log.info("shot msg from " + connection.getID());
     }
 }

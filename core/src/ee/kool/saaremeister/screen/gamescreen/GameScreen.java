@@ -2,35 +2,19 @@ package ee.kool.saaremeister.screen.gamescreen;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.game.*;
 import ee.kool.saaremeister.network.ServerConnection;
-import ee.kool.saaremeister.screen.EndScreen;
 import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import lombok.Getter;
-import message.GameStateMessage;
-import com.badlogic.gdx.InputMultiplexer;
 import message.LobbyExitMessage;
 import message.dto.ShopItem;
 
@@ -96,7 +80,6 @@ public class GameScreen extends ScreenAdapter {
         this.updateController = new GameScreenUpdateController(
                 game,
                 myId,
-                lobbyId,
                 gameStateManager,
                 playerInputManager,
                 arena,
@@ -188,8 +171,6 @@ public class GameScreen extends ScreenAdapter {
 
     /**
      * Handles player leaving a match.
-     * @param game
-     * @param lobbyId
      */
     public void leaveMatch(Game game, int lobbyId) {
         LobbyExitMessage exitMessage = new LobbyExitMessage();

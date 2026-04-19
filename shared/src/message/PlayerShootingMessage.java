@@ -1,9 +1,9 @@
 package message;
 
+import com.badlogic.gdx.math.Vector2;
 import lombok.Data;
-import message.dto.Direction;
 
 @Data
 public class PlayerShootingMessage {
-    private Direction direction;
+    private Vector2 aim;
 }

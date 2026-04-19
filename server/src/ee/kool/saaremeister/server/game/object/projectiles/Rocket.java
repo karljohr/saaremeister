@@ -31,13 +31,13 @@ public class Rocket extends Bullet{
         height = 0;
 
         float distance = new Vector2(targetX - startX, targetY - startY).len();
-        flightTicks = Math.max(100, Math.min(200, (int)(distance)));
+        flightTicks = Math.clamp((int) (distance), 100, 200);
     }
 
-    @Override
     /**
      * Moves the rocket in the direction of the target.
      */
+    @Override
     public void update() {
         float t = Math.min(1f, ticksAlive / (float) flightTicks);
         x = MathUtils.lerp(startX, targetX, t);
@@ -48,8 +48,8 @@ public class Rocket extends Bullet{
     }
 
     /**
-     * Returns true if rocket has reached ground.
-     * @return true if rocket has touched ground.
+     * Returns true if the rocket has reached the ground.
+     * @return true if the rocket has touched ground.
      */
     public boolean hasLanded() { return ticksAlive >= flightTicks; }
 

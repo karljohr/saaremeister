@@ -67,10 +67,7 @@ public class Sprites {
      * Returns the row for the given direction.
      */
     private static int rowFor(Direction direction, Map<Direction, Integer> rowMap) {
-        Integer row = rowMap.get(direction);
-
-        if (row == null) throw new IllegalArgumentException("No row for direction " + direction);
-        return row;
+        return rowMap.get(direction);
     }
 
     /**

@@ -3,7 +3,7 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
 import lombok.Getter;
 import message.dto.PlayerRole;

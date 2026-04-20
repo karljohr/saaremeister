@@ -4,8 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
-import ee.kool.saaremeister.server.game.object.Officer;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.player.Officer;
+import ee.kool.saaremeister.server.game.object.player.Player;
 
 import java.time.Duration;
 import java.time.LocalTime;

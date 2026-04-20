@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.minlog.Log;
 import constant.BuildingInfo;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
 import ee.kool.saaremeister.server.game.object.buildings.OffenceBuilding;
 import ee.kool.saaremeister.server.game.object.buildings.RocketLauncher;

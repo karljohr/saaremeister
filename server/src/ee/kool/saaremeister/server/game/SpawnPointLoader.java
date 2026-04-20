@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import message.dto.PlayerRole;
 
 import java.util.*;

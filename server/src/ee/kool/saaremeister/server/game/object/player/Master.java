@@ -1,4 +1,4 @@
-package ee.kool.saaremeister.server.game.object;
+package ee.kool.saaremeister.server.game.object.player;
 
 import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.kryonet.Connection;

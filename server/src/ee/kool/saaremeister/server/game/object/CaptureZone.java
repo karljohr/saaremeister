@@ -1,6 +1,7 @@
 package ee.kool.saaremeister.server.game.object;
 
 import com.badlogic.gdx.math.Intersector;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import lombok.Getter;
 import lombok.Setter;
 import message.dto.CaptureZoneState;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 
 import static constant.Constants.CAPTURE_SECONDS_REQUIRED;
-import static constant.Constants.NEUTRAL_OWNER_ID;
 
 /**
  * Represents a capture zone that a player must capture to get closer to winning the game. The player must capture 4
@@ -84,6 +84,7 @@ public class CaptureZone {
         // the zone.
         Set<ZoneOwner> classesInZone = EnumSet.noneOf(ZoneOwner.class);
         for (Player player : allPlayers) {
+            if (!player.isAlive()) continue;
             if (!this.contains(player)) continue;
             if (player.getRole() == PlayerRole.MASTER) {
                 classesInZone.add(ZoneOwner.MASTER);
@@ -98,7 +99,9 @@ public class CaptureZone {
 
         // Resets the capture progress when no player is inside the zone.
         if (classesInZone.isEmpty()) {
+            capturingEnum = ZoneOwner.NEUTRAL;
             captureProgressSeconds = 0f;
+            contested = false;
             return;
         }
 

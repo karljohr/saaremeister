@@ -131,6 +131,7 @@ public class Player {
         playerState.setUsername(username);
         playerState.setMoney(this.money);
         playerState.setRole(role);
+        playerState.setBot(this instanceof Bot);
         return playerState;
     }
 
@@ -193,6 +194,7 @@ public class Player {
 
     /**
      * Builds a building.
+     *
      * @param message info about the building object to be built. Sent by player.
      */
     public void build(PlayerBuildMessage message) {
@@ -219,7 +221,7 @@ public class Player {
         return false;
     }
 
-    // Dont count slot 1 since its permanent for gun
+    // Don't count slot 1 since it's permanent for gun
     // Using this only for counting potions
     public boolean isHotbarFull() {
         return hotbarItemCount >= 2;
@@ -249,6 +251,7 @@ public class Player {
 
     /**
      * Gives the player the money back after cancelling building.
+     *
      * @param id tileId of the building.
      */
     public void refundBuildingPermit(int id) {

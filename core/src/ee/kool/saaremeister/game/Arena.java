@@ -64,7 +64,12 @@ public class Arena {
             // Update username, necessary for differentiating bot from player
             player.setUsername(playerState.getUsername());
 
-            player.applyServerState(playerState.getX(), playerState.getY(), playerState.getRole());
+            player.applyServerState(
+                    playerState.getX(),
+                    playerState.getY(),
+                    playerState.getRole(),
+                    playerState.isBot()
+            );
         });
 
         if (myRole == null) {

@@ -27,6 +27,8 @@ public class Sprites {
 
     // Player grid for the default player texture.
     private static final TextureRegion[][] defaultGrid = getPlayerGrid(playerTexture);
+    // Player grid for the bot texture.
+    private static final TextureRegion[][] botGrid = getPlayerGrid(botTexture);
 
     // Mapping of the player's direction to the row in the grid.
     private static final Map<Direction, Integer> PLAYER_ROW_MAP = Map.of(
@@ -39,6 +41,11 @@ public class Sprites {
     // Animations for the default player texture.
     public static final EnumMap<Direction, Animation<TextureRegion>> defaultAnimations = buildDirectionalAnimations(
             playerTexture, FRAME_SIZE, FRAME_SIZE, FRAME_DURATION, PLAYER_ROW_MAP
+    );
+
+    // Animations for the bot texture.
+    public static final EnumMap<Direction, Animation<TextureRegion>> botAnimations = buildDirectionalAnimations(
+            botTexture, FRAME_SIZE, FRAME_SIZE, FRAME_DURATION, PLAYER_ROW_MAP
     );
 
     // Grids for the different player roles.
@@ -119,14 +126,16 @@ public class Sprites {
     /**
      * Returns the animation for the given player role and direction.
      */
-    public static Animation<TextureRegion> getPlayerAnimation(PlayerRole role, Direction direction) {
+    public static Animation<TextureRegion> getPlayerAnimation(PlayerRole role, Direction direction, boolean isBot) {
+        if (isBot) return botAnimations.get(direction);
         return animationsFor(role).get(direction);
     }
 
     /**
      * Returns the idle frame for the given player role and direction.
      */
-    public static TextureRegion getPlayerIdleFrame(PlayerRole role, Direction direction) {
+    public static TextureRegion getPlayerIdleFrame(PlayerRole role, Direction direction, boolean isBot) {
+        if (isBot) return getIdleFrame(botGrid, direction, PLAYER_ROW_MAP, IDLE_COLUMN);
         return getIdleFrame(gridFor(role), direction, PLAYER_ROW_MAP, IDLE_COLUMN);
     }
 }

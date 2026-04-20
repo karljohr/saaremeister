@@ -12,6 +12,7 @@ public class PlayerState {
     private String username;
     private int money;
     private PlayerRole role;
+    private boolean isBot;
 
     public common.ArmorType getArmorType() {
         return common.ArmorType.fromDefense(this.defense);

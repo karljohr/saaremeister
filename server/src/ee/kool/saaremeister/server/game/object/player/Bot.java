@@ -7,16 +7,26 @@ import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
 import message.dto.PlayerRole;
 import java.util.List;
+
+import static constant.Constants.BOT_SPEED;
 import static constant.Constants.PPM;
 
+/**
+ * An AI player that replaces real players in the game if the game instance is not full.
+ */
 public class Bot extends Player {
-    private static final float BOT_SPEED = 100f;
 
+    /**
+     * Creates a new bot player, that bypasses the network.
+     */
     public Bot(int id, GameInstance gameInstance, World world, BuildHandler buildHandler) {
         super(null, id, gameInstance, world, buildHandler, 500, 3, PlayerRole.OFFICER);
         this.setUsername("BOT_" + id);
     }
 
+    /**
+     * Updates the AI's position and pathfinding.
+     */
     public void updateAI(List<Player> players, List<Building> buildings) {
         if (!isAlive() || getBody() == null) return;
 

@@ -35,6 +35,9 @@ public class Constants {
     public static final int OFFICER_LIVES = 5;
     public static final int OFFICER_MONEY = 500;
 
+    // Bot
+    public static final float BOT_SPEED = 100f;
+
     // Bullet
     public static final float BULLET_SPEED = 8.0f;
     public static final long BULLET_TIMEOUT_MILLISECONDS = 500;

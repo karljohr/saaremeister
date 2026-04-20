@@ -14,9 +14,9 @@ import java.util.Set;
 import static constant.Constants.CAPTURE_SECONDS_REQUIRED;
 
 /**
- * Represents a capture zone that a player must capture to get closer to winning the game. The player must capture 4
+ * Represents a capture zone that a class must capture to get closer to winning the game. The class must capture 4
  * zones to win the game, each zone must be stood alone in for 5 seconds to capture the zone. Once the zone is captured,
- * other players can retake the zone for themselves. When multiple people are standing in a zone, nothing happens.
+ * other classes can retake the zone for themselves. When multiple classes are standing in a zone, no progress is made.
  */
 @Getter
 public class CaptureZone {
@@ -149,6 +149,9 @@ public class CaptureZone {
         }
     }
 
+    /**
+     * Converts the zone owner to a player role, or null if the zone is neutral.
+     */
     private PlayerRole toPlayerRoleOrNull(ZoneOwner zoneOwner) {
         return switch (zoneOwner) {
             case MASTER -> PlayerRole.MASTER;

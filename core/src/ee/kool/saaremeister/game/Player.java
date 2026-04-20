@@ -32,6 +32,7 @@ public class Player {
     private boolean moving = false;
     private Direction facing = Direction.DOWN;
     private PlayerRole role;
+    private boolean isBot;
 
     /**
      * Creates a new Player instance.
@@ -50,8 +51,9 @@ public class Player {
     /**
      * Applies the server state to the player (position, current movement, and facing).
      */
-    public void applyServerState(float nx, float ny, PlayerRole role) {
+    public void applyServerState(float nx, float ny, PlayerRole role, boolean isBot) {
         this.role = role;
+        this.isBot = isBot;
         float dx = nx - x;
         float dy = ny - y;
 
@@ -82,11 +84,6 @@ public class Player {
         float w = PLAYER_PIXEL_WIDTH;
         float h = PLAYER_PIXEL_HEIGHT;
 
-        if (username != null && username.startsWith("BOT_")) {
-            spriteBatch.draw(Sprites.botTexture, x - w / 2f, y - h / 2f, w, h);
-            return; // TODO: Add animation to bot.
-        }
-
         if (moving) {
             stateTime += Gdx.graphics.getDeltaTime();
         } else {
@@ -94,10 +91,8 @@ public class Player {
         }
 
         TextureRegion frame = moving
-                ? Sprites.getPlayerAnimation(role, facing).getKeyFrame(stateTime, true)
-                : Sprites.getPlayerIdleFrame(role, facing);
-
-        // TODO: Determine player texture for AI players.
+                ? Sprites.getPlayerAnimation(role, facing, isBot).getKeyFrame(stateTime, true)
+                : Sprites.getPlayerIdleFrame(role, facing, isBot);
 
         spriteBatch.draw(frame, x - w / 2f, y - h / 2f, w, h);
     }

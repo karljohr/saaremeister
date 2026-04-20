@@ -61,7 +61,7 @@ public class Arena {
                         players.add(newPlayer);
                         return newPlayer;
                     });
-            player.applyServerState(playerState.getX(), playerState.getY());
+            player.applyServerState(playerState.getX(), playerState.getY(), playerState.getRole());
         });
 
         if (myRole == null) {

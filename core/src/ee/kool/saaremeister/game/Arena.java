@@ -61,6 +61,9 @@ public class Arena {
                         players.add(newPlayer);
                         return newPlayer;
                     });
+            // Update username, necessary for differentiating bot from player
+            player.setUsername(playerState.getUsername());
+
             player.applyServerState(playerState.getX(), playerState.getY());
         });
 

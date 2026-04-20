@@ -23,6 +23,6 @@ public class Master extends Player {
             World world,
             BuildHandler buildHandler
     ) {
-        super(connection, gameInstance, world, buildHandler, MASTER_MONEY, MASTER_LIVES, PlayerRole.MASTER);
+        super(connection, connection.getID(), gameInstance, world, buildHandler, MASTER_MONEY, MASTER_LIVES, PlayerRole.MASTER);
     }
 }

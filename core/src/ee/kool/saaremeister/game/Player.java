@@ -23,6 +23,9 @@ public class Player {
     @Setter
     @Getter
     private float y;
+    @Setter
+    @Getter
+    private String username;
 
     private float stateTime = 0f;
     private boolean moving = false;
@@ -75,6 +78,11 @@ public class Player {
         // x/y are in world units (pixels/PPM). Draw sprite centered with size also in world units.
         float w = PLAYER_PIXEL_WIDTH;
         float h = PLAYER_PIXEL_HEIGHT;
+
+        if (username != null && username.startsWith("BOT_")) {
+            spriteBatch.draw(Sprites.botTexture, x - w / 2f, y - h / 2f, w, h);
+            return; // TODO: Add animation to bot.
+        }
 
         if (moving) {
             stateTime += Gdx.graphics.getDeltaTime();

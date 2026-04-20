@@ -118,6 +118,26 @@ public class GameConnectionManager {
     }
 
     /**
+     * Spawns as many bots as necessary to fill the player limit.
+     */
+    public void spawnBots() {
+        int currentPlayers = players.size();
+        int botsToAdd = Math.min(2, PLAYER_COUNT_INGAME_LIMIT - currentPlayers);
+
+        for (int i = 0; i < botsToAdd; i++) {
+            int botId = 1000 + i;
+            Bot bot = new Bot(botId, gameInstance, world, buildHandler);
+
+            SpawnPointLoader.setRandomSpawnPoint(bot, PlayerRole.OFFICER, spawnPoints);
+
+            activePlayers.put(botId, bot);
+            players.add(bot);
+            Log.info("Bot added to game: " + bot.getUsername());
+        }
+        gameStateHandler.setAllPlayersHaveJoined(true);
+    }
+
+    /**
      * Removes a player from the game instance.
      */
     public void removeConnection(com.esotericsoftware.kryonet.Connection connection) {

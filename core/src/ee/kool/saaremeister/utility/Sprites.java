@@ -10,6 +10,7 @@ import message.dto.Direction;
  */
 public class Sprites {
     public static final Texture playerTexture = new Texture("sprites/player.png");
+    public static final Texture botTexture = new Texture("sprites/bot_skin.png");
     public static final Texture bulletTexture = new Texture("sprites/bullet.png");
     public static final Texture rocketTexture = new Texture("sprites/rocket.png");
     public static final Texture rocketDownTexture = new Texture("sprites/rocket_down.png");

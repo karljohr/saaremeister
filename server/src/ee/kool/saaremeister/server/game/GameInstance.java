@@ -92,6 +92,7 @@ public class GameInstance extends Thread {
                 lobbyManager,
                 lobbyId
         );
+        this.connectionManager.spawnBots();
     }
 
     /**

@@ -3,6 +3,7 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+import ee.kool.saaremeister.server.game.object.Bot;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.Player;
@@ -82,6 +83,13 @@ public class GameTickProcessor {
         // Step Box2D simulation so bodies move.
         // Timestep based on tick rate; velocity/position iterations are standard defaults.
         world.step(deltaTime, 6, 2);
+
+        // Update bots
+        for (Player p : players) {
+            if (p instanceof Bot bot) {
+                bot.updateAI(players, buildHandler.getBuildings());
+            }
+        }
 
         // Buildings shoot
         buildHandler.shoot();

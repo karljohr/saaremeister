@@ -24,6 +24,6 @@ public class Officer extends Player {
             World world,
             BuildHandler buildHandler
     ) {
-        super(connection, gameInstance, world, buildHandler, OFFICER_MONEY, OFFICER_LIVES, PlayerRole.OFFICER);
+        super(connection, connection.getID(), gameInstance, world, buildHandler, OFFICER_MONEY, OFFICER_LIVES, PlayerRole.OFFICER);
     }
 }

@@ -64,6 +64,7 @@ public class Player {
      */
     public Player(
             Connection connection,
+            int id,
             GameInstance gameInstance,
             World world,
             BuildHandler buildHandler,
@@ -72,11 +73,9 @@ public class Player {
             PlayerRole role
     ) {
         this.connection = connection;
-        this.id = connection.getID();
+        // For bots which dont have connection
+        this.id = (connection != null) ? connection.getID() : id;
         this.gameInstance = gameInstance;
-        this.connection.addListener(movementListener);
-        this.connection.addListener(shootingListener);
-        this.connection.addListener(buildingListener);
         this.world = world;
         this.money = money;
         this.lives = lives;
@@ -84,6 +83,13 @@ public class Player {
         definePlayer();
         this.buildHandler = buildHandler;
         buildingPermitById = new ArrayList<>();
+
+        // Add listeners only if player
+        if (connection != null) {
+            this.connection.addListener(movementListener);
+            this.connection.addListener(shootingListener);
+            this.connection.addListener(buildingListener);
+        }
     }
 
     /**
@@ -116,7 +122,8 @@ public class Player {
      */
     public PlayerState getPlayerState() {
         PlayerState playerState = new PlayerState();
-        playerState.setId(connection.getID());
+        // Instead of connection.getID() use this.id for bots.
+        playerState.setId(this.id);
         playerState.setX(body.getPosition().x * PPM);
         playerState.setY(body.getPosition().y * PPM);
         playerState.setLives(lives);
@@ -170,7 +177,9 @@ public class Player {
         if (body == null) return;
         this.x = body.getPosition().x * PPM;
         this.y = body.getPosition().y * PPM;
-        body.setLinearVelocity(0f, 0f);
+        if (!(this instanceof Bot)) {
+            body.setLinearVelocity(0f, 0f);
+        }
     }
 
     /**

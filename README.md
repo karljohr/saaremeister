@@ -24,8 +24,8 @@ aga tiimina, mistõttu nemad saavad valmistusaega kasutada ründeplaanide koosta
 ning relvade ostmiseks. Kui saaremeister suudab teatud aja lõppedes maksuametnikud 
 välja tõrjuda, jääb saar talle alles ning meelelahutus jätkub samas vaimus. Kui 
 aga maksuametnikud suudavad saare endale võtta, läheb saar riigi omandisse ning 
-saaremeistrile määratakse vanglakaristus. Täpsemad reeglid on järgmised: kui vooru 
-lõppedes jääb saaremeistri kätte vähemalt 20% saare pindalast, siis võidab 
+saaremeistrile määratakse vanglakaristus. Täpsemad reeglid on järgmised: kui vooru (aja)
+lõppedes jääb saaremeistri kätte kasvõi üks vallutatav ala, siis võidab 
 saaremeister, vastasel juhul on võidukad maksuametnikud. Maksuametnikud saavad 
 olla nii päris mängijad kui ka AI, kuid saaremeister on alati päris mängija.
 
@@ -34,16 +34,27 @@ olla nii päris mängijad kui ka AI, kuid saaremeister on alati päris mängija.
 ### Mängujuhend
 
 - **Liitumine**: 
-  - Sisestada soovitud kasutajanimi ja vajutada nuppu "Join a lobby"
+  - Sisestada soovitud kasutajanimi ja vajutada nuppu "Liitu lobbyga"
   - Oodata lobbys kuni kõik mängijad on sisenenud
   - Vajutada nuppu "Start Game", et siseneda mängu
 - **Liikumine**: klahvid W, A, S ja D
+- **Tulistamine**: sihtimine hiirega ja tulistamine SPACE
 - **Vestlusakna kasutus**: 
   - Hiirega vajutada vestlusakna peale
   - Kirjutada sõnum
   - Vajutada hiireklahviga "->" nuppu
-- **Lahkumine**: "esc" klahv või mänguakna sulgemine
-- **Eesmärk**: puudub
+- **Poe kasutus**: klahv B ja avanevas aknas hiirega valimine
+- **Ehitamine (Saaremeister)**:
+  - Valida poest sobiv ehitis
+  - Hiirega määrata ehitise asukoht ja ehitada vasaku hiireklahviga
+  - Tühistada ehitamine parema hiireklahviga
+- **Ala vallutamine**: Seista alas 5 sekundit (vastastiimi mängija ei tohi 
+samaaegselt samas alas seista)
+- **Lahkumine**: ESC klahv ja valida menüüst "Lahku" või mänguakna sulgemine
+- **Eesmärk**: 
+  - Saaremeistril: hoida saarel asuvad alad enda käes. Võitmiseks peab aja lõppedes
+  vähemalt üks ala kätte jääma.
+  - Maksuametnikul: püüda kõik vallutatavad alad enda tiimi valdusesse enne aja lõppu.
 
 ---
 
@@ -77,7 +88,7 @@ olla nii päris mängijad kui ka AI, kuid saaremeister on alati päris mängija.
 
 | Funktsioon                     | Kirjeldus                                                                                                                                     |
 |--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| Mitmikmäng                     | Mängijate koguarv sõltub kasutaja masina võimsusest.<br/>Lobbysse ja ühte mängu mahub korraga kuni 10 mängijat, täitumisel luuakse uus lobby. |
+| Mitmikmäng                     | Mängijate koguarv sõltub kasutaja masina võimsusest.<br/>Lobbysse ja ühte mängu mahub korraga kuni 5 mängijat, täitumisel luuakse uus lobby. |
 | Lobby süsteem                  | Mängijad liituvad algselt lobbyga, kust nad saavad koos mängu liituda.                                                                        |
 | Paralleelsed mängu eksemplarid | Mitu mängu saavad toimuda samaaegselt.                                                                                                        |
 | Tekstipõhine vestlus           | Mängus saab vestlusaknas tekstipõhiselt suhelda teiste mängijatega.                                                                           |
@@ -96,5 +107,5 @@ olla nii päris mängijad kui ka AI, kuid saaremeister on alati päris mängija.
 ### Ühendus TalTechi serveriga
 
 1. Minna shared → src → constant → Constants.java
-2. Asendada rida `public static final String SERVER_IP = "localhost";` </br> selle vastu `public static final String SERVER_IP = "193.40.157.179";`
+2. Veenduda, et on rida `public static final String SERVER_IP = "193.40.157.179";` täpselt nende väärtustega
 3. Käivitada DesktopLauncher.java eelneva juhendi järgi

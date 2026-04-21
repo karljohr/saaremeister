@@ -5,6 +5,10 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.*;
+import ee.kool.saaremeister.server.game.object.player.Bot;
+import ee.kool.saaremeister.server.game.object.player.Master;
+import ee.kool.saaremeister.server.game.object.player.Officer;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.listener.ShopPurchaseListener;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
@@ -15,7 +19,6 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static constant.Constants.PLAYER_COUNT_INGAME_LIMIT;
-import static constant.Constants.PPM;
 
 /**
  * Manages the connections to the game and assigns roles to players.

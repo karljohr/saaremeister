@@ -2,7 +2,7 @@ package ee.kool.saaremeister.server.game;
 
 import ee.kool.saaremeister.server.game.object.buildings.Building;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
 import ee.kool.saaremeister.server.game.object.projectiles.Rocket;
 import lombok.Getter;

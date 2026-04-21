@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.projectiles.Rocket;
 import message.dto.ExplosionState;
 

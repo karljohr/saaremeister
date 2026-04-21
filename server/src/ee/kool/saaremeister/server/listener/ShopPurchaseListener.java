@@ -4,8 +4,8 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
 import constant.BuildingInfo;
 import constant.Category;
-import ee.kool.saaremeister.server.game.object.Officer;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.player.Officer;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import message.dto.ShopItem;
 
 import java.util.Map;

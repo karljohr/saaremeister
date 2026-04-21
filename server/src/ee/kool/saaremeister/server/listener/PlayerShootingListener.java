@@ -3,7 +3,7 @@ package ee.kool.saaremeister.server.listener;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import message.PlayerShootingMessage;
 
 import java.time.Duration;

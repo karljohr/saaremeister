@@ -1,4 +1,4 @@
-package ee.kool.saaremeister.server.game.object;
+package ee.kool.saaremeister.server.game.object.player;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -192,9 +192,7 @@ public class Player {
     }
 
     /**
-     *
-     * TODO: This function must be unique to the island master.
-     *
+     * Builds a building.
      * @param message info about the building object to be built. Sent by player.
      */
     public void build(PlayerBuildMessage message) {

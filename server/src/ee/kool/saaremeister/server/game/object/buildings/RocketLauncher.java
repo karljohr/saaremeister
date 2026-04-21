@@ -3,7 +3,7 @@ package ee.kool.saaremeister.server.game.object.buildings;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import ee.kool.saaremeister.server.game.GameInstance;
-import ee.kool.saaremeister.server.game.object.Player;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.projectiles.Rocket;
 
 import java.time.Duration;

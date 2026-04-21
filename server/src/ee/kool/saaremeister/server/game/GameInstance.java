@@ -93,7 +93,6 @@ public class GameInstance extends Thread {
                 lobbyManager,
                 lobbyId
         );
-        this.connectionManager.spawnBots();
     }
 
     /**
@@ -101,6 +100,7 @@ public class GameInstance extends Thread {
      */
     public void addLobbyConnections(Collection<Connection> connections) {
         connectionManager.addLobbyConnections(connections);
+        connectionManager.spawnBots();
     }
 
     /**

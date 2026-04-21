@@ -73,7 +73,9 @@ public class GameConnectionManager {
         List<Connection> connectionList = new ArrayList<>(connections);
         if (connectionList.isEmpty()) return;
 
-        int masterIndex = ThreadLocalRandom.current().nextInt(connectionList.size());
+        int masterIndex = (connectionList.size() == 1)
+                ? 0
+                : ThreadLocalRandom.current().nextInt(connectionList.size());
         for (int i = 0; i < connectionList.size(); i++) {
             PlayerRole role = (i == masterIndex) ? PlayerRole.MASTER : PlayerRole.OFFICER;
             addConnection(connectionList.get(i), role);
@@ -125,7 +127,7 @@ public class GameConnectionManager {
      */
     public void spawnBots() {
         int currentPlayers = players.size();
-        int botsToAdd = Math.min(2, PLAYER_COUNT_INGAME_LIMIT - currentPlayers);
+        int botsToAdd = PLAYER_COUNT_INGAME_LIMIT - currentPlayers;
 
         for (int i = 0; i < botsToAdd; i++) {
             int botId = 1000 + i;

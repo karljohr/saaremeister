@@ -50,8 +50,6 @@ public class PlayerInputManager {
             facing = movementMessage.getDirectionX();
         }
 
-        if (movementMessage.getDirectionX() == null && movementMessage.getDirectionY() == null) return;
-
         ServerConnection
                 .getInstance()
                 .getClient()

@@ -60,23 +60,21 @@ public class GameScreenUpdateController {
 
         // Stops movement and shooting if the chat is focused and vice versa.
         boolean chatFocused = hud.isChatInputFocused();
-        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
+        boolean canControlPlayer = !chatFocused && !state.isShopOpen() && !state.isPaused();
+        if (canControlPlayer) {
             playerInputManager.handleMovementInput();
             playerInputManager.handleActionInput(hud.getHotbar());
-        } else if (!state.wasChatFocused()) {
+        } else {
             playerInputManager.stopMovement();
             playerInputManager.stopShooting();
         }
         state.setWasChatFocused(chatFocused);
 
-        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
+        if (canControlPlayer) {
             // Hotbar keys
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) hud.selectHotbarSlot(0);
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) hud.selectHotbarSlot(1);
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) hud.selectHotbarSlot(2);
-
-            playerInputManager.handleMovementInput();
-            playerInputManager.handleActionInput(hud.getHotbar());
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
@@ -131,7 +129,7 @@ public class GameScreenUpdateController {
         worldView.getRenderer().setView(worldView.getCamera());
 
         // Shooting direction based on mouse position.
-        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
+        if (canControlPlayer) {
             arena.getPlayers().stream()
                     .filter(p -> p.getId() == myId)
                     .findFirst()

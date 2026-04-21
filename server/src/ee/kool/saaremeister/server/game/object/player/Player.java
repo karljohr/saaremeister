@@ -147,28 +147,21 @@ public class Player {
      * Moves the player in the given direction.
      */
     public void move(Direction directionX, Direction directionY) {
-        float speed;
-        if (directionX == null && directionY == null) {
-            return;
-        } else if (directionX != null && directionY != null) {
-            speed = (float) (PLAYER_SPEED / Math.sqrt(2) / PPM);
-        } else {
-            speed = PLAYER_SPEED / PPM;
+        float speed = PLAYER_SPEED / PPM;
+        Vector2 velocity = new Vector2(0, 0);
+
+        if (directionX == Direction.LEFT) velocity.x = -speed;
+        else if (directionX == Direction.RIGHT) velocity.x = speed;
+
+        if (directionY == Direction.UP) velocity.y = speed;
+        else if (directionY == Direction.DOWN) velocity.y = -speed;
+
+        // Normalize moving diagonally
+        if (velocity.x != 0 && velocity.y != 0) {
+            velocity.scl(0.707f);
         }
 
-        switch (directionX) {
-            case LEFT -> body.setLinearVelocity(-speed, body.getLinearVelocity().y);
-            case RIGHT -> body.setLinearVelocity(speed, body.getLinearVelocity().y);
-            case null, default -> {
-            }
-        }
-        switch (directionY) {
-            case UP -> body.setLinearVelocity(body.getLinearVelocity().x, speed);
-            case DOWN -> body.setLinearVelocity(body.getLinearVelocity().x, -speed);
-            case null, default -> {
-            }
-        }
-
+        body.setLinearVelocity(velocity);
     }
 
     /**
@@ -178,9 +171,6 @@ public class Player {
         if (body == null) return;
         this.x = body.getPosition().x * PPM;
         this.y = body.getPosition().y * PPM;
-        if (!(this instanceof Bot)) {
-            body.setLinearVelocity(0f, 0f);
-        }
     }
 
     /**

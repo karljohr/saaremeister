@@ -8,10 +8,10 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.minlog.Log;
 import constant.BuildingInfo;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
-import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.buildings.DefenceBuilding;
 import ee.kool.saaremeister.server.game.object.buildings.OffenceBuilding;
 import ee.kool.saaremeister.server.game.object.buildings.RocketLauncher;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import lombok.Getter;
 import message.PlayerBuildMessage;
 import message.dto.BuildingState;
@@ -19,9 +19,6 @@ import message.dto.BuildingState;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Handles the building process in the game.
- */
 public class BuildHandler {
 
     @Getter
@@ -33,185 +30,150 @@ public class BuildHandler {
     public BuildHandler(World world, GameInstance gameInstance) {
         this.world = world;
         this.gameInstance = gameInstance;
-        buildings = new ArrayList<>();
-        buildMessageQueue = new ArrayList<>();
+        this.buildings = new ArrayList<>();
+        this.buildMessageQueue = new ArrayList<>();
     }
 
-    /**
-     * Checks if the player can build on the given tile. The player must be the Island Master and the tile must be
-     * buildable.
-     */
     public boolean validate(int x, int y, int tileId) {
         TiledMap map = Box2dWorldGenerator.getMap();
-        TiledMapTileSet ground = map.getTileSets().getTileSet("blocks");
+        TiledMapTileSet groundSet = map.getTileSets().getTileSet("blocks");
         TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("ground");
+
+        if (layer == null || groundSet == null) return false;
+
         TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+        if (cell == null || cell.getTile() == null) return false;
 
-        int id = 0;
-        if (cell != null && cell.getTile() != null) {
-            id = cell.getTile().getId();
-        }
+        // Ground check (canBuildOn)
+        var tile = groundSet.getTile(cell.getTile().getId());
+        if (tile == null) return false;
 
-        // TODO: only continue if player is "saaremeister".
-
-        // Check ground tile
-        if (!(boolean) ground.getTile(id).getProperties().get("canBuildOn")) {
+        Object prop = tile.getProperties().get("canBuildOn");
+        if (!(prop instanceof Boolean && (Boolean) prop)) {
             return false;
         }
 
-        // Check static buildings
-        if (
-                new ArrayList<Vector2>(List.of(
-                        // Brown house
-                        new Vector2(141, 123),
-                        new Vector2(141, 122),
-                        new Vector2(142, 123),
-                        new Vector2(142, 122),
-                        // White house
-                        new Vector2(158, 102),
-                        new Vector2(158, 101),
-                        new Vector2(159, 102),
-                        new Vector2(159, 101),
-                        // Blue house
-                        new Vector2(142, 111),
-                        new Vector2(141, 111),
-                        new Vector2(140, 111),
-                        new Vector2(149, 111),
-                        new Vector2(142, 112),
-                        new Vector2(141, 112),
-                        new Vector2(140, 112),
-                        new Vector2(139, 112),
-                        // Lighthouse
-                        new Vector2(134, 95),
-                        new Vector2(134, 96),
-                        new Vector2(133, 95),
-                        new Vector2(133, 96)
-                ))
-                        .contains(new Vector2(x, y))) {
+        if (isAtStaticBuilding(x, y)) {
             return false;
         }
 
-        // Check existing buildings
+        // Remaining buildings check
         for (Building build : buildings) {
-            if (BuildingInfo.getBuildingFromVariation(tileId) != null && BuildingInfo.getBuildingFromVariation(tileId) == 156) {
+            Integer buildingId = BuildingInfo.getBuildingFromVariation(tileId);
+            if (buildingId != null && buildingId == 156) {
                 for (BuildingState state : BuildingInfo.getWallTileLocations(new BuildingState(tileId, x, y))) {
-                    if (tileCoordinatesMatch(state.x, state.y, build)) return false;
+                    if (tileCoordinatesMatch(state.x, state.y, build)) {
+                        return false;
+                    }
                 }
-            } else {
-                if (tileCoordinatesMatch(x, y, build)) return false;
+            } else if (tileCoordinatesMatch(x, y, build)) {
+                return false;
             }
         }
+
         return true;
     }
 
-    /**
-     * Checks if given coordinates are at the same place as the given building.
-     * @param x coordinate.
-     * @param y coordinate.
-     * @param build existing building.
-     * @return true if locations match.
-     */
+    private boolean isAtStaticBuilding(int x, int y) {
+        return new ArrayList<>(List.of(
+                new Vector2(141, 123), new Vector2(141, 122), new Vector2(142, 123), new Vector2(142, 122),
+                new Vector2(158, 102), new Vector2(158, 101), new Vector2(159, 102), new Vector2(159, 101),
+                new Vector2(142, 111), new Vector2(141, 111), new Vector2(140, 111), new Vector2(149, 111),
+                new Vector2(142, 112), new Vector2(141, 112), new Vector2(140, 112), new Vector2(139, 112),
+                new Vector2(134, 95), new Vector2(134, 96), new Vector2(133, 95), new Vector2(133, 96)
+        )).contains(new Vector2(x, y));
+    }
+
     private boolean tileCoordinatesMatch(int x, int y, Building build) {
         if (build instanceof DefenceBuilding) {
             return ((DefenceBuilding) build).getTiles().stream()
-                    .map(tile -> new Vector2(tile.getX(), tile.getY()))
-                    .toList()
-                    .contains(new Vector2(x, y));
+                    .anyMatch(tile -> (int) tile.getX() == x && (int) tile.getY() == y);
         }
         if (build instanceof RocketLauncher) {
-            return Math.abs(build.getTileX() - x) <= 1
-                    && Math.abs(build.getTileY() - y) <= 1;
+            return Math.abs(build.getTileX() - x) <= 1 && Math.abs(build.getTileY() - y) <= 1;
         }
-
         return build.getTileX() == x && build.getTileY() == y;
     }
 
-    /**
-     * Adds a building to the building list.
-     */
     public void build(PlayerBuildMessage message, Player player) {
         if (!validate(message.getTileX(), message.getTileY(), message.id)) {
-            Log.info("[BuildHandler] Player(" + player.getId() + ") tried to build on an invalid tile (" + message.getTileX() + "; " + message.getTileY() + ")");
             player.refundBuildingPermit(message.id);
             return;
         }
         if (player.getBuildingPermitById().contains(BuildingInfo.getBuildingFromVariation(message.id))) {
             buildMessageQueue.add(new BuildingState(message.id, message.tileX, message.tileY));
             player.removeBuildingPermit(message.id);
-            Log.info("[BuildHandler] Building added to the queue");
         } else {
-            Log.info("[BuildHandler] Player doesn't have the right to build this building: " + message.id + " not in " + player.getBuildingPermitById());
+            Log.info("[BuildHandler] Player doesn't have the right to build this building: "
+                    + message.id + " not in " + player.getBuildingPermitById());
         }
     }
 
-    /**
-     * Builds the building from the queue.
-     */
     public void buildFromQueue() {
         if (buildMessageQueue.isEmpty()) return;
-        BuildingState buildingState = buildMessageQueue.removeFirst();
+        BuildingState state = buildMessageQueue.removeFirst();
 
-        switch (BuildingInfo.getBuildingType(buildingState.id)) {
-            case OFFENCE -> {
-                buildings.add(
-                        new OffenceBuilding(
-                                buildingState.id,
-                                buildingState.x,
-                                buildingState.y,
-                                world,
-                                gameInstance,
-                                BuildingInfo.getBuildingHealth(
-                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
-                                ),
-                                BuildingInfo.getRange(
-                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
-                                )
-                        )
-                );
-            }
-            case DEFENCE -> {
-                buildings.add(
-                        new DefenceBuilding(
-                                buildingState.id,
-                                buildingState.x,
-                                buildingState.y,
-                                world,
-                                BuildingInfo.getBuildingHealth(
-                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
-                                )
-                        )
-                );
-            }
-            case ROCKET_LAUNCHER -> {
-                buildings.add(
-                        new RocketLauncher(
-                                buildingState.id,
-                                buildingState.x,
-                                buildingState.y,
-                                world,
-                                gameInstance,
-                                BuildingInfo.getBuildingHealth(
-                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
-                                ),
-                                BuildingInfo.getRange(
-                                        BuildingInfo.getBuildingFromVariation(buildingState.id)
-                                )
-                        )
-                );
-            }
+        Building newBuilding = null;
+        var type = BuildingInfo.getBuildingType(state.id);
+
+        // Health for all buildings
+        int baseId = BuildingInfo.getBuildingFromVariation(state.id);
+        int health = BuildingInfo.getBuildingHealth(baseId);
+
+        if (type == BuildingInfo.BuildingType.OFFENCE) {
+            int range = BuildingInfo.getRange(baseId);
+            newBuilding = new OffenceBuilding(state.id, state.x, state.y, world, gameInstance, health, range);
+        } else if (type == BuildingInfo.BuildingType.DEFENCE) {
+            newBuilding = new DefenceBuilding(state.id, state.x, state.y, world, health);
+        } else if (type == BuildingInfo.BuildingType.ROCKET_LAUNCHER) {
+            int range = BuildingInfo.getRange(baseId);
+            newBuilding = new RocketLauncher(state.id, state.x, state.y, world, gameInstance, health, range);
         }
 
-        Log.info("[BuildHandler] Building " + BuildingInfo.getBuildingType(buildingState.id) + " placed at " + buildingState.x + ";" + buildingState.y);
+        if (newBuilding != null) {
+            buildings.add(newBuilding);
+            Log.info("[BuildHandler] " + type + " placed at " + state.x + ";" + state.y);
+        }
     }
 
-    /**
-     * Makes all offense buildings shoot.
-     */
     public void shoot() {
-        for (Building building : buildings) {
-            if (building instanceof OffenceBuilding offenceBuilding) {
-                offenceBuilding.shoot();
+        for (Building b : buildings) {
+            if (b instanceof OffenceBuilding ob) ob.shoot();
+        }
+    }
+
+    public int[][] generateCollisionGrid() {
+        TiledMap map = Box2dWorldGenerator.getMap();
+        int width = map.getProperties().get("width", Integer.class);
+        int height = map.getProperties().get("height", Integer.class);
+        int[][] grid = new int[height][width];
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (isAtStaticBuilding(x, y)) {
+                    grid[y][x] = 1;
+                }
             }
         }
+
+        for (Building build : buildings) {
+            if (build instanceof DefenceBuilding db) {
+                for (BuildingState tile : db.getTiles()) {
+                    int tx = tile.getX();
+                    int ty = tile.getY();
+                    if (tx >= 0 && tx < width && ty >= 0 && ty < height) {
+                        grid[ty][tx] = 1;
+                    }
+                }
+                continue;
+            }
+
+            int tx = build.getTileX();
+            int ty = build.getTileY();
+            if (tx >= 0 && tx < width && ty >= 0 && ty < height) {
+                grid[ty][tx] = 1;
+            }
+        }
+        return grid;
     }
 }

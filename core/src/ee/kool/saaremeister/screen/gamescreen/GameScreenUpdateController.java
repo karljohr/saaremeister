@@ -30,6 +30,7 @@ public class GameScreenUpdateController {
     private final BuildManager buildManager;
     private final GameWorldView worldView;
     private final GameScreenState state;
+    private GameStateMessage latestGameState;
 
     public GameScreenUpdateController(
             Game game,
@@ -93,13 +94,6 @@ public class GameScreenUpdateController {
         }
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
-
-        if (currentGameState.isGameOver()) {
-            var gameWinnerRole = currentGameState.getWinnerPlayerRole();
-            game.setScreen(new EndScreen(game, gameWinnerRole, myRole));
-            return;
-        }
-
         if (currentGameState == null) return;
 
         // resolve once (role does not change mid-game)
@@ -113,7 +107,15 @@ public class GameScreenUpdateController {
             return;
         }
 
-        arena.update(currentGameState);
+        boolean hasNewState = currentGameState != latestGameState;
+        if (hasNewState) {
+            arena.update(currentGameState);
+            buildManager.renderBatch(currentGameState.getBuildingStates());
+            buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
+            hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
+            latestGameState = currentGameState;
+        }
+
 
         // Dynamic camera
         arena.getPlayers().stream()
@@ -139,10 +141,5 @@ public class GameScreenUpdateController {
                         playerInputManager.handleShootingInput(me.getX(), me.getY(), mouse.x, mouse.y);
                     });
         }
-
-        buildManager.renderBatch(currentGameState.getBuildingStates());
-        buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
-
-        hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
     }
 }

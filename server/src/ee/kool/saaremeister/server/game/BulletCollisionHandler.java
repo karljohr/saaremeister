@@ -8,6 +8,7 @@ import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.projectiles.Rocket;
 import message.dto.ExplosionState;
+import message.dto.PlayerRole;
 
 import java.util.*;
 
@@ -60,7 +61,13 @@ public class BulletCollisionHandler {
             if (bullet instanceof Rocket rocket) {
 
                 // Rocket hitting ground & checking if anyone got hit.
-                List<Player> hitPlayers = findHitPlayersInRange(bulletX, bulletY, bullet.getShotById(), players);
+                List<Player> hitPlayers = findHitPlayersInRange(
+                        bulletX,
+                        bulletY,
+                        bullet.getShotById(),
+                        players,
+                        buildings
+                );
                 if (!hitPlayers.isEmpty()) {
                     hitPlayers.forEach(player -> player.decreaseLives(rocket.getDamage()));
                     Log.info("Players "
@@ -81,7 +88,7 @@ public class BulletCollisionHandler {
             } else {
 
             // Hitting another player (not the shooter itself).
-            Player hit = findHitPlayer(bulletX, bulletY, bullet.getShotById(), players);
+            Player hit = findHitPlayer(bulletX, bulletY, bullet.getShotById(), players, buildings);
             if (hit != null) {
                 hit.decreaseLives((int)BULLET_DAMAGE);
                 Log.info("Player " + hit.getId() + " hit by bullet from " + bullet.getShotById());
@@ -102,11 +109,20 @@ public class BulletCollisionHandler {
     /**
      * Finds the player that the bullet hits.
      */
-    private Player findHitPlayer(float bulletX, float bulletY, int shooterId, List<Player> players) {
+    private Player findHitPlayer(float bulletX,
+                                 float bulletY,
+                                 int shooterId,
+                                 List<Player> players,
+                                 List<Building> buildings
+    ) {
+        PlayerRole shooterRole = findShooterRole(buildings, players, shooterId);
+
         for (Player player : players) {
             if (player.getId() == shooterId) continue;
             Body body = player.getBody();
             if (body == null) continue;
+
+            if (player.getRole() == shooterRole) continue;
 
             for (Fixture fixture : body.getFixtureList()) {
                 if (fixture.testPoint(bulletX, bulletY)) {
@@ -121,7 +137,12 @@ public class BulletCollisionHandler {
      * Finds the players that were in blast radius.
      * @return list of players.
      */
-    private List<Player> findHitPlayersInRange(float bulletX, float bulletY, int shooterId, List<Player> players) {
+    private List<Player> findHitPlayersInRange(float bulletX,
+                                               float bulletY,
+                                               int shooterId,
+                                               List<Player> players,
+                                               List<Building> buildings
+    ) {
         List<Player> hitPlayers = new ArrayList<>();
         List<Fixture> hitFixtures = new ArrayList<>();
 
@@ -136,7 +157,8 @@ public class BulletCollisionHandler {
         );
 
         for (Player player : players) {
-            if (player.getId() == shooterId) continue;
+            PlayerRole shooterRole = findShooterRole(buildings, players, shooterId);
+            if (player.getRole() == shooterRole) continue;
             Body body = player.getBody();
             if (body == null) continue;
 
@@ -159,6 +181,12 @@ public class BulletCollisionHandler {
         Building origin = buildingById.get(shooterId);
         Body originBody = origin != null ? origin.getBody() : null;
 
+        PlayerRole shooterRole = findShooterRole(
+                buildingById.values().stream().toList(),
+                playersById.values().stream().toList(),
+                shooterId
+        );
+
         for (Body body : worldBodies) {
             if (body == shooterBody) continue;
             if (body == originBody) continue;
@@ -166,18 +194,35 @@ public class BulletCollisionHandler {
 
             for (Fixture fixture : body.getFixtureList()) {
                 if (fixture.testPoint(bulletX, bulletY)) {
-                    buildingById
-                            .entrySet()
-                            .stream()
-                            .filter(entry ->
-                                    entry.getValue().getBody() == fixture.getBody())
-                            .findAny()
-                            .ifPresent(entry -> entry.getValue().decreaseHealth());
+                    if (shooterRole == PlayerRole.OFFICER) {
+                        buildingById
+                                .entrySet()
+                                .stream()
+                                .filter(entry ->
+                                        entry.getValue().getBody() == fixture.getBody())
+                                .findAny()
+                                .ifPresent(entry -> entry.getValue().decreaseHealth());
+                    }
                     return true;
 
                 }
             }
         }
         return false;
+    }
+
+    private PlayerRole findShooterRole(List<Building> buildings, List<Player> players, int shooterId) {
+        PlayerRole shooterRole;
+        if (buildings.stream()
+                .map(Building::getUniqueId)
+                .anyMatch(id -> id == shooterId)
+                || players.stream()
+                .filter(p -> p.getRole() == PlayerRole.MASTER)
+                .anyMatch(p -> p.getId() == shooterId)) {
+            shooterRole = PlayerRole.MASTER;
+        } else {
+            shooterRole = PlayerRole.OFFICER;
+        }
+        return shooterRole;
     }
 }

@@ -72,8 +72,6 @@ public class GameScreenRenderController {
         shapeRenderer.setProjectionMatrix(worldView.getCamera().combined);
         spriteBatch.setProjectionMatrix(worldView.getCamera().combined);
 
-        worldView.getRenderer().render(new int[]{groundIndex});
-
         renderZoneLayer(1);
         renderZoneLayer(2);
         renderZoneLayer(3);

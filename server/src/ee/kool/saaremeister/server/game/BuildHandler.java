@@ -18,12 +18,16 @@ import message.dto.BuildingState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+/**
+ * Handles the building process in the game.
+ */
 public class BuildHandler {
 
     @Getter
     private List<Building> buildings;
-    private List<BuildingState> buildMessageQueue;
+    private final List<BuildingState> buildMessageQueue;
     private final World world;
     private final GameInstance gameInstance;
 
@@ -34,6 +38,9 @@ public class BuildHandler {
         this.buildMessageQueue = new ArrayList<>();
     }
 
+    /**
+     * Checks if the player can build at the given tile.
+     */
     public boolean validate(int x, int y, int tileId) {
         TiledMap map = Box2dWorldGenerator.getMap();
         TiledMapTileSet groundSet = map.getTileSets().getTileSet("blocks");
@@ -74,16 +81,34 @@ public class BuildHandler {
         return true;
     }
 
-    private boolean isAtStaticBuilding(int x, int y) {
-        return new ArrayList<>(List.of(
-                new Vector2(141, 123), new Vector2(141, 122), new Vector2(142, 123), new Vector2(142, 122),
-                new Vector2(158, 102), new Vector2(158, 101), new Vector2(159, 102), new Vector2(159, 101),
-                new Vector2(142, 111), new Vector2(141, 111), new Vector2(140, 111), new Vector2(149, 111),
-                new Vector2(142, 112), new Vector2(141, 112), new Vector2(140, 112), new Vector2(139, 112),
-                new Vector2(134, 95), new Vector2(134, 96), new Vector2(133, 95), new Vector2(133, 96)
-        )).contains(new Vector2(x, y));
+    /**
+     * Returns a unique key for a tile.
+     */
+    private static long tileKey(int x, int y) {
+        return (((long) x) << 32) | (y & 0xffffffffL);
     }
 
+    /**
+     * Static buildings are not allowed to be built on.
+     */
+    private static final Set<Long> STATIC_BUILDING_TILES = Set.of(
+            tileKey(141,123), tileKey(141,122), tileKey(142,123), tileKey(142,122),
+            tileKey(158,102), tileKey(158,101), tileKey(159,102), tileKey(159,101),
+            tileKey(142,111), tileKey(141,111), tileKey(140,111), tileKey(149,111),
+            tileKey(142,112), tileKey(141,112), tileKey(140,112), tileKey(139,112),
+            tileKey(134,95),  tileKey(134,96),  tileKey(133,95),  tileKey(133,96)
+    );
+
+    /**
+     * Checks if the given tile is a static building.
+     */
+    private boolean isAtStaticBuilding(int x, int y) {
+        return STATIC_BUILDING_TILES.contains(tileKey(x, y));
+    }
+
+    /**
+     * Checks if the given building is at the given tile coordinates.
+     */
     private boolean tileCoordinatesMatch(int x, int y, Building build) {
         if (build instanceof DefenceBuilding) {
             return ((DefenceBuilding) build).getTiles().stream()
@@ -95,6 +120,9 @@ public class BuildHandler {
         return build.getTileX() == x && build.getTileY() == y;
     }
 
+    /**
+     * Builds a building at the given coordinates.
+     */
     public void build(PlayerBuildMessage message, Player player) {
         if (!validate(message.getTileX(), message.getTileY(), message.id)) {
             player.refundBuildingPermit(message.id);
@@ -109,6 +137,9 @@ public class BuildHandler {
         }
     }
 
+    /**
+     * Builds a building from the buildMessageQueue.
+     */
     public void buildFromQueue() {
         if (buildMessageQueue.isEmpty()) return;
         BuildingState state = buildMessageQueue.removeFirst();
@@ -136,12 +167,18 @@ public class BuildHandler {
         }
     }
 
+    /**
+     * Makes an offense building shoot.
+     */
     public void shoot() {
         for (Building b : buildings) {
             if (b instanceof OffenceBuilding ob) ob.shoot();
         }
     }
 
+    /**
+     * Generates a collision grid for the buildings.
+     */
     public int[][] generateCollisionGrid() {
         TiledMap map = Box2dWorldGenerator.getMap();
         int width = map.getProperties().get("width", Integer.class);

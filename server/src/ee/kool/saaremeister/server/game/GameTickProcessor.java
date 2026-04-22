@@ -85,9 +85,10 @@ public class GameTickProcessor {
         world.step(deltaTime, 6, 2);
 
         // Update bots
+        int[][] grid = buildHandler.generateCollisionGrid();
         for (Player p : players) {
             if (p instanceof Bot bot) {
-                bot.updateAI(players, buildHandler.getBuildings());
+                bot.updateAI(players, buildHandler.getBuildings(), captureZones, grid);
             }
         }
 

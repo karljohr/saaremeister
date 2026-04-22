@@ -25,6 +25,10 @@ public class Box2dWorldGenerator {
     private static final float DEBUG_ISO_ROTATION_DEGREES = 135f;
     private static final float COLLISION_OFFSET_X = 62.320f; // 62.32
     private static final float COLLISION_OFFSET_Y = 20.881f; // 20.881
+    private static final int GRID_ORIGIN_TILE = 130;
+    private static final float GRID_TILE_SIZE_PIXELS = 16f;
+
+    private static TiledMap cachedMap;
 
     private final Matrix4 isoDebugTransform = new Matrix4();
     private final Vector3 tmpVector = new Vector3();
@@ -89,8 +93,11 @@ public class Box2dWorldGenerator {
     }
 
     public static TiledMap getMap() {
-        return new HijackedTmxLoader(new MyServer.MyFileHandleResolver())
-                .load("TMXAssets/map.tmx");
+        if (cachedMap == null) {
+            cachedMap = new HijackedTmxLoader(new MyServer.MyFileHandleResolver())
+                    .load("TMXAssets/map.tmx");
+        }
+        return cachedMap;
     }
 
     /**
@@ -139,6 +146,47 @@ public class Box2dWorldGenerator {
         y -= COLLISION_OFFSET_Y;
 
         return new Vector2(x, y);
+    }
+
+    /**
+     * Converts a build/grid tile coordinate to transformed world coordinates in Box2D meters.
+     */
+    public static Vector2 tileIndexToWorld(int tileX, int tileY) {
+        TiledMap map = getMap();
+        Matrix4 isoTransform = createIsometricTransform(map);
+        Vector3 tmp = new Vector3();
+
+        float pixelX = (tileX - GRID_ORIGIN_TILE) * GRID_TILE_SIZE_PIXELS + GRID_TILE_SIZE_PIXELS / 2f;
+        float pixelY = (tileY - GRID_ORIGIN_TILE) * GRID_TILE_SIZE_PIXELS + GRID_TILE_SIZE_PIXELS / 2f;
+
+        Vector2 rawMeters = tileToWorld(map, pixelX, pixelY);
+        tmp.set(rawMeters.x, rawMeters.y, 0f).mul(isoTransform);
+        return new Vector2(tmp.x, tmp.y);
+    }
+
+    /**
+     * Converts transformed world coordinates in Box2D meters to build/grid tile coordinates.
+     */
+    public static Vector2 worldToTileIndex(float worldX, float worldY) {
+        TiledMap map = getMap();
+        Matrix4 inverseIsoTransform = new Matrix4(createIsometricTransform(map)).inv();
+        Vector3 tmp = new Vector3(worldX, worldY, 0f).mul(inverseIsoTransform);
+
+        MapProperties props = map.getProperties();
+        int mapHeight = props.get("height", Integer.class);
+        int mapWidth = props.get("width", Integer.class);
+        float tileWidth = props.get("tilewidth", Integer.class);
+        float tileHeight = props.get("tileheight", Integer.class);
+
+        float mapHeightPixels = mapHeight * tileHeight;
+        float mapWidthPixels = mapWidth * tileWidth;
+
+        float pixelX = mapWidthPixels - ((tmp.x + COLLISION_OFFSET_X) * PPM);
+        float pixelY = mapHeightPixels - ((tmp.y + COLLISION_OFFSET_Y) * PPM);
+
+        float tileX = (float) Math.floor(pixelX / GRID_TILE_SIZE_PIXELS) + GRID_ORIGIN_TILE;
+        float tileY = (float) Math.floor(pixelY / GRID_TILE_SIZE_PIXELS) + GRID_ORIGIN_TILE;
+        return new Vector2(tileX, tileY);
     }
 
     private Vector2 applyIsometricTransform(float x, float y) {
@@ -209,5 +257,27 @@ public class Box2dWorldGenerator {
      */
     public Body buildBody(int tileX, int tileY, World world) {
         return buildBody(tileX, tileY, world, 16, 16);
+    }
+
+    private static Matrix4 createIsometricTransform(TiledMap tiledMap) {
+        MapProperties props = tiledMap.getProperties();
+        float tileWidth = props.get("tilewidth", Integer.class);
+        float tileHeight = props.get("tileheight", Integer.class);
+        float mapHeight = props.get("height", Integer.class);
+
+        float originX = (mapHeight * tileWidth / 2f) / PPM;
+        float scaleX = (float) Math.sqrt(2f);
+        float scaleY = (float) Math.sqrt(2f);
+
+        if (tileWidth > tileHeight) {
+            scaleY *= tileHeight / tileWidth;
+        } else {
+            scaleX *= tileWidth / tileHeight;
+        }
+
+        return new Matrix4().idt()
+                .translate(originX, 0f, 0f)
+                .scale(scaleX, scaleY, 1f)
+                .rotate(0f, 0f, 1f, DEBUG_ISO_ROTATION_DEGREES);
     }
 }

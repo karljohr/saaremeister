@@ -88,8 +88,12 @@ public class Arena {
             }
         }
 
-        this.bullets = gameStateMessage.getBulletStates();
-        this.rockets = gameStateMessage.getRocketStates();
+        this.bullets = gameStateMessage.getBulletStates() != null
+                ? gameStateMessage.getBulletStates()
+                : new ArrayList<>();
+        this.rockets = gameStateMessage.getRocketStates() != null
+                ? gameStateMessage.getRocketStates()
+                : new ArrayList<>();
         this.captureZones = gameStateMessage.getCaptureZones() != null
                 ? gameStateMessage.getCaptureZones()
                 : new ArrayList<>();
@@ -117,15 +121,17 @@ public class Arena {
                     BULLET_HEIGHT_IN_PIXELS
             );
         });
-        rockets.forEach(rocket -> {
-            spriteBatch.draw(
-                    rocket.isFalling() ? Sprites.rocketDownTexture : Sprites.rocketTexture,
-                    rocket.getX(),
-                    rocket.getY() + rocket.getHeight(),
-                    ROCKET_WIDTH_IN_PIXELS,
-                    ROCKET_HEIGHT_IN_PIXELS
-            );
-        });
+        if (rockets != null) {
+            rockets.forEach(rocket -> {
+                spriteBatch.draw(
+                        rocket.isFalling() ? Sprites.rocketDownTexture : Sprites.rocketTexture,
+                        rocket.getX(),
+                        rocket.getY() + rocket.getHeight(),
+                        ROCKET_WIDTH_IN_PIXELS,
+                        ROCKET_HEIGHT_IN_PIXELS
+                );
+            });
+        }
     }
 
     /**

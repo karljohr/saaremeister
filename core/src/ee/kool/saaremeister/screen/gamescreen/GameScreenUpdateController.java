@@ -30,6 +30,7 @@ public class GameScreenUpdateController {
     private final BuildManager buildManager;
     private final GameWorldView worldView;
     private final GameScreenState state;
+    private GameStateMessage latestGameState;
 
     public GameScreenUpdateController(
             Game game,
@@ -60,23 +61,21 @@ public class GameScreenUpdateController {
 
         // Stops movement and shooting if the chat is focused and vice versa.
         boolean chatFocused = hud.isChatInputFocused();
-        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
+        boolean canControlPlayer = !chatFocused && !state.isShopOpen() && !state.isPaused();
+        if (canControlPlayer) {
             playerInputManager.handleMovementInput();
             playerInputManager.handleActionInput(hud.getHotbar());
-        } else if (!state.wasChatFocused()) {
+        } else {
             playerInputManager.stopMovement();
             playerInputManager.stopShooting();
         }
         state.setWasChatFocused(chatFocused);
 
-        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
+        if (canControlPlayer) {
             // Hotbar keys
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) hud.selectHotbarSlot(0);
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) hud.selectHotbarSlot(1);
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) hud.selectHotbarSlot(2);
-
-            playerInputManager.handleMovementInput();
-            playerInputManager.handleActionInput(hud.getHotbar());
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
@@ -95,13 +94,6 @@ public class GameScreenUpdateController {
         }
 
         GameStateMessage currentGameState = gameStateManager.getLatestGameStateMessage();
-
-        if (currentGameState.isGameOver()) {
-            var gameWinnerRole = currentGameState.getWinnerPlayerRole();
-            game.setScreen(new EndScreen(game, gameWinnerRole, myRole));
-            return;
-        }
-
         if (currentGameState == null) return;
 
         // resolve once (role does not change mid-game)
@@ -115,7 +107,15 @@ public class GameScreenUpdateController {
             return;
         }
 
-        arena.update(currentGameState);
+        boolean hasNewState = currentGameState != latestGameState;
+        if (hasNewState) {
+            arena.update(currentGameState);
+            buildManager.renderBatch(currentGameState.getBuildingStates());
+            buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
+            hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
+            latestGameState = currentGameState;
+        }
+
 
         // Dynamic camera
         arena.getPlayers().stream()
@@ -131,7 +131,7 @@ public class GameScreenUpdateController {
         worldView.getRenderer().setView(worldView.getCamera());
 
         // Shooting direction based on mouse position.
-        if (!chatFocused && !state.isShopOpen() && !state.isPaused()) {
+        if (canControlPlayer) {
             arena.getPlayers().stream()
                     .filter(p -> p.getId() == myId)
                     .findFirst()
@@ -141,10 +141,5 @@ public class GameScreenUpdateController {
                         playerInputManager.handleShootingInput(me.getX(), me.getY(), mouse.x, mouse.y);
                     });
         }
-
-        buildManager.renderBatch(currentGameState.getBuildingStates());
-        buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
-
-        hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
     }
 }

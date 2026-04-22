@@ -65,9 +65,13 @@ public class CaptureZone {
      * Returns true if the player is standing in the capture zone.
      */
     public boolean contains(Player player) {
-        float px = player.getX();
-        float py = player.getY();
+        return contains(player.getX(), player.getY());
+    }
 
+    /**
+     * Returns true if the given world-pixel position is standing in the capture zone.
+     */
+    public boolean contains(float px, float py) {
         // fast reject using AABB
         if (px < x || px > x + width || py < y || py > y + height) return false;
 

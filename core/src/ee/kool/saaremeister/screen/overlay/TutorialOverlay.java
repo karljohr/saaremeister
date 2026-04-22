@@ -27,23 +27,26 @@ public class TutorialOverlay extends Table {
         }
 
         String text = """
-                MÄNGUJUHEND
-                
-                MÄNGU EESMÄRK:
-                - SAAREMEISTER: Kaitse saart ja selle strateegilisi objekte. Sinu ülesanne on hävitada sissetungivad maksuametnikud.
-                - MAKSUAMETNIK: Vallutage tiimiga saare objekte. Võiduks peab teie meeskond kontrollima vähemalt 80% objektidest.
-                - SURM: Mõlemad osapooled sünnivad uuesti (respawn) pärast surma.
-                
+                M2NGUJUHEND
+               \s
+                M2NGU EESM2RK:
+                - SAAREMEISTER: Kaitse saart ja sellel asuvaid vallutusalasid. Sinu ylesanne on h2vitada sissetungivad\s
+                maksuametnikud ning mitte lasta neil vallutada kõik saarel olevad alad enne m2nguaja lõppu
+                - MAKSUAMETNIK: Vallutage tiimiga saarel olevaid alasid. V6iduks peab teie meeskond kontrollima k6iki\s
+                alasid enne m2nguaja l6ppu.
+                - SURM: M6lemad osapooled synnivad uuesti (respawn) 5 sekundit peale surma.
+               \s
                 MAJANDUS:
-                - ALGKAPITAL: Iga mängija alustab mängu kindla rahasummaga.
-                - TULUALLIKAD: Raha teenid vastaste alistamisel ja aardekirstude leidmisel.
-                - MAKSUTULU: Maksuametnikuna teenid lisaressursse iga vallutatud objekti pealt.
-                
+                - ALGKAPITAL: Iga m2ngija alustab m2ngu kindla rahasummaga.
+                - TULUALLIKAD: Raha teenid vastaste alistamisel ja aardekirstude leidmisel. (Coming soon)
+                - MAKSUTULU: Maksuametnikuna teenid lisaressursse iga vallutatud objekti pealt. (Coming soon)
+               \s
                 JUHTIMINE:
                 - WASD: Liikumine
-                - ENTER: Chat
-                - B: Pood (Coming soon)
-                """;
+                - SPACE: Tulistamine (sihtimine hiirega)
+                - B: Pood
+                - Ehitamise juhtimised: Ehitamise ajal all vasakus nurgas
+               \s""";
 
         Label infoLabel = new Label(text, skin);
         infoLabel.setFontScale(1.5f);

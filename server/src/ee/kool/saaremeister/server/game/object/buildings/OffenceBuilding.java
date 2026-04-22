@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
-import ee.kool.saaremeister.server.game.object.player.Officer;
 import ee.kool.saaremeister.server.game.object.player.Player;
 
 import java.time.Duration;
@@ -12,6 +11,7 @@ import java.time.LocalTime;
 import java.util.Comparator;
 
 import static constant.Constants.PPM;
+import message.dto.PlayerRole;
 
 /**
  * Represents an offense building that shoots bullets at players.
@@ -72,7 +72,7 @@ public class OffenceBuilding extends Building {
         return gameInstance
                 .getPlayers()
                 .stream()
-                .filter(Officer.class::isInstance)
+                .filter(player -> player.getRole() == PlayerRole.OFFICER)
                 .filter(Player::isAlive)
                 .filter(player ->
                         calcDistanceBetweenTwoPoints(

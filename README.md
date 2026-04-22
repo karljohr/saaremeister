@@ -86,13 +86,16 @@ samaaegselt samas alas seista)
 
 ### Mängu funktsioonid (*features*)
 
-| Funktsioon                     | Kirjeldus                                                                                                                                     |
-|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| Mitmikmäng                     | Mängijate koguarv sõltub kasutaja masina võimsusest.<br/>Lobbysse ja ühte mängu mahub korraga kuni 5 mängijat, täitumisel luuakse uus lobby. |
-| Lobby süsteem                  | Mängijad liituvad algselt lobbyga, kust nad saavad koos mängu liituda.                                                                        |
-| Paralleelsed mängu eksemplarid | Mitu mängu saavad toimuda samaaegselt.                                                                                                        |
-| Tekstipõhine vestlus           | Mängus saab vestlusaknas tekstipõhiselt suhelda teiste mängijatega.                                                                           |
-
+|Funktsioon|Kirjeldus|
+|-|-|
+|Mitmikmäng|Mängijate koguarv sõltub kasutaja masina võimsusest.<br/>Lobbysse ja ühte mängu mahub korraga kuni 5 mängijat, täitumisel luuakse uus lobby.|
+|Lobby süsteem|Mängijad liituvad algselt lobbyga, kust nad saavad koos mängu liituda.|
+|Paralleelsed mängu eksemplarid|Mitu mängu saavad toimuda samaaegselt.|
+|Ehitamine|Saaremeister saab saarele ehitada kaitseehitisi, mis kas takistavad maksuametnike liikumist või aktiivselt tulistavad neid.|
+|AI mängijad|Kui mängu alustab vähem kui 5 mängijaga lobby, asendavad puuduvaid mängijaid AI mängijad, kes sarnaselt päris mängijatele vallutavad alasid ja üritavad Saaremeistrit tappa.|
+|Collisionitega kaart|Originaalsete disainidega 260x260 kaart töötava kokkupõrgete süsteemiga.|
+|Majandussüsteem|Süsteem, kus raha eest saavad mängijad osta paremat varustust ning Saaremeister lisaks sellele ka kaitseehitisi.|
+|Tekstipõhine vestlus|Mängus saab vestlusaknas tekstipõhiselt suhelda teiste mängijatega.|
 
 ---
 

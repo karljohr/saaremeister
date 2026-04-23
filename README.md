@@ -63,8 +63,9 @@ samaaegselt samas alas seista)
 1. Kloonida projekti repo oma IDE-sse (soovitatavalt IntelliJ) (https://gitlab.cs.taltech.ee/chrito/iti0301-2026.git)
 2. **SERVER (kui jooksutada kliendi masinas)**: 
    1. Teha kindlaks, et serveri kataloog on moodul 
-   2. Minna server → src → ee.kool.saaremeister.server → ServerLauncher.java
-   3. Käivitada see fail
+   2. Vahetada Constants.java klassis muutuja SERVER_IP väärtus "localhost" peale
+   3. Minna server → src → ee.kool.saaremeister.server → ServerLauncher.java
+   4. Käivitada see fail
 3. **KLIENT**:
    1. Teha kindlaks, et desktopi kataloog on moodul
    2. Minna desktop → src → ee.kool.saaremeister → DesktopLauncher.java

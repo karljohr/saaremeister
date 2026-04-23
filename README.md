@@ -61,7 +61,7 @@ samaaegselt samas alas seista)
 ### Käivitamine
 
 1. Kloonida projekti repo oma IDE-sse (soovitatavalt IntelliJ) (https://gitlab.cs.taltech.ee/chrito/iti0301-2026.git)
-2. **SERVER**: 
+2. **SERVER (kui jooksutada kliendi masinas)**: 
    1. Teha kindlaks, et serveri kataloog on moodul 
    2. Minna server → src → ee.kool.saaremeister.server → ServerLauncher.java
    3. Käivitada see fail

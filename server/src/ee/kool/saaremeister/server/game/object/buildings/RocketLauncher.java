@@ -31,7 +31,7 @@ public class RocketLauncher extends OffenceBuilding {
     public void shoot() {
         LocalTime now = LocalTime.now();
         if (now.isAfter(lastShotTime.plus(Duration.ofMillis(OPEN_TIME)))) {
-            id = 149;
+            id = 277;
         }
         if (now.isBefore(lastShotTime.plus(Duration.ofMillis(shootingFrequency)))) {
             return;
@@ -49,7 +49,7 @@ public class RocketLauncher extends OffenceBuilding {
         gameInstance.addBullet(
                 new Rocket(this.getX(), this.getY(), target, this.getUniqueId())
         );
-        id = 150;
+        id = 278;
         // Log.info("spawning bullet for " + uniqueId + " at " + x + "," + y + " dir(vector)=" + aim);
     }
 }

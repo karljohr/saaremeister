@@ -27,7 +27,9 @@ public class Arena {
 
     @Getter
     private final List<Player> players = new ArrayList<>();
+    @Getter
     private List<BulletState> bullets = new ArrayList<>();
+    @Getter
     private List<RocketState> rockets = new ArrayList<>();
     private List<CaptureZoneState> captureZones = new ArrayList<>();
     private final int myId = ServerConnection.getInstance().getClient().getID();

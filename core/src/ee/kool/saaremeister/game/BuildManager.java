@@ -9,9 +9,13 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
+import com.esotericsoftware.minlog.Log;
 import constant.BuildingInfo;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
+import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
+import lombok.Getter;
+import lombok.Setter;
 import message.PlayerBuildMessage;
 import message.RefundMessage;
 import message.dto.BuildingState;
@@ -32,12 +36,15 @@ public class BuildManager {
     private TiledMapTile tile;
     private final List<BuildingState> lastTiles;
     private int selectedBuilding;
+    @Getter
     private int selectedVariation;
     private final GameScreen game;
     private final Map<Integer, Integer> previousHealthById;
     private final Map<Integer, Long> healthBarVisibleUntilById;
     private List<BuildingState> currentBuildingStates;
     private List<BuildingState> renderedBuildings;
+    @Setter
+    private PreviewRenderSource previewRenderSource;
 
     // Health bar
     private static final int BAR_WIDTH = 20;
@@ -66,8 +73,9 @@ public class BuildManager {
     public void handleInput(float mouseX, float mouseY) {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             handlePlacement(mouseX, mouseY);
+            Log.info("Mouse at: " +  mouseX + ", " + mouseY);
             game.leaveBuildMode();
-            deleteProjection();
+            previewRenderSource.clearPreview();
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.T)) {
             List<Integer> variations = BuildingInfo.getBuildingVariations(selectedBuilding);
@@ -78,7 +86,7 @@ public class BuildManager {
         }
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
             game.leaveBuildMode();
-            deleteProjection();
+            previewRenderSource.clearPreview();
             RefundMessage msg = new RefundMessage();
             msg.setId(selectedVariation);
             ServerConnection
@@ -104,7 +112,10 @@ public class BuildManager {
         int tileX = coordinates[0];
         int tileY = coordinates[1];
 
-        if (BuildingInfo.getBuildingVariations(156).contains(selectedVariation)) {
+        if (BuildingInfo.getBuildingVariations(
+                BuildingInfo.getBuildingId(
+                        BuildingInfo.BuildingName.WALLS)).contains(selectedVariation)
+            ) {
             for (BuildingState building : BuildingInfo.getWallTileLocations(new BuildingState(selectedVariation, tileX, tileY))) {
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 tile = map.getTileSets().getTile(building.id);

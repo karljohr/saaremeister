@@ -10,6 +10,10 @@ import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.game.*;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.TitleScreen;
+import ee.kool.saaremeister.screen.gamescreen.render.DepthWorldRenderer;
+import ee.kool.saaremeister.screen.gamescreen.render.sources.PlayerRenderSource;
+import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
+import ee.kool.saaremeister.screen.gamescreen.render.sources.ProjectileRenderSource;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
@@ -41,6 +45,7 @@ public class GameScreen extends ScreenAdapter {
     private final GameScreenInputController inputController;
     private final GameScreenUpdateController updateController;
     private final GameScreenRenderController renderController;
+    private final DepthWorldRenderer depthWorldRenderer;
 
     /**
      * Initialize a new GameScreen, where the main gameplay happens.
@@ -63,6 +68,7 @@ public class GameScreen extends ScreenAdapter {
         this.screenState = new GameScreenState();
         this.worldView = new GameWorldView();
         this.buildManager = new BuildManager(worldView.getMap(), this);
+        this.worldView.initPreview(this.buildManager);
 
         this.pauseOverlay = new PauseOverlay(
                 spriteBatch,
@@ -74,6 +80,14 @@ public class GameScreen extends ScreenAdapter {
                 },
                 ((Main) game).getSkin()
         );
+        depthWorldRenderer = new DepthWorldRenderer(
+                worldView.getStaticStructureMap(),
+                worldView.getPlacedBuildingRenderSource(),
+                new PlayerRenderSource(),
+                new ProjectileRenderSource(),
+                worldView.getPreviewRenderSource()
+        );
+
         this.debugRenderer = new DebugRenderer();
 
         this.inputController = new GameScreenInputController(hud, shopOverlay, screenState, lobbyId, pauseOverlay);
@@ -98,7 +112,8 @@ public class GameScreen extends ScreenAdapter {
                 worldView,
                 screenState,
                 buildManager,
-                pauseOverlay
+                pauseOverlay,
+                depthWorldRenderer
         );
 
         ServerConnection.getInstance().setStaticBodiesListener(bodies -> Gdx.app.postRunnable(() ->

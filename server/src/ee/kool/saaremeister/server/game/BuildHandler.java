@@ -67,7 +67,7 @@ public class BuildHandler {
         // Remaining buildings check
         for (Building build : buildings) {
             Integer buildingId = BuildingInfo.getBuildingFromVariation(tileId);
-            if (buildingId != null && buildingId == 156) {
+            if (buildingId != null && buildingId.equals(BuildingInfo.getBuildingId(BuildingInfo.BuildingName.WALLS))) {
                 for (BuildingState state : BuildingInfo.getWallTileLocations(new BuildingState(tileId, x, y))) {
                     if (tileCoordinatesMatch(state.x, state.y, build)) {
                         return false;

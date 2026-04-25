@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import ee.kool.saaremeister.game.Arena;
 import ee.kool.saaremeister.game.BuildManager;
+import ee.kool.saaremeister.screen.gamescreen.render.DepthWorldRenderer;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
@@ -26,6 +27,7 @@ public class GameScreenRenderController {
     private final GameScreenState state;
     private final BuildManager buildManager;
     private final PauseOverlay pauseOverlay;
+    private final DepthWorldRenderer depthWorldRenderer;
 
     public GameScreenRenderController(
             SpriteBatch spriteBatch,
@@ -37,7 +39,8 @@ public class GameScreenRenderController {
             GameWorldView worldView,
             GameScreenState state,
             BuildManager buildManager,
-            PauseOverlay pauseOverlay
+            PauseOverlay pauseOverlay,
+            DepthWorldRenderer depthWorldRenderer
     ) {
         this.spriteBatch = spriteBatch;
         this.shapeRenderer = shapeRenderer;
@@ -49,6 +52,7 @@ public class GameScreenRenderController {
         this.state = state;
         this.buildManager = buildManager;
         this.pauseOverlay = pauseOverlay;
+        this.depthWorldRenderer = depthWorldRenderer;
     }
 
     /**
@@ -62,9 +66,7 @@ public class GameScreenRenderController {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Render isometric map
-        int overLayIndex = worldView.getMap().getLayers().getIndex("Overlay");
         int groundIndex = worldView.getMap().getLayers().getIndex("ground");
-        int tempIndex = worldView.getMap().getLayers().getIndex("temp");
 
         worldView.getRenderer().render(new int[]{groundIndex});
 
@@ -78,16 +80,12 @@ public class GameScreenRenderController {
         renderZoneLayer(4);
 
         spriteBatch.begin();
-        arena.renderPlayers(spriteBatch);
-        arena.renderProjectiles(spriteBatch);
+        depthWorldRenderer.render(spriteBatch, arena);
         spriteBatch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         arena.renderExplosions(shapeRenderer);
         shapeRenderer.end();
-
-        // Render the isometric map overlay layers
-        worldView.getRenderer().render(new int[]{overLayIndex, tempIndex});
 
         // Render building health bars
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);

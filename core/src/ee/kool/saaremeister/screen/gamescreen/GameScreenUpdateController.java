@@ -10,6 +10,7 @@ import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.EndScreen;
+import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import message.GameStateMessage;
 import message.dto.PlayerRole;
@@ -31,6 +32,7 @@ public class GameScreenUpdateController {
     private final GameWorldView worldView;
     private final GameScreenState state;
     private GameStateMessage latestGameState;
+    private final PreviewRenderSource previewRenderSource;
 
     public GameScreenUpdateController(
             Game game,
@@ -52,6 +54,7 @@ public class GameScreenUpdateController {
         this.buildManager = buildManager;
         this.worldView = worldView;
         this.state = state;
+        this.previewRenderSource = worldView.getPreviewRenderSource();
     }
 
     /**
@@ -89,7 +92,7 @@ public class GameScreenUpdateController {
         if (state.isBuildMode() && !state.isPaused()) {
             Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             worldView.getCamera().unproject(mouse);
-            buildManager.renderProjection(mouse.x, mouse.y);
+            previewRenderSource.update((int) mouse.x, (int) mouse.y);
             buildManager.handleInput(mouse.x, mouse.y);
         }
 
@@ -110,7 +113,8 @@ public class GameScreenUpdateController {
         boolean hasNewState = currentGameState != latestGameState;
         if (hasNewState) {
             arena.update(currentGameState);
-            buildManager.renderBatch(currentGameState.getBuildingStates());
+            worldView.getPlacedBuildingRenderSource().update(currentGameState.getBuildingStates());
+            System.out.println("States: " + currentGameState.getBuildingStates().size());
             buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
             hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
             latestGameState = currentGameState;

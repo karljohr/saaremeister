@@ -1,5 +1,6 @@
 package constant;
 
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import message.dto.BuildingState;
 
 import java.util.ArrayList;
@@ -10,11 +11,6 @@ import java.util.Map;
  * Information about the buildings in the game.
  */
 public final class BuildingInfo {
-    private static final Map<Integer, Integer> SHOP_ID_TO_TILE_ID = Map.of(
-            8, 148,
-            9, 156,
-            10, 149
-    );
 
     public enum BuildingType {
         DEFENCE,
@@ -22,27 +18,51 @@ public final class BuildingInfo {
         ROCKET_LAUNCHER
     }
 
+    public enum BuildingName {
+        GUN_TOWER,
+        ROCKET_LAUNCER,
+        WALLS
+    }
+
+    private static final Map<BuildingName, Integer> BUILDING_NAME_TO_ID = Map.of(
+            BuildingName.GUN_TOWER, 276,
+            BuildingName.ROCKET_LAUNCER, 277,
+            BuildingName.WALLS, 284
+    );
+
     private final static Map<BuildingType, List<Integer>> ID_TO_BUILDING_TYPE = Map.of(
-            BuildingType.DEFENCE, List.of(156, 157),
-            BuildingType.OFFENCE, List.of(148),
-            BuildingType.ROCKET_LAUNCHER, List.of(149)
+            BuildingType.DEFENCE, List.of(
+                    BUILDING_NAME_TO_ID.get(BuildingName.WALLS),
+                    BUILDING_NAME_TO_ID.get(BuildingName.WALLS) + 1
+            ),
+            BuildingType.OFFENCE, List.of(BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER)),
+            BuildingType.ROCKET_LAUNCHER, List.of(BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER))
+    );
+
+    private static final Map<Integer, Integer> SHOP_ID_TO_TILE_ID = Map.of(
+            8, BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER),
+            9, BUILDING_NAME_TO_ID.get(BuildingName.WALLS),
+            10, BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER)
     );
 
     private final static Map<Integer, List<Integer>> BUILDING_VARIATIONS = Map.of(
-            156, List.of(156, 157),
-            148, List.of(148),
-            149, List.of(149)
+            284, List.of(
+                    BUILDING_NAME_TO_ID.get(BuildingName.WALLS),
+                    BUILDING_NAME_TO_ID.get(BuildingName.WALLS) + 1
+            ),
+            276, List.of(BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER)),
+            277, List.of(BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER))
     );
 
     private static final Map<Integer, Integer> BUILDING_TO_HEALTH = Map.of(
-            156, 20,
-            148, 10,
-            149, 10
+            BUILDING_NAME_TO_ID.get(BuildingName.WALLS), 20,
+            BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER), 10,
+            BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER), 10
     );
 
     private static final Map<Integer, Integer> BUILDING_TO_RANGE = Map.of(
-            148, 400,
-            149, 500
+            BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER), 400,
+            BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER), 500
     );
 
     private BuildingInfo() {
@@ -83,21 +103,35 @@ public final class BuildingInfo {
 
         BuildingState middleTile = message;
 
-        int middleTileI = 157;
+        int middleTileI = BUILDING_NAME_TO_ID.get(BuildingName.WALLS) + 1;
         int extraX = 0;
         int extraY = 1;
-        if (message.id == 157) {
-            middleTileI = 158;
+        if (message.id == BUILDING_NAME_TO_ID.get(BuildingName.WALLS) + 1) {
+            middleTileI = BUILDING_NAME_TO_ID.get(BuildingName.WALLS) + 2;
             extraX = 1;
             extraY = 0;
         }
         middleTile.setId(middleTileI);
         return List.of(
-                new BuildingState(156, message.getX() + (extraX * 2), message.getY() + (extraY * 2)),
-                new BuildingState(middleTileI, message.getX() + (extraX), message.getY() + (extraY)),
+                new BuildingState(
+                        BUILDING_NAME_TO_ID.get(BuildingName.WALLS),
+                        message.getX() + (extraX * 2),
+                        message.getY() + (extraY * 2)),
+                new BuildingState(
+                        middleTileI,
+                        message.getX() + (extraX),
+                        message.getY() + (extraY)
+                ),
                 middleTile,
-                new BuildingState(middleTileI, message.getX() + (extraX * (-1)), message.getY() + (extraY * (-1))),
-                new BuildingState(156, message.getX() + (extraX * (-2)), message.getY() + (extraY * (-2)))
+                new BuildingState(middleTileI,
+                        message.getX() + (extraX * (-1)),
+                        message.getY() + (extraY * (-1))
+                ),
+                new BuildingState(
+                        BUILDING_NAME_TO_ID.get(BuildingName.WALLS),
+                        message.getX() + (extraX * (-2)),
+                        message.getY() + (extraY * (-2))
+                )
         );
     }
 
@@ -161,5 +195,9 @@ public final class BuildingInfo {
      */
     public static Integer getRange(int buildingId) {
         return BUILDING_TO_RANGE.get(buildingId);
+    }
+
+    public static Integer getBuildingId(BuildingName buildingName) {
+        return BUILDING_NAME_TO_ID.get(buildingName);
     }
 }

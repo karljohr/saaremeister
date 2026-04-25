@@ -45,11 +45,11 @@ public final class IsoMath {
         float halfW = TILE_WIDTH / 2f;
         float halfH = TILE_HEIGHT / 2f;
 
-        float localX = worldX - RENDER_OFFSETX;
-        float localY = worldY;
+        float localX = worldX - RENDER_OFFSETX - 16;
+        float localY = -(worldY - 16);
 
-        int tileX = (int) Math.floor((localX / halfW - localY / halfH) / 2f);
-        int tileY = (int) Math.floor((localX / halfW + localY / halfH) / 2f);
+        int tileX = (int) Math.floor((localX / halfW + localY / halfH) / 2f);
+        int tileY = (int) -Math.floor((localY / halfH - localX / halfW) / 2f);
         return new GridPoint2(tileX, tileY);
     }
 

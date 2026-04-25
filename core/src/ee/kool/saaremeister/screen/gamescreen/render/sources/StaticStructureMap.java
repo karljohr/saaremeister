@@ -3,7 +3,6 @@ package ee.kool.saaremeister.screen.gamescreen.render.sources;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.GridPoint2;
-import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.screen.gamescreen.render.renderables.DepthRenderable;
 import ee.kool.saaremeister.screen.gamescreen.render.renderables.StaticStructureRenderable;
 import ee.kool.saaremeister.screen.gamescreen.render.utility.StaticStructure;
@@ -40,7 +39,6 @@ public class StaticStructureMap {
             }
             GridPoint2 base = findBaseTile(structure.footprint());
 
-            Log.info("Static at: " + base);
 
             renderables.add(new StaticStructureRenderable(
                     structure.pieces(),

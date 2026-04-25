@@ -92,7 +92,6 @@ public class GameScreenUpdateController {
         if (state.isBuildMode() && !state.isPaused()) {
             Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             worldView.getCamera().unproject(mouse);
-//            buildManager.renderProjection(mouse.x, mouse.y);
             previewRenderSource.update((int) mouse.x, (int) mouse.y);
             buildManager.handleInput(mouse.x, mouse.y);
         }

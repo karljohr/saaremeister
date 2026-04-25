@@ -67,8 +67,6 @@ public class GameScreenRenderController {
 
         // Render isometric map
         int groundIndex = worldView.getMap().getLayers().getIndex("ground");
-        int tempIndex = worldView.getMap().getLayers().getIndex("temp");
-        int overLayIndex = worldView.getMap().getLayers().getIndex("Overlay");
 
         worldView.getRenderer().render(new int[]{groundIndex});
 

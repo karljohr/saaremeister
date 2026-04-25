@@ -110,7 +110,12 @@ public class Player {
 
         PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes, etc.
         // Adjust hit-box size as needed.
-        shape.setAsBox(10 / PPM, 5 / PPM);
+    shape.setAsBox(
+            PLAYER_PIXEL_WIDTH / 4f / PPM,
+            PLAYER_PIXEL_HEIGHT / 8f / PPM,
+            new Vector2(0, -PLAYER_PIXEL_HEIGHT / 2f / PPM),
+            0
+    );
 
         fdef.shape = shape;
         body.createFixture(fdef);

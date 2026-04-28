@@ -17,6 +17,7 @@ import message.LobbyExitMessage;
 import message.dto.PlayerRole;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Shows in full screen, whether the player won or lost.
@@ -31,15 +32,17 @@ public class EndScreen extends ScreenAdapter {
     private final boolean finalRound;
     private final int lobbyId;
     private final String username;
+    private final Map<String, Integer> winsByUsername;
 
     public EndScreen(Game game, PlayerRole gameWinnerRole, PlayerRole myRole, boolean finalRound, int lobbyId,
-                     String username, int currentRound, int totalRounds) {
+                     String username, int currentRound, int totalRounds, Map<String, Integer> winsByUsername) {
         this.game = game;
         this.stage = new Stage();
         this.skin = ((Main) game).getSkin();
         this.finalRound = finalRound;
         this.lobbyId = lobbyId;
         this.username = username;
+        this.winsByUsername = winsByUsername;
 
         // Will make the stage listen for user input.
         Gdx.input.setInputProcessor(stage);
@@ -47,17 +50,20 @@ public class EndScreen extends ScreenAdapter {
         String resultMessage = "Sa " + (gameWinnerRole != myRole ? "kaotasid!" : "v6itsid!");
         Label resultLabel = new Label(resultMessage, skin, "title");
 
-        Label roundLabel = new Label("Raund " + currentRound + "/" + totalRounds, skin, "big");
+        Label roundLabel = new Label("Raund " + currentRound + "/" + totalRounds, skin, "default");
+        Label leaderboardLabel = new Label(winsByUsername.toString(), skin, "default");
         String exitInstruction = finalRound
                 ? "Vajuta ESC, et minna tagasi avaekraanile"
                 : "Vajuta ESC, et minna tagasi lobbyisse";
-        Label instructionLabel = new Label(exitInstruction, skin, "big");
+        Label instructionLabel = new Label(exitInstruction, skin, "default");
 
         var table = new Table();
         table.setFillParent(true);
         table.add(resultLabel).padTop(100).center();
         table.row();
         table.add(roundLabel).padTop(20).center();
+        table.row();
+        table.add(leaderboardLabel).padTop(20).center();
         table.row();
         table.add(instructionLabel).padTop(20).center();
 
@@ -83,7 +89,8 @@ public class EndScreen extends ScreenAdapter {
                 ServerConnection.getInstance().getClient().sendTCP(exitMessage);
                 game.setScreen(new TitleScreen(game));
             } else {
-                game.setScreen(new LobbyScreen(game, lobbyId, 0, new ArrayList<>(), username));
+                game.setScreen(new LobbyScreen(game, lobbyId, 0, new ArrayList<>(), username,
+                        winsByUsername));
             }
         }
     }

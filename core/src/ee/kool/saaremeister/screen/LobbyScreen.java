@@ -19,6 +19,7 @@ import message.LobbyExitMessage;
 import message.StartGameMessage;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * The lobby screen where players meet before joining a game and can use the text-based chat.
@@ -35,6 +36,7 @@ public class LobbyScreen extends ScreenAdapter {
     private List<String> currentPlayerNames;
     private ChatTable chatTable;
     private final String username;
+    private Map<String, Integer> winsByUsername;
 
     public LobbyScreen(Game game, int lobbyId, int initialPlayerCount, List<String> usernames, String username) {
         this.game = game;
@@ -50,17 +52,40 @@ public class LobbyScreen extends ScreenAdapter {
     }
 
     /**
+     * LobbyScreen constructor for the game screen when at least 1 round has been played.
+     */
+    public LobbyScreen(Game game, int lobbyId, int initialPlayerCount, List<String> usernames, String username,
+                       Map<String, Integer> winsByUsername) {
+        this.game = game;
+        this.skin = ((Main) game).getSkin();
+        this.lobbyId = lobbyId;
+        this.currentPlayerCount = initialPlayerCount;
+        this.currentPlayerNames = usernames;
+        this.username = username;
+        this.winsByUsername = winsByUsername;
+
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
+        createUi();
+    }
+
+    /**
      * Creates the UI in the lobby screen.
      */
     private void createUi() {
         Label lobbyCodeLabel = new Label("Lobby " + lobbyId, skin, "title");
 
         playerCountLabel = new Label("Osalejad: " + currentPlayerCount, skin);
-        playerCountLabel.setFontScale(2f);
 
         // A label that displays the usernames currently joined in the lobby.
-        playerNameLabel = new Label(currentPlayerNames.toString(), skin, "alt");
-        playerNameLabel.setFontScale(2f);
+        playerNameLabel = new Label(currentPlayerNames.toString(), skin);
+
+        // Leaderboard
+        Label leaderboardLabelTitle = new Label("Edetabel:", skin);
+        Label leaderboardLabel = null;
+        if (winsByUsername != null) {
+            leaderboardLabel = new Label(winsByUsername.toString(), skin);
+        }
 
         // A button to start the game.
         TextButton startButton = new TextButton("Mine saarele", skin);
@@ -108,6 +133,10 @@ public class LobbyScreen extends ScreenAdapter {
         table.add(playerCountLabel);
         table.row();
         table.add(playerNameLabel).padBottom(20);
+        table.row();
+        table.add(leaderboardLabelTitle);
+        table.row();
+        table.add(leaderboardLabel).padBottom(20);
         table.row();
         table.add(startButton).padBottom(20);
         table.row();

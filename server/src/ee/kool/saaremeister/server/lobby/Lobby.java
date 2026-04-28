@@ -137,6 +137,7 @@ public class Lobby {
         updateMessage.setCurrentRound(currentRound);
         updateMessage.setTotalRounds(totalRounds);
         updateMessage.setSeriesActive(seriesActive);
+        updateMessage.setWinsByPlayerId(new HashMap<>(winsByPlayerId));
         players.forEach(connection -> connection.sendTCP(updateMessage));
     }
 

@@ -2,6 +2,7 @@ package message;
 
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Data
@@ -13,6 +14,7 @@ public class LobbyUpdateMessage {
     private int currentRound;
     private int totalRounds;
     private boolean seriesActive;
+    private HashMap<Integer, Integer> winsByPlayerId = new HashMap<>();
 
     public LobbyUpdateMessage() {
     }

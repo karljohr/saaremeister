@@ -36,10 +36,14 @@ public class GameInstance extends Thread {
     private final GameConnectionManager connectionManager;
     private final GameTickProcessor tickProcessor;
 
+    private final Connection masterConnection;
+
     /**
      * Creates a new game instance.
      */
-    public GameInstance(LobbyManager lobbyManager, int lobbyId) {
+    public GameInstance(LobbyManager lobbyManager, int lobbyId, Connection masterConnection) {
+        this.masterConnection = masterConnection;
+
         World world = new World(new Vector2(0, 0), true);
         BulletCollisionHandler bulletCollisionHandler = new BulletCollisionHandler(world);
         bulletCollisionHandler.setGameInstance(this);
@@ -99,7 +103,7 @@ public class GameInstance extends Thread {
      * Adds a connection to the game instance.
      */
     public void addLobbyConnections(Collection<Connection> connections) {
-        connectionManager.addLobbyConnections(connections);
+        connectionManager.addLobbyConnections(connections, masterConnection);
         connectionManager.spawnBots();
     }
 

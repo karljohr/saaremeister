@@ -7,12 +7,8 @@ import ee.kool.saaremeister.network.listener.LobbyListener;
 import ee.kool.saaremeister.network.listener.DebugListener;
 import lombok.Getter;
 import lombok.Setter;
-import message.GameJoinMessage;
-import message.LobbyExitMessage;
-import message.LobbyUpdateMessage;
-import message.StartGameMessage;
+import message.*;
 import message.dto.StaticBodyState;
-import message.ChatUpdateMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,8 +34,9 @@ public class ServerConnection {
     private Consumer<LobbyUpdateMessage> pendingJoinCallback;
     private Consumer<StaticBodyState[]> staticBodiesListener;
     private final Map<Integer, ChatUpdateMessage> cachedChatUpdates = new ConcurrentHashMap<>();
-
+    private final Map<Integer, LobbyUpdateMessage> cachedLobbyUpdates = new ConcurrentHashMap<>();
     private StaticBodyState[] cachedStaticBodies;
+    private Consumer<RoundEndMessage> roundEndListener;
 
     /**
      * Private constructor to prevent instantiation.
@@ -109,9 +106,23 @@ public class ServerConnection {
     }
 
     /**
+     * Handles the RoundEndMessage and calls the roundEndListener if it is not null.
+     */
+    public void handleRoundEnd(RoundEndMessage msg) {
+        if (roundEndListener != null) {
+            try {
+                roundEndListener.accept(msg);
+            } catch (Exception e) {
+                Gdx.app.error("ServerConnection", "Error in round end listener", e);
+            }
+        }
+    }
+
+    /**
      * Handles the LobbyUpdateMessage and calls the lobbyUpdateListener if it is not null.
      */
     public void handleLobbyUpdate(LobbyUpdateMessage msg) {
+        cachedLobbyUpdates.put(msg.getLobbyId(), msg);
         if (pendingJoinCallback != null) {
             try {
                 Consumer<LobbyUpdateMessage> callback = this.pendingJoinCallback;
@@ -176,6 +187,21 @@ public class ServerConnection {
     }
 
     /**
+     * Replays the cached lobby updates for the given lobby ID, so that when a player joins a lobby after a game round,
+     * they see the previous lobby state.
+     */
+    public void replayCachedLobbyUpdates(int lobbyId) {
+        LobbyUpdateMessage cachedUpdate = cachedLobbyUpdates.get(lobbyId);
+        if (cachedUpdate != null && lobbyUpdateListener != null) {
+            try {
+                lobbyUpdateListener.accept(cachedUpdate);
+            } catch (Exception e) {
+                Gdx.app.error("ServerConnection", "Error in lobby update listener", e);
+            }
+        }
+    }
+
+    /**
      * Handles the StaticBodyState array and calls the staticBodiesListener if it is not null.
      */
     public void handleStaticBodies(StaticBodyState[] bodies) {
@@ -194,5 +220,4 @@ public class ServerConnection {
             listener.accept(cachedStaticBodies);
         }
     }
-
 }

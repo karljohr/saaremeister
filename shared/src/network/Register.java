@@ -8,6 +8,7 @@ import message.dto.*;
 import constant.Category;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Register {
 
@@ -20,12 +21,15 @@ public class Register {
         kryo.register(ArrayList.class);
         kryo.register(String.class);
         kryo.register(Category.class);
+        kryo.register(Integer.class);
+        kryo.register(HashMap.class);
 
         kryo.register(message.GameJoinMessage.class);
         kryo.register(message.GameStateMessage.class);
         kryo.register(message.PlayerMovementMessage.class);
         kryo.register(message.PlayerShootingMessage.class);
         kryo.register(message.StartGameMessage.class);
+        kryo.register(message.RoundEndMessage.class);
 
         kryo.register(message.ShopPurchaseMessage.class);
         kryo.register(message.ItemUsedMessage.class);

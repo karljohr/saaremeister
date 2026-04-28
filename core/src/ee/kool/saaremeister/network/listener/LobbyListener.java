@@ -6,6 +6,7 @@ import com.esotericsoftware.kryonet.Listener;
 import ee.kool.saaremeister.network.ServerConnection;
 import message.LobbyExitMessage;
 import message.LobbyUpdateMessage;
+import message.RoundEndMessage;
 import message.StartGameMessage;
 
 /**
@@ -33,6 +34,7 @@ public class LobbyListener extends Listener {
                 case LobbyUpdateMessage lobbyUpdateMessage -> serverConnection.handleLobbyUpdate(lobbyUpdateMessage);
                 case StartGameMessage startGameMessage -> serverConnection.handleStartGame(startGameMessage);
                 case LobbyExitMessage lobbyExitMessage -> serverConnection.handleLobbyExit(lobbyExitMessage);
+                case RoundEndMessage roundEndMessage -> serverConnection.handleRoundEnd(roundEndMessage);
                 default -> {
                 }
             }

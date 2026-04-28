@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.game.*;
 import ee.kool.saaremeister.network.ServerConnection;
+import ee.kool.saaremeister.screen.EndScreen;
 import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.screen.gamescreen.render.DepthWorldRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PlayerRenderSource;
@@ -40,6 +41,12 @@ public class GameScreen extends ScreenAdapter {
     private final DebugRenderer debugRenderer;
     private final PauseOverlay pauseOverlay;
 
+    private final Game game;
+    private final int lobbyId;
+    private final String username;
+    private boolean roundEndHandled = false;
+    private boolean disposed = false;
+
     private final GameScreenState screenState;
     private final GameWorldView worldView;
     private final GameScreenInputController inputController;
@@ -53,6 +60,9 @@ public class GameScreen extends ScreenAdapter {
      * @param game Current game instance, used for navigating between screens, for example, GameScreen -> TitleScreen
      */
     public GameScreen(Game game, int lobbyId, String username) {
+        this.game = game;
+        this.lobbyId = lobbyId;
+        this.username = username;
         this.myId = ServerConnection.getInstance().getClient().getID();
 
         Skin skin = ((Main) game).getSkin();
@@ -129,11 +139,29 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         inputController.show();
+
+        // Determines which end screen to show, based on the server's response.
+        ServerConnection.getInstance().setRoundEndListener(msg -> {
+            if (msg.getLobbyId() != lobbyId || roundEndHandled) return;
+            roundEndHandled = true;
+
+            Gdx.app.postRunnable(() -> {
+                var latest = gameStateManager.getLatestGameStateMessage();
+                var myRole = gameStateManager.resolveMyRole(latest);
+
+                game.setScreen(new EndScreen(game, msg.getWinnerRole(), myRole, msg.isFinalRound(), lobbyId, username,
+                        msg.getCurrentRound(), msg.getTotalRounds()
+                ));
+                dispose();
+            });
+        });
     }
 
     @Override
     public void hide() {
         inputController.hide();
+        ServerConnection.getInstance().setRoundEndListener(null);
+        ServerConnection.getInstance().setStaticBodiesListener(null);
     }
 
     /**
@@ -153,6 +181,13 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void dispose() {
+        if (disposed) return;
+
+        disposed = true;
+
+        ServerConnection.getInstance().setRoundEndListener(null);
+        ServerConnection.getInstance().setStaticBodiesListener(null);
+
         gameStateManager.dispose();
         shapeRenderer.dispose();
         spriteBatch.dispose();

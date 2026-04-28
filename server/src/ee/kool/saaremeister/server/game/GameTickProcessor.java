@@ -7,7 +7,9 @@ import ee.kool.saaremeister.server.game.object.player.Bot;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
 import ee.kool.saaremeister.server.game.object.player.Player;
+import ee.kool.saaremeister.server.lobby.Lobby;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
+import message.RoundEndMessage;
 import message.dto.CaptureZoneState;
 import message.dto.ExplosionState;
 
@@ -160,6 +162,16 @@ public class GameTickProcessor {
                 case TIME_LIMIT_REACHED -> Log.info("Time limit reached, Island Master won, stopping game.");
             }
             connections.forEach(connection -> connection.sendTCP(finalGameStateMessage));
+
+            // If the round was not ended by disconnections, send the round-end message to the lobby.
+            if (endReason != MatchRules.MatchEndReason.NO_PLAYERS_CONNECTED && winnerPlayerRole != null) {
+                Lobby lobby = lobbyManager.getLobby(lobbyId);
+                if (lobby != null) {
+                    RoundEndMessage roundEndMessage = lobby.finishRound(winnerPlayerRole, players);
+                    connections.forEach(connection -> connection.sendTCP(roundEndMessage));
+                }
+            }
+
             gameDisposer.dispose();
             return false;
         }

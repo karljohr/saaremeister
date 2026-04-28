@@ -10,6 +10,8 @@ import message.dto.PlayerRole;
 import message.dto.PlayerState;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages the game state on the client side.
@@ -22,6 +24,7 @@ public class GameStateManager {
     private final GameStateMessageListener gameStateMessageListener;
     private GameStateMessage latestGameStateMessage;
     private PlayerRole myRole;
+    private final Map<Integer, String> usernamesByPlayerId = new HashMap<>();
 
     public GameStateManager() {
         this.client = ServerConnection.getInstance().getClient();
@@ -51,6 +54,29 @@ public class GameStateManager {
                 .findFirst()
                 .orElse(null);
         return myRole;
+    }
+
+    /**
+     * Maps wins by playerId to username.
+     */
+    public Map<String, Integer> getWinsByUsername(Map<Integer, Integer> winsByPlayerId) {
+        Map<String, Integer> winsByUsername = new HashMap<>();
+        winsByPlayerId.forEach((playerId, wins) -> {
+            String username = usernamesByPlayerId.get(playerId);
+            winsByUsername.put(username, wins);
+        });
+        return winsByUsername;
+    }
+
+    /**
+     * Caches usernames for the given GameStateMessage.
+     */
+    public void cacheUsernames(GameStateMessage msg) {
+        if (msg == null || msg.getPlayerStates() == null) return;
+
+        for (PlayerState playerState : msg.getPlayerStates()) {
+            usernamesByPlayerId.put(playerState.getId(), playerState.getUsername());
+        }
     }
 
     /**

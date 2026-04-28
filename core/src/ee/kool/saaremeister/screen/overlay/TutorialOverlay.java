@@ -49,10 +49,10 @@ public class TutorialOverlay extends Table {
                \s""";
 
         Label infoLabel = new Label(text, skin);
-        infoLabel.setFontScale(1.5f);
         infoLabel.setWrap(true);
+        infoLabel.setFontScale(0.9f);
 
-        this.add(infoLabel).width(600).pad(40);
+        this.add(infoLabel).width(1200).pad(40);
         this.row();
 
         // Closing button

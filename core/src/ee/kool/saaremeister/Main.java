@@ -26,7 +26,7 @@ public class Main extends Game {
     @Override
     public void create() {
         instance = this;
-        skin = new Skin(Gdx.files.internal("ui/skin/comic-ui.json"));
+        skin = new Skin(Gdx.files.internal("ui/skin/craftacular/craftacular-ui.json"));
         ServerConnection.getInstance().connect();
         setScreen(new TitleScreen(this));
     }

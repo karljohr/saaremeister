@@ -147,10 +147,13 @@ public class GameScreen extends ScreenAdapter {
 
             Gdx.app.postRunnable(() -> {
                 var latest = gameStateManager.getLatestGameStateMessage();
+                gameStateManager.cacheUsernames(latest);
+
                 var myRole = gameStateManager.resolveMyRole(latest);
+                var winsByUsername = gameStateManager.getWinsByUsername(msg.getWinsByPlayerId());
 
                 game.setScreen(new EndScreen(game, msg.getWinnerRole(), myRole, msg.isFinalRound(), lobbyId, username,
-                        msg.getCurrentRound(), msg.getTotalRounds()
+                        msg.getCurrentRound(), msg.getTotalRounds(), winsByUsername
                 ));
                 dispose();
             });

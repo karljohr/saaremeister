@@ -37,9 +37,9 @@ public class TitleScreen extends ScreenAdapter {
         // Creates a text field to enter or change the username.
         TextField.TextFieldStyle inputStyle =
                 new TextField.TextFieldStyle(skin.get(TextField.TextFieldStyle.class));
-        inputStyle.font = skin.getFont("button");
+        inputStyle.font = skin.getFont("font");
         nameField = new TextField("", inputStyle);
-        Label createUsernameLabel = new Label("Sisesta oma nimi:", skin, "big");
+        Label createUsernameLabel = new Label("Sisesta oma nimi:", skin, "default");
 
         // menu buttons
         TextButton startButton = new TextButton("Liitu lobbysse", skin);

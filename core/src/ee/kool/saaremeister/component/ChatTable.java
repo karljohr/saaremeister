@@ -36,7 +36,7 @@ public class ChatTable extends Table {
 
         TextField.TextFieldStyle inputStyle =
                 new TextField.TextFieldStyle(skin.get(TextField.TextFieldStyle.class));
-        inputStyle.font = skin.getFont("button");
+        inputStyle.font = skin.getFont("font");
         inputField = new TextField("", inputStyle);
 
         TextButton sendButton = new TextButton("->", skin);
@@ -79,7 +79,7 @@ public class ChatTable extends Table {
             Label label = new Label(message, skin);
             label.setWrap(true);
             messagesTable.add(label).width(350).left().padBottom(4);
-            label.setFontScale(2f);
+            label.setFontScale(0.85f);
             messagesTable.row();
         }
         messagesTable.layout();

@@ -1,9 +1,7 @@
 package constant;
 
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import message.dto.BuildingState;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,13 +18,13 @@ public final class BuildingInfo {
 
     public enum BuildingName {
         GUN_TOWER,
-        ROCKET_LAUNCER,
+        ROCKET_LAUNCHER,
         WALLS
     }
 
     private static final Map<BuildingName, Integer> BUILDING_NAME_TO_ID = Map.of(
             BuildingName.GUN_TOWER, 276,
-            BuildingName.ROCKET_LAUNCER, 277,
+            BuildingName.ROCKET_LAUNCHER, 277,
             BuildingName.WALLS, 284
     );
 
@@ -36,13 +34,13 @@ public final class BuildingInfo {
                     BUILDING_NAME_TO_ID.get(BuildingName.WALLS) + 1
             ),
             BuildingType.OFFENCE, List.of(BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER)),
-            BuildingType.ROCKET_LAUNCHER, List.of(BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER))
+            BuildingType.ROCKET_LAUNCHER, List.of(BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCHER))
     );
 
     private static final Map<Integer, Integer> SHOP_ID_TO_TILE_ID = Map.of(
             8, BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER),
             9, BUILDING_NAME_TO_ID.get(BuildingName.WALLS),
-            10, BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER)
+            10, BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCHER)
     );
 
     private final static Map<Integer, List<Integer>> BUILDING_VARIATIONS = Map.of(
@@ -51,18 +49,18 @@ public final class BuildingInfo {
                     BUILDING_NAME_TO_ID.get(BuildingName.WALLS) + 1
             ),
             276, List.of(BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER)),
-            277, List.of(BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER))
+            277, List.of(BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCHER))
     );
 
     private static final Map<Integer, Integer> BUILDING_TO_HEALTH = Map.of(
             BUILDING_NAME_TO_ID.get(BuildingName.WALLS), 20,
             BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER), 10,
-            BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER), 10
+            BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCHER), 10
     );
 
     private static final Map<Integer, Integer> BUILDING_TO_RANGE = Map.of(
             BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER), 400,
-            BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCER), 500
+            BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCHER), 500
     );
 
     private BuildingInfo() {

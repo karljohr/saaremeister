@@ -67,7 +67,7 @@ public class PreviewRenderSource {
      * Adds a single-tile building to the render list.
      */
     private void addSingleTileBuilding(BuildingState state) {
-        TiledMapTile tile = map.getTileSets().getTile(state.getId());
+        TiledMapTile tile = map.getTileSets().getTile(state.getTileId());
         if (tile == null) {
             return;
         }
@@ -77,18 +77,18 @@ public class PreviewRenderSource {
 
         Vector2 drawPos = IsoMath.tileLayerCellToWorldBottomLeft(
                 layer,
-                state.getX(),
-                state.getY()
+                (int) state.getX(),
+                (int) state.getY()
         );
 
         renderables.add(new TileRenderPiece(
                 region,
                 drawPos.x,
                 drawPos.y,
-                region.getRegionWidth(),
-                region.getRegionHeight(),
-                state.getX(),
-                state.getY(),
+                (float) region.getRegionWidth(),
+                (float) region.getRegionHeight(),
+                (int) state.getX(),
+                (int) state.getY(),
                 1
         ));
     }

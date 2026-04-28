@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import ee.kool.saaremeister.game.Arena;
 import ee.kool.saaremeister.game.BuildManager;
 import ee.kool.saaremeister.screen.gamescreen.render.DepthWorldRenderer;
+import ee.kool.saaremeister.screen.gamescreen.render.HealthBarRenderer;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
@@ -25,9 +26,10 @@ public class GameScreenRenderController {
     private final DebugRenderer debugRenderer;
     private final GameWorldView worldView;
     private final GameScreenState state;
-    private final BuildManager buildManager;
+    private final HealthBarRenderer healthBarRenderer;
     private final PauseOverlay pauseOverlay;
     private final DepthWorldRenderer depthWorldRenderer;
+    private final BuildManager buildManager;
 
     public GameScreenRenderController(
             SpriteBatch spriteBatch,
@@ -38,9 +40,10 @@ public class GameScreenRenderController {
             DebugRenderer debugRenderer,
             GameWorldView worldView,
             GameScreenState state,
-            BuildManager buildManager,
+            HealthBarRenderer healthBarRenderer,
             PauseOverlay pauseOverlay,
-            DepthWorldRenderer depthWorldRenderer
+            DepthWorldRenderer depthWorldRenderer,
+            BuildManager buildManager
     ) {
         this.spriteBatch = spriteBatch;
         this.shapeRenderer = shapeRenderer;
@@ -50,9 +53,10 @@ public class GameScreenRenderController {
         this.debugRenderer = debugRenderer;
         this.worldView = worldView;
         this.state = state;
-        this.buildManager = buildManager;
+        this.healthBarRenderer = healthBarRenderer;
         this.pauseOverlay = pauseOverlay;
         this.depthWorldRenderer = depthWorldRenderer;
+        this.buildManager = buildManager;
     }
 
     /**
@@ -89,7 +93,8 @@ public class GameScreenRenderController {
 
         // Render building health bars
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        buildManager.renderHealthBars(shapeRenderer);
+        healthBarRenderer.render(shapeRenderer, arena.getPlayers());
+        healthBarRenderer.render(shapeRenderer, buildManager.getCurrentBuildingStates());
         shapeRenderer.end();
 
         shopOverlay.render(delta);

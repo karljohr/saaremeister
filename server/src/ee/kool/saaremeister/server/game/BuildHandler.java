@@ -69,7 +69,7 @@ public class BuildHandler {
             Integer buildingId = BuildingInfo.getBuildingFromVariation(tileId);
             if (buildingId != null && buildingId.equals(BuildingInfo.getBuildingId(BuildingInfo.BuildingName.WALLS))) {
                 for (BuildingState state : BuildingInfo.getWallTileLocations(new BuildingState(tileId, x, y))) {
-                    if (tileCoordinatesMatch(state.x, state.y, build)) {
+                    if (tileCoordinatesMatch((int) state.x, (int) state.y, build)) {
                         return false;
                     }
                 }
@@ -153,12 +153,12 @@ public class BuildHandler {
 
         if (type == BuildingInfo.BuildingType.OFFENCE) {
             int range = BuildingInfo.getRange(baseId);
-            newBuilding = new OffenceBuilding(state.id, state.x, state.y, world, gameInstance, health, range);
+            newBuilding = new OffenceBuilding(state.id, (int) state.x, (int) state.y, world, gameInstance, health, range);
         } else if (type == BuildingInfo.BuildingType.DEFENCE) {
-            newBuilding = new DefenceBuilding(state.id, state.x, state.y, world, health);
+            newBuilding = new DefenceBuilding(state.id, (int) state.x, (int) state.y, world, health);
         } else if (type == BuildingInfo.BuildingType.ROCKET_LAUNCHER) {
             int range = BuildingInfo.getRange(baseId);
-            newBuilding = new RocketLauncher(state.id, state.x, state.y, world, gameInstance, health, range);
+            newBuilding = new RocketLauncher(state.id, (int) state.x, (int) state.y, world, gameInstance, health, range);
         }
 
         if (newBuilding != null) {
@@ -196,8 +196,8 @@ public class BuildHandler {
         for (Building build : buildings) {
             if (build instanceof DefenceBuilding db) {
                 for (BuildingState tile : db.getTiles()) {
-                    int tx = tile.getX();
-                    int ty = tile.getY();
+                    int tx = (int) tile.getX();
+                    int ty = (int) tile.getY();
                     if (tx >= 0 && tx < width && ty >= 0 && ty < height) {
                         grid[ty][tx] = 1;
                     }

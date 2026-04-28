@@ -11,6 +11,7 @@ import ee.kool.saaremeister.game.*;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.screen.gamescreen.render.DepthWorldRenderer;
+import ee.kool.saaremeister.screen.gamescreen.render.HealthBarRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PlayerRenderSource;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.ProjectileRenderSource;
@@ -19,10 +20,13 @@ import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.DebugRenderer;
 import lombok.Getter;
+import lombok.Setter;
 import message.LobbyExitMessage;
+import message.dto.BuildingState;
 import message.dto.ShopItem;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -46,6 +50,10 @@ public class GameScreen extends ScreenAdapter {
     private final GameScreenUpdateController updateController;
     private final GameScreenRenderController renderController;
     private final DepthWorldRenderer depthWorldRenderer;
+    private final HealthBarRenderer healthBarRenderer;
+    @Setter
+    @Getter
+    private List<BuildingState> currentBuildings;
 
     /**
      * Initialize a new GameScreen, where the main gameplay happens.
@@ -67,8 +75,9 @@ public class GameScreen extends ScreenAdapter {
 
         this.screenState = new GameScreenState();
         this.worldView = new GameWorldView();
-        this.buildManager = new BuildManager(worldView.getMap(), this);
+        this.buildManager = new BuildManager(this);
         this.worldView.initPreview(this.buildManager);
+        this.healthBarRenderer = new HealthBarRenderer();
 
         this.pauseOverlay = new PauseOverlay(
                 spriteBatch,
@@ -100,7 +109,8 @@ public class GameScreen extends ScreenAdapter {
                 hud,
                 buildManager,
                 worldView,
-                screenState
+                screenState,
+                healthBarRenderer
         );
         this.renderController = new GameScreenRenderController(
                 spriteBatch,
@@ -111,9 +121,10 @@ public class GameScreen extends ScreenAdapter {
                 debugRenderer,
                 worldView,
                 screenState,
-                buildManager,
+                healthBarRenderer,
                 pauseOverlay,
-                depthWorldRenderer
+                depthWorldRenderer,
+                buildManager
         );
 
         ServerConnection.getInstance().setStaticBodiesListener(bodies -> Gdx.app.postRunnable(() ->

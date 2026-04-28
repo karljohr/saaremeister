@@ -45,6 +45,7 @@ public class Player {
     private boolean alive = true;
     private long respawnAtMs;
     private int lives;
+    private int maxHealth;
     private int defense = 0;
     private int currentArmorLevel = 0; // 0 = no armor, 1 = leather, 2 = silver, 3 = diamond
     private int money;
@@ -79,6 +80,7 @@ public class Player {
         this.world = world;
         this.money = money;
         this.lives = lives;
+        this.maxHealth = this.lives;
         this.role = role;
         definePlayer();
         this.buildHandler = buildHandler;
@@ -132,6 +134,7 @@ public class Player {
         playerState.setX(body.getPosition().x * PPM);
         playerState.setY(body.getPosition().y * PPM);
         playerState.setLives(lives);
+        playerState.setMaxHealth(maxHealth);
         playerState.setDefense(defense);
         playerState.setUsername(username);
         playerState.setMoney(this.money);

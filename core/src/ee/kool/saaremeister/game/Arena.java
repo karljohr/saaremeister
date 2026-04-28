@@ -70,7 +70,9 @@ public class Arena {
                     playerState.getX(),
                     playerState.getY(),
                     playerState.getRole(),
-                    playerState.isBot()
+                    playerState.isBot(),
+                    playerState.getMaxHealth(),
+                    playerState.getLives()
             );
         });
 

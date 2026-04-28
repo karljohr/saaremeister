@@ -151,6 +151,8 @@ public class LobbyScreen extends ScreenAdapter {
                 });
             }
         });
+        connection.replayCachedLobbyUpdates(lobbyId);
+
         connection.setStartGameListener(msg -> {
             if (msg.getLobbyId() == lobbyId) {
                 Gdx.app.postRunnable(() -> {

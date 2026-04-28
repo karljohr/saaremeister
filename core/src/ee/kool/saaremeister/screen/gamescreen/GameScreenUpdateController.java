@@ -105,8 +105,6 @@ public class GameScreenUpdateController {
         }
 
         if (currentGameState.isGameOver()) {
-            var gameWinnerRole = currentGameState.getWinnerPlayerRole();
-            game.setScreen(new EndScreen(game, gameWinnerRole, myRole));
             return;
         }
 

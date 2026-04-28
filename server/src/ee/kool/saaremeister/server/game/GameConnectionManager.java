@@ -16,7 +16,6 @@ import message.dto.PlayerRole;
 import message.dto.StaticBodyState;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static constant.Constants.PLAYER_COUNT_INGAME_LIMIT;
 
@@ -69,16 +68,18 @@ public class GameConnectionManager {
     /**
      * Adds a connection to the game and assigns it a player role.
      */
-    public void addLobbyConnections(Collection<Connection> connections) {
+    public void addLobbyConnections(Collection<Connection> connections, Connection masterConnection) {
         List<Connection> connectionList = new ArrayList<>(connections);
         if (connectionList.isEmpty()) return;
+        if (masterConnection == null) {
+            throw new IllegalArgumentException("Master connection cannot be null");
+        }
 
-        int masterIndex = (connectionList.size() == 1)
-                ? 0
-                : ThreadLocalRandom.current().nextInt(connectionList.size());
-        for (int i = 0; i < connectionList.size(); i++) {
-            PlayerRole role = (i == masterIndex) ? PlayerRole.MASTER : PlayerRole.OFFICER;
-            addConnection(connectionList.get(i), role);
+        for (Connection connection : connectionList) {
+            PlayerRole role = connection.getID() == masterConnection.getID()
+                    ? PlayerRole.MASTER
+                    : PlayerRole.OFFICER;
+            addConnection(connection, role);
         }
     }
 

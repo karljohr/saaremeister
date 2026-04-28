@@ -10,6 +10,9 @@ public class LobbyUpdateMessage {
     private int playerCount;
     private boolean started;
     private List<String> usernames;
+    private int currentRound;
+    private int totalRounds;
+    private boolean seriesActive;
 
     public LobbyUpdateMessage() {
     }

@@ -4,6 +4,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.esotericsoftware.minlog.Log;
@@ -17,6 +19,8 @@ public class TitleScreen extends ScreenAdapter {
     private final Stage stage;
     private int pendingLobbyId = 0;
     private final TextField nameField;
+    private final Texture background;
+    private final SpriteBatch spriteBatch;
 
     /**
      * TitleScreen represents the main menu of the game, where players can choose to start the game or exit.
@@ -24,6 +28,9 @@ public class TitleScreen extends ScreenAdapter {
      */
     public TitleScreen(Game game) {
         this.game = game;
+
+        background = new Texture("assets/background/map.png");
+        spriteBatch = new SpriteBatch();
         Skin skin = ((Main) game).getSkin();
         stage = new Stage();
 
@@ -135,11 +142,16 @@ public class TitleScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         super.render(delta);
-        // clear the screen
-        Gdx.gl.glClearColor(192 / 255f, 192 / 255f, 192 / 255f, 1); // to get that win 95 look
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // draw the buttons
+        spriteBatch.begin();
+        spriteBatch.enableBlending();
+        spriteBatch.setColor(1, 1, 1, 0.5f);
+        spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        spriteBatch.setColor(1, 1, 1, 1f);
+        spriteBatch.end();
+
         stage.act(delta);
         stage.draw();
     }
@@ -154,6 +166,8 @@ public class TitleScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         super.dispose();
+        background.dispose();
+        spriteBatch.dispose();
         stage.dispose();
     }
 }

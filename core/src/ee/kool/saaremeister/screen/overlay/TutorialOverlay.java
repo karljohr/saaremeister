@@ -20,7 +20,7 @@ public class TutorialOverlay extends Table {
         this.center();
 
         try {
-            Texture backgroundTexture = new Texture(Gdx.files.internal("button/up.png"));
+            Texture backgroundTexture = new Texture(Gdx.files.internal("assets/background/sand.png"));
             this.setBackground(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
         } catch (Exception e) {
             // If textures not found, no background

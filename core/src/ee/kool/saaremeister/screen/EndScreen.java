@@ -5,6 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -26,23 +28,27 @@ public class EndScreen extends ScreenAdapter {
 
     private final Game game;
     private final Stage stage;
-    private final Skin skin;
     @Getter @Setter
     private int gameWinnerRole;
     private final boolean finalRound;
     private final int lobbyId;
     private final String username;
     private final Map<String, Integer> winsByUsername;
+    private final Texture background;
+    private final SpriteBatch spriteBatch;
 
     public EndScreen(Game game, PlayerRole gameWinnerRole, PlayerRole myRole, boolean finalRound, int lobbyId,
                      String username, int currentRound, int totalRounds, Map<String, Integer> winsByUsername) {
         this.game = game;
         this.stage = new Stage();
-        this.skin = ((Main) game).getSkin();
+        Skin skin = ((Main) game).getSkin();
         this.finalRound = finalRound;
         this.lobbyId = lobbyId;
         this.username = username;
         this.winsByUsername = winsByUsername;
+
+        background = new Texture("assets/background/grass.png");
+        spriteBatch = new SpriteBatch();
 
         // Will make the stage listen for user input.
         Gdx.input.setInputProcessor(stage);
@@ -73,11 +79,16 @@ public class EndScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         super.render(delta);
-        // clear the screen
-        Gdx.gl.glClearColor(192 / 255f, 192 / 255f, 192 / 255f, 1); // to get that win 95 look
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // draw the buttons
+        spriteBatch.begin();
+        spriteBatch.enableBlending();
+        spriteBatch.setColor(1, 1, 1, 0.5f);
+        spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        spriteBatch.setColor(1, 1, 1, 1f);
+        spriteBatch.end();
+
         stage.act(delta);
         stage.draw();
 

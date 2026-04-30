@@ -35,7 +35,8 @@ public class Hud implements Disposable {
     private final HealthUI healthUI;
     private final ArmorUI armorUI;
     private final MoneyUI moneyUI;
-    private final TopBarUI topBarUI;
+    private final TimerUI timerUI;
+    private final ZonesUI zonesUI;
     private final DamageOverlay damageOverlay;
 
 
@@ -45,7 +46,8 @@ public class Hud implements Disposable {
         healthUI = new HealthUI(skin);
         armorUI = new ArmorUI(skin);
         moneyUI = new MoneyUI();
-        topBarUI = new TopBarUI(skin);
+        timerUI = new TimerUI();
+        zonesUI = new ZonesUI(skin);
 
         damageOverlay = new DamageOverlay();
 
@@ -107,10 +109,11 @@ public class Hud implements Disposable {
         stage.addActor(buildLegend);
 
         stage.addActor(damageOverlay.getActor());
-        stage.addActor(topBarUI.getActor());
+        stage.addActor(timerUI.getActor());
         stage.addActor(statsTable);
         stage.addActor(chatContainer);
         stage.addActor(hotbarContainer);
+        stage.addActor(zonesUI.getActor());
     }
 
     public void selectHotbarSlot(int index) {
@@ -131,10 +134,11 @@ public class Hud implements Disposable {
                 .filter(p -> p.getId() == myId)
                 .findFirst();
         if (me.isPresent()) {
-            topBarUI.setPlayerRole(myRole);
-            topBarUI.setPlayerState(me.get());
+            timerUI.setPlayerRole(myRole);
+            zonesUI.setPlayerRole(myRole);
 
-            topBarUI.update(msg);
+            zonesUI.update(msg);
+            timerUI.update(msg);
             healthUI.update(me.get());
             armorUI.update(me.get());
             moneyUI.update(me.get());
@@ -180,7 +184,7 @@ public class Hud implements Disposable {
     }
 
     public void render(float delta) {
-        topBarUI.updatePulseTimer(delta);
+        timerUI.updatePulseTimer(delta);
         damageOverlay.update(delta);
 
         stage.act(delta);

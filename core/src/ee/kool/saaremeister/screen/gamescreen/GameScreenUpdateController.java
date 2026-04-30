@@ -10,6 +10,7 @@ import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.EndScreen;
+import ee.kool.saaremeister.screen.gamescreen.render.HealthBarRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import message.GameStateMessage;
@@ -33,6 +34,7 @@ public class GameScreenUpdateController {
     private final GameScreenState state;
     private GameStateMessage latestGameState;
     private final PreviewRenderSource previewRenderSource;
+    private final HealthBarRenderer healthBarRenderer;
 
     public GameScreenUpdateController(
             Game game,
@@ -43,7 +45,8 @@ public class GameScreenUpdateController {
             Hud hud,
             BuildManager buildManager,
             GameWorldView worldView,
-            GameScreenState state
+            GameScreenState state,
+            HealthBarRenderer healthBarRenderer
     ) {
         this.game = game;
         this.myId = myId;
@@ -55,6 +58,7 @@ public class GameScreenUpdateController {
         this.worldView = worldView;
         this.state = state;
         this.previewRenderSource = worldView.getPreviewRenderSource();
+        this.healthBarRenderer = healthBarRenderer;
     }
 
     /**
@@ -110,10 +114,11 @@ public class GameScreenUpdateController {
 
         boolean hasNewState = currentGameState != latestGameState;
         if (hasNewState) {
+            buildManager.updateBuildingStates(currentGameState.getBuildingStates());
             arena.update(currentGameState);
             worldView.getPlacedBuildingRenderSource().update(currentGameState.getBuildingStates());
-            System.out.println("States: " + currentGameState.getBuildingStates().size());
-            buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
+            healthBarRenderer.update(currentGameState.getBuildingStates());
+            healthBarRenderer.update(arena.getPlayers());
             hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
             latestGameState = currentGameState;
         }

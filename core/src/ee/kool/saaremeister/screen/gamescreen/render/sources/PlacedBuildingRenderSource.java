@@ -6,6 +6,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.screen.gamescreen.render.renderables.DepthRenderable;
 import ee.kool.saaremeister.screen.gamescreen.render.renderables.TileRenderPiece;
 import message.dto.BuildingState;
@@ -48,11 +49,13 @@ public class PlacedBuildingRenderSource {
             } else {
                 addSingleTileBuilding(state);
             }
+            System.out.println("Added building at " + state.getX() + "," + state.getY());
         }
 
         for (BuildingState state : wallTiles) {
             addSingleTileBuilding(state);
         }
+
     }
 
     /**
@@ -66,7 +69,7 @@ public class PlacedBuildingRenderSource {
      * Adds a single-tile building to the render list.
      */
     private void addSingleTileBuilding(BuildingState state) {
-        TiledMapTile tile = map.getTileSets().getTile(state.getId());
+        TiledMapTile tile = map.getTileSets().getTile(state.getTileId());
         if (tile == null) {
             return;
         }
@@ -78,8 +81,8 @@ public class PlacedBuildingRenderSource {
 
         Vector2 drawPos = IsoMath.tileLayerCellToWorldBottomLeft(
                 layer,
-                state.getX(),
-                state.getY()
+                (int) state.getX(),
+                (int) state.getY()
         );
 
 
@@ -87,10 +90,10 @@ public class PlacedBuildingRenderSource {
                 region,
                 drawPos.x,
                 drawPos.y,
-                region.getRegionWidth(),
-                region.getRegionHeight(),
-                state.getX(),
-                state.getY(),
+                (float) region.getRegionWidth(),
+                (float) region.getRegionHeight(),
+                (int) state.getX(),
+                (int) state.getY(),
                 1
         ));
     }
@@ -99,6 +102,6 @@ public class PlacedBuildingRenderSource {
      * Returns whether the given building state is one tile of a wall structure.
      */
     private boolean isWallTile(BuildingState state) {
-        return state.getId() >= 156 && state.getId() < 163;
+        return state.getTileId() >= 284 && state.getTileId() < 290;
     }
 }

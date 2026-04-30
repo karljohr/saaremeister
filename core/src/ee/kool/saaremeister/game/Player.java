@@ -3,6 +3,7 @@ package ee.kool.saaremeister.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import common.HasHealth;
 import ee.kool.saaremeister.utility.Sprites;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import static constant.Constants.PLAYER_PIXEL_WIDTH;
 /**
  * Client side representation of a player.
  */
-public class Player {
+public class Player implements HasHealth {
 
     private final int id;
     @Setter
@@ -27,6 +28,12 @@ public class Player {
     @Setter
     @Getter
     private String username;
+    @Setter
+    @Getter
+    private int health;
+    @Setter
+    @Getter
+    private int maxHealth;
 
     private float stateTime = 0f;
     private boolean moving = false;
@@ -51,7 +58,7 @@ public class Player {
     /**
      * Applies the server state to the player (position, current movement, and facing).
      */
-    public void applyServerState(float nx, float ny, PlayerRole role, boolean isBot) {
+    public void applyServerState(float nx, float ny, PlayerRole role, boolean isBot, int maxHealth, int health) {
         this.role = role;
         this.isBot = isBot;
         float dx = nx - x;
@@ -74,6 +81,9 @@ public class Player {
 
         x = nx;
         y = ny;
+
+        this.maxHealth = maxHealth;
+        this.health = health;
     }
 
     /**
@@ -95,5 +105,16 @@ public class Player {
                 : Sprites.getPlayerIdleFrame(role, facing, isBot);
 
         spriteBatch.draw(frame, x - w / 2f, y - h / 2f, w, h);
+    }
+
+
+    @Override
+    public float getWorldX() {
+        return x;
+    }
+
+    @Override
+    public float getWorldY() {
+        return y;
     }
 }

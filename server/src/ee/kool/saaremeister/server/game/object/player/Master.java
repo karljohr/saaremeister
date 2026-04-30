@@ -6,8 +6,7 @@ import ee.kool.saaremeister.server.game.BuildHandler;
 import ee.kool.saaremeister.server.game.GameInstance;
 import message.dto.PlayerRole;
 
-import static constant.Constants.MASTER_LIVES;
-import static constant.Constants.MASTER_MONEY;
+import static constant.Constants.*;
 
 /**
  * Initializes a new server/side representation of the island master.
@@ -24,5 +23,32 @@ public class Master extends Player {
             BuildHandler buildHandler
     ) {
         super(connection, connection.getID(), gameInstance, world, buildHandler, MASTER_MONEY, MASTER_LIVES, PlayerRole.MASTER);
+    }
+
+    /**
+     * Gives master money for killing the officer.
+     */
+    @Override
+    public void earnFromKill() {
+        setMoney(getMoney() + MASTER_KILL_PROFIT);
+    }
+
+    /**
+     * Master shouldn't ever call this method.
+     */
+    @Override
+    public void earnFromDestroying() {
+        throw new UnsupportedOperationException(
+                "Master somehow destroyed his own building "
+                + "and is now trying to collect profits..."
+        );
+    }
+
+    /**
+     * Gives master income for every zone he holds.
+     */
+    @Override
+    public void passiveIncome(int zoneCount) {
+        setMoney(getMoney() + MASTER_ZONE_PROFIT * zoneCount);
     }
 }

@@ -32,7 +32,7 @@ import static constant.Constants.*;
  */
 @Getter
 @Setter
-public class Player {
+public abstract class Player {
 
     private final Connection connection;
     private final PlayerMovementListener movementListener = new PlayerMovementListener(this);
@@ -271,4 +271,10 @@ public class Player {
         connection.removeListener(shootingListener);
         connection.removeListener(buildingListener);
     }
+
+    public abstract void earnFromKill();
+
+    public abstract void earnFromDestroying();
+
+    public abstract void passiveIncome(int zoneCount);
 }

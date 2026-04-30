@@ -16,9 +16,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static constant.Constants.BOT_SPEED;
-import static constant.Constants.BULLET_TIMEOUT_MILLISECONDS;
-import static constant.Constants.PPM;
+import static constant.Constants.*;
 
 /**
  * An AI player that replaces real players in the game if the game instance is not full.
@@ -354,6 +352,30 @@ public class Bot extends Player {
             Vector2 shootDir = new Vector2(targetPos).sub(botPos).nor();
             this.shoot(shootDir);
         }
+    }
+
+    /**
+     * Gives bot money for killing the Master.
+     */
+    @Override
+    public void earnFromKill() {
+        setMoney(getMoney() + OFFICER_KILL_PROFIT);
+    }
+
+    /**
+     * Gives bot money for destroying a building built by the Master.
+     */
+    @Override
+    public void earnFromDestroying() {
+        setMoney(getMoney() + OFFICER_DESTROY_PROFIT);
+    }
+
+    /**
+     * Gives bot income for every zone he holds.
+     */
+    @Override
+    public void passiveIncome(int zoneCount) {
+        setMoney(getMoney() + OFFICER_ZONE_PROFIT * zoneCount);
     }
 
     @Override

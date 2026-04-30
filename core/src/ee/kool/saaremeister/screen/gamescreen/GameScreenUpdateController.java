@@ -10,6 +10,7 @@ import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.EndScreen;
+import ee.kool.saaremeister.screen.gamescreen.render.DamageEffects;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import message.GameStateMessage;
@@ -33,6 +34,7 @@ public class GameScreenUpdateController {
     private final GameScreenState state;
     private GameStateMessage latestGameState;
     private final PreviewRenderSource previewRenderSource;
+    private final DamageEffects damageEffects;
 
     public GameScreenUpdateController(
             Game game,
@@ -43,7 +45,8 @@ public class GameScreenUpdateController {
             Hud hud,
             BuildManager buildManager,
             GameWorldView worldView,
-            GameScreenState state
+            GameScreenState state,
+            DamageEffects damageEffects
     ) {
         this.game = game;
         this.myId = myId;
@@ -55,6 +58,7 @@ public class GameScreenUpdateController {
         this.worldView = worldView;
         this.state = state;
         this.previewRenderSource = worldView.getPreviewRenderSource();
+        this.damageEffects = damageEffects;
     }
 
     /**
@@ -115,6 +119,7 @@ public class GameScreenUpdateController {
             System.out.println("States: " + currentGameState.getBuildingStates().size());
             buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
             hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
+            damageEffects.checkDamage(currentGameState ,myId);
             latestGameState = currentGameState;
         }
 
@@ -128,6 +133,8 @@ public class GameScreenUpdateController {
                     worldView.getCamera().position.x += (me.getX() - worldView.getCamera().position.x) * lerp * delta;
                     worldView.getCamera().position.y += (me.getY() - worldView.getCamera().position.y) * lerp * delta;
                 });
+
+        damageEffects.affectCamera(delta, worldView.getCamera());
 
         worldView.getCamera().update();
         worldView.getRenderer().setView(worldView.getCamera());

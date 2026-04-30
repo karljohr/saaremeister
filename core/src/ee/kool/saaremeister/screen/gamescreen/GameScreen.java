@@ -11,6 +11,7 @@ import ee.kool.saaremeister.game.*;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.EndScreen;
 import ee.kool.saaremeister.screen.TitleScreen;
+import ee.kool.saaremeister.screen.gamescreen.render.DamageEffects;
 import ee.kool.saaremeister.screen.gamescreen.render.DepthWorldRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PlayerRenderSource;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
@@ -53,6 +54,7 @@ public class GameScreen extends ScreenAdapter {
     private final GameScreenUpdateController updateController;
     private final GameScreenRenderController renderController;
     private final DepthWorldRenderer depthWorldRenderer;
+    private final DamageEffects damageEffects;
 
     /**
      * Initialize a new GameScreen, where the main gameplay happens.
@@ -101,6 +103,7 @@ public class GameScreen extends ScreenAdapter {
         this.debugRenderer = new DebugRenderer();
 
         this.inputController = new GameScreenInputController(hud, shopOverlay, screenState, lobbyId, pauseOverlay);
+        this.damageEffects = new DamageEffects();
         this.updateController = new GameScreenUpdateController(
                 game,
                 myId,
@@ -110,7 +113,8 @@ public class GameScreen extends ScreenAdapter {
                 hud,
                 buildManager,
                 worldView,
-                screenState
+                screenState,
+                damageEffects
         );
         this.renderController = new GameScreenRenderController(
                 spriteBatch,

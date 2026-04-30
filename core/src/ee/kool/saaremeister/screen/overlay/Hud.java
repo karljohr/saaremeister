@@ -1,29 +1,23 @@
 package ee.kool.saaremeister.screen.overlay;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.component.Hotbar;
 import ee.kool.saaremeister.component.LabelComponent;
+import ee.kool.saaremeister.screen.overlay.Components.*;
 import lombok.Getter;
 import message.GameStateMessage;
 import message.dto.PlayerRole;
 
 import java.util.List;
-
-import static constant.Constants.MATCH_DURATION_SECONDS;
 
 /**
  * HUD (Heads-Up Display) for the game stats, player stats, and chat.
@@ -32,62 +26,47 @@ public class Hud implements Disposable {
 
     @Getter
     private final Stage stage;
-    private final Label moneyLabel;
-    private final Label livesLabel;
-    private final Label defenseLabel;
-    private final Texture coinTexture;
+
     private final ChatTable chatTable;
-    private final Label timerLabel;
-    private final Label zonesLabel;
     @Getter
     private final Hotbar hotbar;
     private final Table buildLegend;
-    private PlayerRole playerRole = null;
+
+    private final HealthUI healthUI;
+    private final ArmorUI armorUI;
+    private final MoneyUI moneyUI;
+    private final TopBarUI topBarUI;
+    private final DamageOverlay damageOverlay;
+
 
     public Hud(SpriteBatch spriteBatch, int lobbyId, String username, Skin skin) {
         stage = new Stage(new ScreenViewport(), spriteBatch);
 
-        // HUD elements for the player stats.
-        coinTexture = new Texture(Gdx.files.internal("goldCoin.png"));
-        Image moneyIcon = new Image(coinTexture);
-        moneyLabel = LabelComponent.createLabel("0", Color.GOLD, 20);
-        livesLabel = LabelComponent.createLabel("Elud: 3", Color.RED, 20);
-        defenseLabel = LabelComponent.createLabel("Kaitse: 0", Color.WHITE, 20);
+        healthUI = new HealthUI(skin);
+        armorUI = new ArmorUI(skin);
+        moneyUI = new MoneyUI();
+        topBarUI = new TopBarUI(skin);
 
-        // HUD elements for the zone capturing.
-        timerLabel = LabelComponent.createLabel("Aeg: 0", Color.WHITE, 20);
-        zonesLabel = LabelComponent.createLabel("Tsoonid: 0", Color.CYAN, 20);
+        damageOverlay = new DamageOverlay();
 
         // HUD table for the stats of the player.
         Table statsTable = new Table();
         statsTable.setFillParent(true);
         statsTable.setTouchable(Touchable.childrenOnly);
-        statsTable.top().left();
-
-        // Add money icon and label on the same row.
-        statsTable.add(moneyIcon).size(64, 64).padTop(10).padLeft(5).left();
-        statsTable.add(moneyLabel).padTop(10).padLeft(1).left();
-        moneyLabel.setFontScale(2f);
+        statsTable.bottom().left();
+        statsTable.padLeft(10);
+        statsTable.padBottom(10);
 
         // A row for displaying lives.
-        statsTable.row();
-        statsTable.add(livesLabel).padTop(5).padLeft(10).left();
-        livesLabel.setFontScale(2f);
+        statsTable.add(healthUI.getActor()).left();
 
         // A row for displaying defense.
         statsTable.row();
-        statsTable.add(defenseLabel).padTop(5).padLeft(10).left();
-        defenseLabel.setFontScale(2f);
+        statsTable.add(armorUI.getActor()).left();
 
-        // A row for displaying game timer.
+        // Add money icon and label on the same row.
         statsTable.row();
-        statsTable.add(timerLabel).padTop(5).padLeft(10).left();
-        timerLabel.setFontScale(2f);
-
-        // A row for displaying captured zones.
-        statsTable.row();
-        statsTable.add(zonesLabel).padTop(5).padLeft(10).left();
-        zonesLabel.setFontScale(2f);
+        statsTable.add(moneyUI.getActor()).left();
 
         // HUD table for the chat.
         chatTable = new ChatTable(lobbyId, username, skin);
@@ -112,10 +91,12 @@ public class Hud implements Disposable {
         // BuildMode Legend
         buildLegend = new Table();
         buildLegend.setFillParent(true);
-        buildLegend.bottom().left();
+        buildLegend.center().left();
 
         Table panel = new Table(skin);
-        panel.defaults().left().pad(4);
+        Drawable panelBg = skin.newDrawable("white", new Color(0, 0, 0, 0.3f));
+        panel.background(panelBg);
+        panel.defaults().left().pad(10);
         panel.add(LabelComponent.createLabel("Build mode", Color.WHITE, 24)).row();
         panel.add(LabelComponent.createLabel("LMB  Place", Color.LIGHT_GRAY, 20)).row();
         panel.add(LabelComponent.createLabel("T    Next variation", Color.LIGHT_GRAY, 20)).row();
@@ -125,6 +106,8 @@ public class Hud implements Disposable {
         buildLegend.setVisible(false);
         stage.addActor(buildLegend);
 
+        stage.addActor(damageOverlay.getActor());
+        stage.addActor(topBarUI.getActor());
         stage.addActor(statsTable);
         stage.addActor(chatContainer);
         stage.addActor(hotbarContainer);
@@ -148,26 +131,20 @@ public class Hud implements Disposable {
                 .filter(p -> p.getId() == myId)
                 .findFirst();
         if (me.isPresent()) {
-            moneyLabel.setText(String.valueOf(me.get().getMoney()));
-            livesLabel.setText("Elud: " + me.get().getLives());
-            defenseLabel.setText("Kaitse: " + me.get().getDefense());
+            topBarUI.setPlayerRole(myRole);
+            topBarUI.setPlayerState(me.get());
+
+            topBarUI.update(msg);
+            healthUI.update(me.get());
+            armorUI.update(me.get());
+            moneyUI.update(me.get());
+            damageOverlay.checkDamage(me.get().getLives());
 
         } else {
-            livesLabel.setText("Elud: 0");
-            defenseLabel.setText("Kaitse: 0");
+            healthUI.update();
+            armorUI.update();
+            damageOverlay.checkDamage(0);
         }
-
-        // Updates the game timer.
-        timerLabel.setText("Aeg: " + ((int) (MATCH_DURATION_SECONDS - msg.getGameTime())));
-
-        // Updates the player's captured zones.
-        int ownedZones = 0;
-        if (msg.getCaptureZones() != null) {
-            ownedZones = (int) msg.getCaptureZones().stream()
-                    .filter(zone -> zone.getOwnerRole() == myRole)
-                    .count();
-        }
-        zonesLabel.setText("Tsoonid: " + ownedZones + "/4");
     }
 
     /**
@@ -203,6 +180,9 @@ public class Hud implements Disposable {
     }
 
     public void render(float delta) {
+        topBarUI.updatePulseTimer(delta);
+        damageOverlay.update(delta);
+
         stage.act(delta);
         stage.draw();
     }
@@ -210,6 +190,6 @@ public class Hud implements Disposable {
     @Override
     public void dispose() {
         stage.dispose();
-        coinTexture.dispose();
+        moneyUI.dispose();
     }
 }

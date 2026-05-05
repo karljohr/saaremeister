@@ -89,7 +89,7 @@ public class GameScreen extends ScreenAdapter {
 
         this.screenState = new GameScreenState();
         this.worldView = new GameWorldView();
-        this.buildManager = new BuildManager(worldView.getMap(), this);
+        this.buildManager = new BuildManager(this);
         this.worldView.initPreview(this.buildManager);
         this.healthBarRenderer = new HealthBarRenderer();
 

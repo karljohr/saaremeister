@@ -4,6 +4,9 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
+import ee.kool.saaremeister.server.game.object.player.Bot;
+import ee.kool.saaremeister.server.game.object.player.Master;
+import ee.kool.saaremeister.server.game.object.player.Officer;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.projectiles.Rocket;
@@ -91,6 +94,7 @@ public class BulletCollisionHandler {
             Player hit = findHitPlayer(bulletX, bulletY, bullet.getShotById(), players, buildings);
             if (hit != null) {
                 hit.decreaseLives((int)BULLET_DAMAGE);
+                checkDeathAndHandleProfits(hit, bullet.getShotById(), playersById);
                 Log.info("Player " + hit.getId() + " hit by bullet from " + bullet.getShotById());
                 bulletIterator.remove();
                 continue;
@@ -201,7 +205,10 @@ public class BulletCollisionHandler {
                                 .filter(entry ->
                                         entry.getValue().getBody() == fixture.getBody())
                                 .findAny()
-                                .ifPresent(entry -> entry.getValue().decreaseHealth());
+                                .ifPresent(entry -> {
+                                    entry.getValue().decreaseHealth();
+                                    checkDeathAndHandleProfits(entry.getValue(), shooterId, playersById);
+                                });
                     }
                     return true;
 
@@ -224,5 +231,34 @@ public class BulletCollisionHandler {
             shooterRole = PlayerRole.OFFICER;
         }
         return shooterRole;
+    }
+
+    /**
+     * Checks if the player that got shot died, if so then distributes profits.
+     * @param hit player that got hit.
+     * @param shooterId id of the player that shot the bullet.
+     * @param playersById a map of players' id to player object.
+     */
+    private void checkDeathAndHandleProfits(Player hit, int shooterId, Map<Integer, Player> playersById) {
+        if (!playersById.containsKey(shooterId)) return;
+        if (hit.getLives() > 0) return;
+
+        playersById.get(shooterId).earnFromKill();
+
+    }
+
+    /**
+     * Checks if the building that got shot broke, if so then distributes profits.
+     * @param hit building that got hit.
+     * @param shooterId id of the player that shot the bullet.
+     * @param playersById a map of players' id to player object.
+     */
+    private void checkDeathAndHandleProfits(Building hit, int shooterId, Map<Integer, Player> playersById) {
+        if (!playersById.containsKey(shooterId)) return;
+        if (hit.getHealth() > 0) return;
+
+        Player shooter = playersById.get(shooterId);
+        shooter.earnFromDestroying();
+
     }
 }

@@ -52,6 +52,7 @@ public class GameInstance extends Thread {
         List<StaticBodyState> staticBodyData = box2dWorldGenerator.initializeWorld(world);
 
         BuildHandler buildHandler = new BuildHandler(world, this);
+        EconomyManager economyManager = new EconomyManager();
 
         CaptureZoneLoader captureZoneLoader = new CaptureZoneLoader();
         List<CaptureZone> captureZones = new ArrayList<>(captureZoneLoader.loadCaptureZones());
@@ -95,6 +96,7 @@ public class GameInstance extends Thread {
                 connections,
                 gameDisposer,
                 lobbyManager,
+                economyManager,
                 lobbyId
         );
     }

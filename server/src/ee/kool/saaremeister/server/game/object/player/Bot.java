@@ -356,6 +356,30 @@ public class Bot extends Player {
         }
     }
 
+    /**
+     * Gives bot money for killing the Master.
+     */
+    @Override
+    public void earnFromKill() {
+        setMoney(getMoney() + OFFICER_KILL_PROFIT);
+    }
+
+    /**
+     * Gives bot money for destroying a building built by the Master.
+     */
+    @Override
+    public void earnFromDestroying() {
+        setMoney(getMoney() + OFFICER_DESTROY_PROFIT);
+    }
+
+    /**
+     * Gives bot income for every zone he holds.
+     */
+    @Override
+    public void passiveIncome(int zoneCount) {
+        setMoney(getMoney() + OFFICER_ZONE_PROFIT * zoneCount);
+    }
+
     @Override
     public void dispose() {
         // Bot doesn't have listeners to remove.

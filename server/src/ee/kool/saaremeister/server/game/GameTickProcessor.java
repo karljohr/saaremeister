@@ -42,6 +42,7 @@ public class GameTickProcessor {
     private final GameDisposer gameDisposer;
     private final LobbyManager lobbyManager;
     private final int lobbyId;
+    private final EconomyManager economyManager;
 
     public GameTickProcessor(
             World world,
@@ -57,6 +58,7 @@ public class GameTickProcessor {
             Set<Connection> connections,
             GameDisposer gameDisposer,
             LobbyManager lobbyManager,
+            EconomyManager economyManager,
             int lobbyId
     ) {
         this.world = world;
@@ -72,6 +74,7 @@ public class GameTickProcessor {
         this.connections = connections;
         this.gameDisposer = gameDisposer;
         this.lobbyManager = lobbyManager;
+        this.economyManager = economyManager;
         this.lobbyId = lobbyId;
     }
 
@@ -131,6 +134,9 @@ public class GameTickProcessor {
                 buildHandler.getBuildings(),
                 explosionStates
         );
+
+        // Distribute zone profits
+        economyManager.distributeZoneProfits(captureZones, players);
 
         // Capture Zone updates according to the players (not) inside it.
         captureZones.forEach(zone -> zone.update(players, deltaTime));

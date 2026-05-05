@@ -2,12 +2,12 @@ package ee.kool.saaremeister.server.game.object.player;
 
 import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.BuildHandler;
 import ee.kool.saaremeister.server.game.GameInstance;
 import message.dto.PlayerRole;
 
-import static constant.Constants.OFFICER_LIVES;
-import static constant.Constants.OFFICER_MONEY;
+import static constant.Constants.*;
 
 /**
  * Initializes a new server/side representation of a tax officer.
@@ -25,5 +25,29 @@ public class Officer extends Player {
             BuildHandler buildHandler
     ) {
         super(connection, connection.getID(), gameInstance, world, buildHandler, OFFICER_MONEY, OFFICER_LIVES, PlayerRole.OFFICER);
+    }
+
+    /**
+     * Gives officer money for killing the master.
+     */
+    @Override
+    public void earnFromKill() {
+        setMoney(getMoney() + OFFICER_KILL_PROFIT);
+    }
+
+    /**
+     * Gives officer money for destroying a building built by the Master.
+     */
+    @Override
+    public void earnFromDestroying() {
+        setMoney(getMoney() + OFFICER_DESTROY_PROFIT);
+    }
+
+    /**
+     * Gives officer income for every zone he holds.
+     */
+    @Override
+    public void passiveIncome(int zoneCount) {
+        setMoney(getMoney() + OFFICER_ZONE_PROFIT * zoneCount);
     }
 }

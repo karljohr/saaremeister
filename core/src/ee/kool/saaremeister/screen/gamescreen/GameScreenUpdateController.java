@@ -119,7 +119,6 @@ public class GameScreenUpdateController {
         boolean hasNewState = currentGameState != latestGameState;
         if (hasNewState) {
             buildManager.updateBuildingStates(currentGameState.getBuildingStates());
-            buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
             arena.update(currentGameState);
             worldView.getPlacedBuildingRenderSource().update(currentGameState.getBuildingStates());
             healthBarRenderer.update(currentGameState.getBuildingStates());

@@ -77,6 +77,7 @@ public class GameScreen extends ScreenAdapter {
 
         this.gameStateManager = new GameStateManager();  // receives game state from the server
         PlayerInputManager playerInputManager = new PlayerInputManager();  // listens for user input and sends it to the server
+
         this.spriteBatch = new SpriteBatch();  // where all the content is rendered
         this.shapeRenderer = new ShapeRenderer();
         Arena arena = new Arena();  // manages players and bullets

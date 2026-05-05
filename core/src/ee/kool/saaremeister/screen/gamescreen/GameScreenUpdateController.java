@@ -72,7 +72,7 @@ public class GameScreenUpdateController {
 
         // Stops movement and shooting if the chat is focused and vice versa.
         boolean chatFocused = hud.isChatInputFocused();
-        boolean canControlPlayer = !chatFocused && !state.isShopOpen() && !state.isPaused();
+        boolean canControlPlayer = !chatFocused && !state.isPaused();
         if (canControlPlayer) {
             playerInputManager.handleMovementInput();
             playerInputManager.handleActionInput(hud.getHotbar());

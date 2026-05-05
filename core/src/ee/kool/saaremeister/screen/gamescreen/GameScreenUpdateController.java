@@ -9,7 +9,6 @@ import ee.kool.saaremeister.game.BuildManager;
 import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
-import ee.kool.saaremeister.screen.EndScreen;
 import ee.kool.saaremeister.screen.gamescreen.render.HealthBarRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.DamageEffects;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;

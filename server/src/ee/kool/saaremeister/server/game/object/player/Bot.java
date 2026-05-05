@@ -16,9 +16,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static constant.Constants.BOT_SPEED;
-import static constant.Constants.BULLET_TIMEOUT_MILLISECONDS;
-import static constant.Constants.PPM;
+import static constant.Constants.*;
 
 /**
  * An AI player that replaces real players in the game if the game instance is not full.
@@ -128,10 +126,12 @@ public class Bot extends Player {
                 continue;
             }
 
-            float distance = botPos.dst2(player.getBody().getPosition());
+            Vector2 playerPos = player.getBody().getPosition().cpy();
+            playerPos.y -= PLAYER_PIXEL_HEIGHT /2f / PPM;
+            float distance = botPos.dst2(playerPos);
             if (distance < priorityDistance) {
                 priorityDistance = distance;
-                priorityTarget = player.getBody().getPosition().cpy();
+                priorityTarget = playerPos;
             }
         }
 

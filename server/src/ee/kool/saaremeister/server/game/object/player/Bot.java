@@ -126,10 +126,12 @@ public class Bot extends Player {
                 continue;
             }
 
-            float distance = botPos.dst2(player.getBody().getPosition());
+            Vector2 playerPos = player.getBody().getPosition().cpy();
+            playerPos.y -= PLAYER_PIXEL_HEIGHT /2f / PPM;
+            float distance = botPos.dst2(playerPos);
             if (distance < priorityDistance) {
                 priorityDistance = distance;
-                priorityTarget = player.getBody().getPosition().cpy();
+                priorityTarget = playerPos;
             }
         }
 

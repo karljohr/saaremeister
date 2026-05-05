@@ -11,6 +11,7 @@ import ee.kool.saaremeister.game.*;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.EndScreen;
 import ee.kool.saaremeister.screen.TitleScreen;
+import ee.kool.saaremeister.screen.gamescreen.render.DamageEffects;
 import ee.kool.saaremeister.screen.gamescreen.render.DepthWorldRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.HealthBarRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PlayerRenderSource;
@@ -58,6 +59,8 @@ public class GameScreen extends ScreenAdapter {
     private final GameScreenRenderController renderController;
     private final DepthWorldRenderer depthWorldRenderer;
     private final HealthBarRenderer healthBarRenderer;
+    private final DamageEffects damageEffects;
+
     @Setter
     @Getter
     private List<BuildingState> currentBuildings;
@@ -86,7 +89,7 @@ public class GameScreen extends ScreenAdapter {
 
         this.screenState = new GameScreenState();
         this.worldView = new GameWorldView();
-        this.buildManager = new BuildManager(this);
+        this.buildManager = new BuildManager(worldView.getMap(), this);
         this.worldView.initPreview(this.buildManager);
         this.healthBarRenderer = new HealthBarRenderer();
 
@@ -111,6 +114,7 @@ public class GameScreen extends ScreenAdapter {
         this.debugRenderer = new DebugRenderer();
 
         this.inputController = new GameScreenInputController(hud, shopOverlay, screenState, lobbyId, pauseOverlay);
+        this.damageEffects = new DamageEffects();
         this.updateController = new GameScreenUpdateController(
                 game,
                 myId,
@@ -121,7 +125,8 @@ public class GameScreen extends ScreenAdapter {
                 buildManager,
                 worldView,
                 screenState,
-                healthBarRenderer
+                healthBarRenderer,
+                damageEffects
         );
         this.renderController = new GameScreenRenderController(
                 spriteBatch,

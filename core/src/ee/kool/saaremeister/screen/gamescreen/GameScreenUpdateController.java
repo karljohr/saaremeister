@@ -11,6 +11,7 @@ import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.EndScreen;
 import ee.kool.saaremeister.screen.gamescreen.render.HealthBarRenderer;
+import ee.kool.saaremeister.screen.gamescreen.render.DamageEffects;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import message.GameStateMessage;
@@ -35,6 +36,7 @@ public class GameScreenUpdateController {
     private GameStateMessage latestGameState;
     private final PreviewRenderSource previewRenderSource;
     private final HealthBarRenderer healthBarRenderer;
+    private final DamageEffects damageEffects;
 
     public GameScreenUpdateController(
             Game game,
@@ -46,7 +48,8 @@ public class GameScreenUpdateController {
             BuildManager buildManager,
             GameWorldView worldView,
             GameScreenState state,
-            HealthBarRenderer healthBarRenderer
+            HealthBarRenderer healthBarRenderer,
+            DamageEffects damageEffects
     ) {
         this.game = game;
         this.myId = myId;
@@ -59,6 +62,7 @@ public class GameScreenUpdateController {
         this.state = state;
         this.previewRenderSource = worldView.getPreviewRenderSource();
         this.healthBarRenderer = healthBarRenderer;
+        this.damageEffects = damageEffects;
     }
 
     /**
@@ -115,11 +119,13 @@ public class GameScreenUpdateController {
         boolean hasNewState = currentGameState != latestGameState;
         if (hasNewState) {
             buildManager.updateBuildingStates(currentGameState.getBuildingStates());
+            buildManager.compareBuildingOldHealthToNew(currentGameState.getBuildingStates());
             arena.update(currentGameState);
             worldView.getPlacedBuildingRenderSource().update(currentGameState.getBuildingStates());
             healthBarRenderer.update(currentGameState.getBuildingStates());
             healthBarRenderer.update(arena.getPlayers());
             hud.update(currentGameState, myId, myRole);  // update info overlay time, lives, etc.
+            damageEffects.checkDamage(currentGameState ,myId);
             latestGameState = currentGameState;
         }
 
@@ -133,6 +139,8 @@ public class GameScreenUpdateController {
                     worldView.getCamera().position.x += (me.getX() - worldView.getCamera().position.x) * lerp * delta;
                     worldView.getCamera().position.y += (me.getY() - worldView.getCamera().position.y) * lerp * delta;
                 });
+
+        damageEffects.affectCamera(delta, worldView.getCamera());
 
         worldView.getCamera().update();
         worldView.getRenderer().setView(worldView.getCamera());

@@ -97,6 +97,7 @@ samaaegselt samas alas seista)
 |Collisionitega kaart|Originaalsete disainidega 260x260 kaart töötava kokkupõrgete süsteemiga.|
 |Majandussüsteem|Süsteem, kus raha eest saavad mängijad osta paremat varustust ning Saaremeister lisaks sellele ka kaitseehitisi.|
 |Tekstipõhine vestlus|Mängus saab vestlusaknas tekstipõhiselt suhelda teiste mängijatega.|
+|Raundide süsteem|Üks lobby mängib läbi nii mitu raundi, kui seal on mängijaid. Koos jooksva edetabeliga.|
 
 ---
 

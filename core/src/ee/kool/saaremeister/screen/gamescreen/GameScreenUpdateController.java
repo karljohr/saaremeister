@@ -9,7 +9,6 @@ import ee.kool.saaremeister.game.BuildManager;
 import ee.kool.saaremeister.game.GameStateManager;
 import ee.kool.saaremeister.game.PlayerInputManager;
 import ee.kool.saaremeister.network.ServerConnection;
-import ee.kool.saaremeister.screen.EndScreen;
 import ee.kool.saaremeister.screen.gamescreen.render.HealthBarRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.DamageEffects;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
@@ -72,7 +71,7 @@ public class GameScreenUpdateController {
 
         // Stops movement and shooting if the chat is focused and vice versa.
         boolean chatFocused = hud.isChatInputFocused();
-        boolean canControlPlayer = !chatFocused && !state.isShopOpen() && !state.isPaused();
+        boolean canControlPlayer = !chatFocused && !state.isPaused();
         if (canControlPlayer) {
             playerInputManager.handleMovementInput();
             playerInputManager.handleActionInput(hud.getHotbar());

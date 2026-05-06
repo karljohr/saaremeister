@@ -43,19 +43,19 @@ public class ShopOverlay implements Disposable {
     private static final int GRID_COLS = 5;
 
     // Custom UI Colors
-    private static final Color PANEL_DARK = new Color(0.1f, 0.1f, 0.12f, 1f);
-    private static final Color PANEL_BORDER = new Color(0.25f, 0.25f, 0.28f, 1f);
-    private static final Color GOLDEN_DIVIDER = new Color(0.85f, 0.70f, 0.45f, 1f);
+    private static final Color PANEL_DARK = new Color(0.1f, 0.1f, 0.12f, 0.8f);
+    private static final Color PANEL_BORDER = new Color(0.25f, 0.25f, 0.28f, 0.8f);
+    private static final Color GOLDEN_DIVIDER = new Color(0.85f, 0.70f, 0.45f, 0.85f);
 
     // Slot/Wood Colors
-    private static final Color WOOD_NORMAL = new Color(0.44f, 0.30f, 0.20f, 1f);
-    private static final Color WOOD_HOVER = new Color(0.54f, 0.40f, 0.30f, 1f);
-    private static final Color WOOD_GRAIN = new Color(0.40f, 0.27f, 0.18f, 1f);
-    private static final Color WOOD_BORDER = new Color(0.18f, 0.11f, 0.07f, 1f);
+    private static final Color WOOD_NORMAL = new Color(0.44f, 0.30f, 0.20f, 0.82f);
+    private static final Color WOOD_HOVER = new Color(0.54f, 0.40f, 0.30f, 0.9f);
+    private static final Color WOOD_GRAIN = new Color(0.40f, 0.27f, 0.18f, 0.45f);
+    private static final Color WOOD_BORDER = new Color(0.18f, 0.11f, 0.07f, 0.95f);
 
     // Button Colors
-    private static final Color BTN_NORMAL = new Color(0.12f, 0.12f, 0.14f, 1f);
-    private static final Color BTN_HOVER = new Color(0.2f, 0.2f, 0.25f, 1f);
+    private static final Color BTN_NORMAL = new Color(0.12f, 0.12f, 0.14f, 0.8f);
+    private static final Color BTN_HOVER = new Color(0.2f, 0.2f, 0.25f, 0.92f);
 
     @Getter
     private final Stage stage;

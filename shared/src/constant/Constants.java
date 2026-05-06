@@ -14,12 +14,12 @@ public class Constants {
     // Networking
     public static final int TCP_PORT = 8082;
     public static final int UDP_PORT = 8083;
-    public static final String SERVER_IP = "193.40.157.179";     // TalTech serveri IP: 193.40.157.179
+    public static final String SERVER_IP = "localhost";     // TalTech serveri IP: 193.40.157.179
 
     // Game
     public static final int GAME_TICK_RATE = 60;
     public static final int PLAYER_COUNT_INGAME_LIMIT = 5;
-    public static final int MATCH_DURATION_SECONDS = 120;
+    public static final int MATCH_DURATION_SECONDS = 158;
     public static final int MAX_SLOTS = 15;
 
     // Player

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -36,6 +37,7 @@ public class EndScreen extends ScreenAdapter {
     private final Map<String, Integer> winsByUsername;
     private final Texture background;
     private final SpriteBatch spriteBatch;
+    private final Music music;
 
     public EndScreen(Game game, PlayerRole gameWinnerRole, PlayerRole myRole, boolean finalRound, int lobbyId,
                      String username, int currentRound, int totalRounds, Map<String, Integer> winsByUsername) {
@@ -46,6 +48,7 @@ public class EndScreen extends ScreenAdapter {
         this.lobbyId = lobbyId;
         this.username = username;
         this.winsByUsername = winsByUsername;
+        this.music = Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_end.wav"));
 
         background = new Texture("assets/background/grass.png");
         spriteBatch = new SpriteBatch();
@@ -114,8 +117,18 @@ public class EndScreen extends ScreenAdapter {
     }
 
     @Override
+    public void show() {
+        music.setVolume(0.2f);
+        music.play();
+    }
+
+    @Override
     public void dispose() {
         super.dispose();
         stage.dispose();
+        background.dispose();
+        spriteBatch.dispose();
+        music.stop();
+        music.dispose();
     }
 }

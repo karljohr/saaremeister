@@ -52,7 +52,7 @@ public class TimerUI implements UIComponent<GameStateMessage> {
         if (totalSeconds < PULSE_START_WHEN_SECONDS_TO_END) {
             timerLabel.setFontScale(4f + pulse / 3f);
             timerLabel.setColor(new Color(Color.WHITE)
-                    .lerp(playerRole == PlayerRole.MASTER ? Color.RED : Color.GREEN,
+                    .lerp(playerRole == PlayerRole.MASTER ? Color.GREEN : Color.RED,
                             pulse));
         }
         timerLabel.setText(String.format("%d:%02d", minutes, seconds));

@@ -19,7 +19,7 @@ public class Constants {
     // Game
     public static final int GAME_TICK_RATE = 60;
     public static final int PLAYER_COUNT_INGAME_LIMIT = 5;
-    public static final int MATCH_DURATION_SECONDS = 120;
+    public static final int MATCH_DURATION_SECONDS = 158;
     public static final int MAX_SLOTS = 15;
 
     // Player

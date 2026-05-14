@@ -2,6 +2,8 @@ package ee.kool.saaremeister.network;
 
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
 import ee.kool.saaremeister.network.listener.ChatListener;
 import ee.kool.saaremeister.network.listener.LobbyListener;
 import ee.kool.saaremeister.network.listener.DebugListener;
@@ -23,6 +25,13 @@ import static network.Register.registerClasses;
 @Getter
 @Setter
 public class ServerConnection {
+    public enum ConnectionStatus {
+        DISCONNECTED,
+        CONNECTING,
+        CONNECTED,
+        FAILED
+    }
+
     private static ServerConnection instance;
     private final Client client;
     private final LobbyListener lobbyListener;
@@ -37,6 +46,8 @@ public class ServerConnection {
     private final Map<Integer, LobbyUpdateMessage> cachedLobbyUpdates = new ConcurrentHashMap<>();
     private StaticBodyState[] cachedStaticBodies;
     private Consumer<RoundEndMessage> roundEndListener;
+    private volatile ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
+    private volatile String lastErrorMessage;
 
     /**
      * Private constructor to prevent instantiation.
@@ -49,6 +60,28 @@ public class ServerConnection {
         client.addListener(lobbyListener);
         client.addListener(chatListener);
         client.addListener(new DebugListener(this));
+        client.addListener(new Listener() {
+            @Override
+            public void connected(Connection connection) {
+                connectionStatus = ConnectionStatus.CONNECTED;
+                lastErrorMessage = null;
+            }
+
+            @Override
+            public void disconnected(Connection connection) {
+                if (connectionStatus == ConnectionStatus.CONNECTED) {
+                    connectionStatus = ConnectionStatus.FAILED;
+                    lastErrorMessage = "Uhendus serveriga katkes.";
+                } else if (connectionStatus == ConnectionStatus.CONNECTING) {
+                    connectionStatus = ConnectionStatus.FAILED;
+                    if (lastErrorMessage == null) {
+                        lastErrorMessage = "Uhendus serveriga ebaonnestus.";
+                    }
+                } else {
+                    connectionStatus = ConnectionStatus.DISCONNECTED;
+                }
+            }
+        });
         client.start();
     }
 
@@ -66,10 +99,24 @@ public class ServerConnection {
      * Connects the client to the server.
      */
     public void connect() {
+        if (connectionStatus == ConnectionStatus.CONNECTING ||
+                connectionStatus == ConnectionStatus.CONNECTED) {
+            return;
+        }
+
+        connectionStatus = ConnectionStatus.CONNECTING;
+        lastErrorMessage = null;
+
         new Thread(() -> {
             try {
+                client.stop();
+                client.close();
+                client.start();
+
                 client.connect(5000, SERVER_IP, TCP_PORT, UDP_PORT);
             } catch (Exception e) {
+                connectionStatus = ConnectionStatus.FAILED;
+                lastErrorMessage = "Serveriga ei saanud uhendust.";
                 Gdx.app.error("ServerConnection", "Failed to connect to server", e);
             }
         }, "ServerConnection").start();
@@ -79,6 +126,12 @@ public class ServerConnection {
      * Joins a lobby with the given lobby ID and username.
      */
     public void joinLobby(int lobbyId, String username, Consumer<LobbyUpdateMessage> callback) {
+        if (connectionStatus != ConnectionStatus.CONNECTED) {
+            lastErrorMessage = "Serveriga ei ole uhendust.";
+            connectionStatus = ConnectionStatus.FAILED;
+            return;
+        }
+
         this.pendingJoinCallback = callback;
         GameJoinMessage joinMessage = new GameJoinMessage();
         joinMessage.setLobbyId(lobbyId);
@@ -88,6 +141,8 @@ public class ServerConnection {
             Gdx.app.log("ServerConnection", "Join request sent for lobby " + lobbyId);
         } catch (Exception e) {
             this.pendingJoinCallback = null;
+            connectionStatus = ConnectionStatus.FAILED;
+            lastErrorMessage = "Lobbyga liitumine ebaonnestus.";
             Gdx.app.error("ServerConnection", "Failed to join lobby", e);
         }
     }

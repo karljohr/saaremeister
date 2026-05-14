@@ -22,6 +22,8 @@ public class Constants {
     public static final int MATCH_DURATION_SECONDS = 158;
     public static final int MAX_SLOTS = 15;
 
+    public static final float ZONE_PROFIT_INTERVAL = 6f;
+
     // Player
     public static final float PLAYER_SPEED = 200.0f;
     public static final int PLAYER_PIXEL_HEIGHT = 32;

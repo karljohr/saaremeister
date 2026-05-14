@@ -37,6 +37,7 @@ public class Lobby {
     private int totalRounds = 0;
     private boolean seriesActive = false;
     private Map<Integer, Integer> winsByPlayerId = new HashMap<>();
+    private final Map<Integer, String> usernamesByPlayerId = new HashMap<>();
 
     public Lobby(int lobbyId) {
         this.lobbyId = lobbyId;
@@ -50,6 +51,7 @@ public class Lobby {
         if (players.size() < LOBBY_MAX_PLAYERS) {
             players.add(connection);
             usernames.add(username);
+            usernamesByPlayerId.put(connection.getID(), username);
             broadcastLobbyUpdate();
             chat.sendChatHistory(connection);
             Log.info("Player joined lobby " + lobbyId + ", player count: " + players.size());
@@ -62,6 +64,8 @@ public class Lobby {
             updateMessage.setCurrentRound(currentRound);
             updateMessage.setTotalRounds(totalRounds);
             updateMessage.setSeriesActive(seriesActive);
+            updateMessage.setWinsByPlayerId(new HashMap<>(winsByPlayerId));
+            updateMessage.setWinsByUsername(new HashMap<>(getWinsByUsername()));
             connection.sendTCP(updateMessage);
             Log.info("Lobby " + lobbyId + "is full, cannot add player");
             return false;
@@ -74,6 +78,10 @@ public class Lobby {
     public boolean removePlayer(Connection connection, String username) {
         if (players.remove(connection)) {
             usernames.remove(username);
+            handlePlayerRemovalForSeries(connection);
+            if (!started) {
+                pruneSeriesState();
+            }
             broadcastLobbyUpdate();
             Log.info("Player left lobby " + lobbyId + ", player count: " + players.size());
             return true;
@@ -103,6 +111,7 @@ public class Lobby {
         if (!seriesActive) {
             startSeries();
         }
+        pruneSeriesState();
         if (!hasNextRound()) {
             Log.warn("Cannot start game - no more rounds in lobby: " + lobbyId);
             return;
@@ -138,6 +147,7 @@ public class Lobby {
         updateMessage.setTotalRounds(totalRounds);
         updateMessage.setSeriesActive(seriesActive);
         updateMessage.setWinsByPlayerId(new HashMap<>(winsByPlayerId));
+        updateMessage.setWinsByUsername(new HashMap<>(getWinsByUsername()));
         players.forEach(connection -> connection.sendTCP(updateMessage));
     }
 
@@ -151,6 +161,7 @@ public class Lobby {
     public void disposeGame() {
         gameInstance = null;
         started = false;
+        pruneSeriesState();
         broadcastLobbyUpdate();
         Log.info("Disposed game instance for lobby " + lobbyId);
     }
@@ -231,6 +242,78 @@ public class Lobby {
         roundEndMessage.setFinalRound(finalRound);
         roundEndMessage.setWinnerRole(winnerRole);
         roundEndMessage.setWinsByPlayerId(new HashMap<>(winsByPlayerId));
+        roundEndMessage.setWinsByUsername(new HashMap<>(getWinsByUsername()));
         return roundEndMessage;
+    }
+
+    private void handlePlayerRemovalForSeries(Connection connection) {
+        if (!seriesActive || connection == null) {
+            return;
+        }
+
+        for (int index = 0; index < realPlayersInOrder.size(); index++) {
+            Connection seriesConnection = realPlayersInOrder.get(index);
+            if (seriesConnection.getID() != connection.getID()) {
+                continue;
+            }
+
+            boolean keepCurrentRoundMasterUntilRoundEnds = started && index == currentRound;
+            if (keepCurrentRoundMasterUntilRoundEnds) {
+                break;
+            }
+
+            realPlayersInOrder.remove(index);
+            winsByPlayerId.remove(connection.getID());
+            if (index < currentRound) {
+                currentRound--;
+            }
+            break;
+        }
+    }
+
+    private void pruneSeriesState() {
+        if (!seriesActive) {
+            return;
+        }
+
+        for (int index = realPlayersInOrder.size() - 1; index >= 0; index--) {
+            Connection connection = realPlayersInOrder.get(index);
+            if (players.contains(connection)) {
+                continue;
+            }
+
+            realPlayersInOrder.remove(index);
+            winsByPlayerId.remove(connection.getID());
+            if (index < currentRound) {
+                currentRound--;
+            }
+        }
+
+        totalRounds = realPlayersInOrder.size();
+
+        if (realPlayersInOrder.isEmpty()) {
+            seriesActive = false;
+            currentRound = 0;
+            totalRounds = 0;
+            return;
+        }
+
+        if (currentRound < 0) {
+            currentRound = 0;
+        }
+
+        if (currentRound >= totalRounds) {
+            currentRound = totalRounds;
+            seriesActive = false;
+        }
+    }
+
+    private Map<String, Integer> getWinsByUsername() {
+        Map<String, Integer> winsByUsername = new LinkedHashMap<>();
+        winsByPlayerId.forEach((playerId, wins) -> {
+            String username = usernamesByPlayerId.getOrDefault(playerId, "Player " + playerId);
+            winsByUsername.put(username, wins);
+        });
+        return winsByUsername;
     }
 }

@@ -25,6 +25,7 @@ public class MatchRules {
         NONE,
         ALL_ZONES_CAPTURED,
         TIME_LIMIT_REACHED,
+        MASTER_DISCONNECTED,
         NO_PLAYERS_CONNECTED
     }
 
@@ -52,6 +53,11 @@ public class MatchRules {
         if (isGameTimeOver(gameTime)) {
             gameWinnerRole = PlayerRole.MASTER;
             return MatchEndReason.TIME_LIMIT_REACHED;
+        }
+
+        if (isMasterMissing(players)) {
+            gameWinnerRole = PlayerRole.OFFICER;
+            return MatchEndReason.MASTER_DISCONNECTED;
         }
 
         if (isLobbyEmpty(connections)) {
@@ -87,6 +93,10 @@ public class MatchRules {
      */
     private boolean isLobbyEmpty(Set<Connection> players) {
         return players.isEmpty();
+    }
+
+    private boolean isMasterMissing(List<Player> players) {
+        return players.stream().noneMatch(player -> player.getRole() == PlayerRole.MASTER);
     }
 
     /**

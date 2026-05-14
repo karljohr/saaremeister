@@ -21,6 +21,10 @@ public class TitleScreen extends ScreenAdapter {
     private final TextField nameField;
     private final Texture background;
     private final SpriteBatch spriteBatch;
+    private final Label connectionStatusLabel;
+    private final Label errorLabel;
+    private final TextButton startButton;
+    private final TextButton retryButton;
 
     /**
      * TitleScreen represents the main menu of the game, where players can choose to start the game or exit.
@@ -29,7 +33,7 @@ public class TitleScreen extends ScreenAdapter {
     public TitleScreen(Game game) {
         this.game = game;
 
-        background = new Texture("assets/background/map.png");
+        background = new Texture("background/map.png");
         spriteBatch = new SpriteBatch();
         Skin skin = ((Main) game).getSkin();
         stage = new Stage();
@@ -47,14 +51,26 @@ public class TitleScreen extends ScreenAdapter {
         inputStyle.font = skin.getFont("font");
         nameField = new TextField("", inputStyle);
         Label createUsernameLabel = new Label("Sisesta oma nimi:", skin, "default");
+        connectionStatusLabel = new Label("", skin, "default");
+        errorLabel = new Label("", skin, "default");
 
         // menu buttons
-        TextButton startButton = new TextButton("Liitu lobbysse", skin);
+        startButton = new TextButton("Liitu lobbysse", skin);
         startButton.addListener(event -> {
             if (!startButton.isPressed()) {
                 return false;
             }
             tryJoiningLobby(1);
+            return true;
+        });
+
+        retryButton = new TextButton("Proovi uuesti", skin);
+        retryButton.addListener(event -> {
+            if (!retryButton.isPressed()) {
+                return false;
+            }
+            pendingLobbyId = 0;
+            ServerConnection.getInstance().connect();
             return true;
         });
 
@@ -95,7 +111,16 @@ public class TitleScreen extends ScreenAdapter {
         table.row();
         table.add(exitButton).padBottom(20);
 
+        Table connectionTable = new Table();
+        connectionTable.setFillParent(true);
+        connectionTable.bottom().left();
+        connectionTable.pad(10);
+        connectionTable.add(connectionStatusLabel).left().row();
+        connectionTable.add(errorLabel).left().row();
+        connectionTable.add(retryButton).left().padTop(10);
+
         stage.addActor(table);
+        stage.addActor(connectionTable);
         stage.addActor(tutorial);
 
         // Record the input in the nameField.
@@ -107,6 +132,10 @@ public class TitleScreen extends ScreenAdapter {
      */
     private void tryJoiningLobby(int lobbyId) {
         if (pendingLobbyId != 0) {
+            return;
+        }
+
+        if (ServerConnection.getInstance().getConnectionStatus() != ServerConnection.ConnectionStatus.CONNECTED) {
             return;
         }
 
@@ -145,6 +174,8 @@ public class TitleScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        updateConnectionUi();
+
         spriteBatch.begin();
         spriteBatch.enableBlending();
         spriteBatch.setColor(1, 1, 1, 0.5f);
@@ -154,6 +185,28 @@ public class TitleScreen extends ScreenAdapter {
 
         stage.act(delta);
         stage.draw();
+    }
+
+    private void updateConnectionUi() {
+        ServerConnection connection = ServerConnection.getInstance();
+        String statusText = switch (connection.getConnectionStatus()) {
+            case CONNECTED -> "Server: uhendatud";
+            case CONNECTING -> "Server: uhendamine...";
+            case FAILED -> "Server: uhendus ebaonnestus";
+            case DISCONNECTED -> "Server: pole uhendatud";
+        };
+
+        connectionStatusLabel.setText(statusText);
+        String errorMessage = connection.getLastErrorMessage();
+        errorLabel.setText(errorMessage == null ? "" : errorMessage);
+
+        boolean connected = connection.getConnectionStatus() == ServerConnection.ConnectionStatus.CONNECTED;
+        startButton.setDisabled(!connected);
+        retryButton.setVisible(!connected);
+
+        if (!connected) {
+            pendingLobbyId = 0;
+        }
     }
 
     @Override

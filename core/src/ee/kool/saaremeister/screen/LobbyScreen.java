@@ -6,17 +6,21 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
+import ee.kool.saaremeister.utility.Ui;
+import lombok.Getter;
 import message.LobbyExitMessage;
 import message.StartGameMessage;
 
@@ -31,12 +35,16 @@ public class LobbyScreen extends ScreenAdapter {
     private final Stage stage;
     private final Game game;
     private final Skin skin;
+    @Getter
     private final int lobbyId;
     private Label playerCountLabel;
+    @Getter
     private int currentPlayerCount;
     private Label playerNameLabel;
+    @Getter
     private List<String> currentPlayerNames;
     private ChatTable chatTable;
+    @Getter
     private final String username;
     private Map<String, Integer> winsByUsername;
     private final Texture background;
@@ -53,7 +61,7 @@ public class LobbyScreen extends ScreenAdapter {
         background = new Texture("assets/background/water.png");
         spriteBatch = new SpriteBatch();
 
-        stage = new Stage();
+        stage = new Stage(Ui.createViewport());
         Gdx.input.setInputProcessor(stage);
         createUi();
     }
@@ -135,6 +143,23 @@ public class LobbyScreen extends ScreenAdapter {
             return true;
         });
 
+        // Settings button
+        TextButton settingsButton = new TextButton("Settings", skin);
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.postRunnable(() -> {
+                    game.setScreen(new SettingsScreen(
+                            game,
+                            skin,
+                            LobbyScreen.this,
+                            SettingsScreen.SettingsMode.FULL
+                    )
+                    );
+                });
+            }
+        });
+
         // Positioning the buttons.
         var table = new Table();
         table.setFillParent(true);
@@ -151,6 +176,8 @@ public class LobbyScreen extends ScreenAdapter {
         table.add(startButton).padBottom(20);
         table.row();
         table.add(helpButton).padBottom(20);
+        table.row();
+        table.add(settingsButton).padBottom(20);
         table.row();
         table.add(leaveButton);
 

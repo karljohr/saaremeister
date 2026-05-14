@@ -14,6 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.network.ServerConnection;
+import ee.kool.saaremeister.utility.AudioManager;
+import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
 import lombok.Setter;
 import message.LobbyExitMessage;
@@ -37,18 +39,17 @@ public class EndScreen extends ScreenAdapter {
     private final Map<String, Integer> winsByUsername;
     private final Texture background;
     private final SpriteBatch spriteBatch;
-    private final Music music;
 
     public EndScreen(Game game, PlayerRole gameWinnerRole, PlayerRole myRole, boolean finalRound, int lobbyId,
                      String username, int currentRound, int totalRounds, Map<String, Integer> winsByUsername) {
         this.game = game;
-        this.stage = new Stage();
+        this.stage = new Stage(Ui.createViewport());
         Skin skin = ((Main) game).getSkin();
         this.finalRound = finalRound;
         this.lobbyId = lobbyId;
         this.username = username;
         this.winsByUsername = winsByUsername;
-        this.music = Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_end.wav"));
+        AudioManager.setMusic(Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_end.wav")));
 
         background = new Texture("assets/background/grass.png");
         spriteBatch = new SpriteBatch();
@@ -118,8 +119,7 @@ public class EndScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        music.setVolume(0.2f);
-        music.play();
+        AudioManager.play();
     }
 
     @Override
@@ -128,7 +128,7 @@ public class EndScreen extends ScreenAdapter {
         stage.dispose();
         background.dispose();
         spriteBatch.dispose();
-        music.stop();
-        music.dispose();
+        AudioManager.stop();
+        AudioManager.dispose();
     }
 }

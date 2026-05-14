@@ -6,12 +6,15 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
+import ee.kool.saaremeister.utility.Ui;
 
 public class TitleScreen extends ScreenAdapter {
 
@@ -32,7 +35,7 @@ public class TitleScreen extends ScreenAdapter {
         background = new Texture("assets/background/map.png");
         spriteBatch = new SpriteBatch();
         Skin skin = ((Main) game).getSkin();
-        stage = new Stage();
+        stage = new Stage(Ui.createViewport());
 
         // NB! an important line - will make the stage listen for user input,
         // For example, when this is not set, no hover or click events will be triggered
@@ -80,6 +83,23 @@ public class TitleScreen extends ScreenAdapter {
             return true;
         });
 
+        // Settings button
+        TextButton settingsButton = new TextButton("Settings", skin);
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.postRunnable(() -> {
+                    game.setScreen(new SettingsScreen(
+                            game,
+                            skin,
+                            TitleScreen.this,
+                            SettingsScreen.SettingsMode.FULL
+                            )
+                    );
+                });
+            }
+        });
+
         // positioning the buttons. you can think of the following as a table (or flexbox) in HTML
         var table = new Table();
         table.setFillParent(true);
@@ -92,6 +112,8 @@ public class TitleScreen extends ScreenAdapter {
         table.add(startButton).padBottom(20);
         table.row();
         table.add(helpButton).padBottom(20);
+        table.row();
+        table.add(settingsButton).padBottom(20);
         table.row();
         table.add(exitButton).padBottom(20);
 

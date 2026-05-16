@@ -46,22 +46,21 @@ public class ShopPurchaseListener extends Listener {
                     } else {
                         boolean success = p.attemptPurchase(item.getPrice());
 
-                    if (success) {
-                        Log.info("Purchased " + item.getName() + " for " + p.getUsername() + ". New balance: " + p.getMoney());
-                        if (itemArmor != common.ArmorType.NONE) {
-                            p.applyArmor(itemArmor.getLevel(), itemArmor.getDefenseValue());
-                        } else if (item.getCategory() == Category.EHITISED) {
-                            // Give player building permit.
-                            p.addBuildingPermit(BuildingInfo.getTileId(item.getId()));
-                        } else if (item.getName().equals("Püstol")) {
-                            // Don't increase hotbar item count for gun
-                            Log.info(p.getUsername() + " sai püstoli.");
-                        } else {
-                            // Increase hotbar item count for potions
-                            p.addHotbarItem();
-                        }
+                        if (success) {
+                            Log.info("Purchased " + item.getName() + " for " + p.getUsername() + ". New balance: " + p.getMoney());
+                            if (itemArmor != common.ArmorType.NONE) {
+                                p.applyArmor(itemArmor.getLevel(), itemArmor.getDefenseValue());
+                            } else if (item.getCategory() == Category.EHITISED) {
+                                // Give player building permit.
+                                p.addBuildingPermit(BuildingInfo.getTileId(item.getId()));
+                            } else {
+                                p.addHotbarItem(item);
+                                if ("Püstol".equals(item.getName())) {
+                                    Log.info(p.getUsername() + " sai püstoli.");
+                                }
+                            }
 
-                        conn.sendTCP(msg);
+                            conn.sendTCP(msg);
 
                         } else {
                             Log.info(p.getUsername() + " didn't have enough money for " + item.getName());

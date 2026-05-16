@@ -3,9 +3,8 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.esotericsoftware.kryonet.Connection;
 import ee.kool.saaremeister.server.game.object.CaptureZone;
-import ee.kool.saaremeister.server.game.object.player.Master;
-import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
+import ee.kool.saaremeister.server.game.object.player.Player;
 import lombok.Getter;
 import message.dto.PlayerRole;
 
@@ -107,6 +106,8 @@ public class MatchRules {
                     player.setLives(OFFICER_LIVES);
                 }
 
+                player.resetCombatBonuses();
+
                 Body playerBody = player.getBody();
                 playerBody.setActive(true);
                 SpawnPointLoader.setRandomSpawnPoint(
@@ -135,5 +136,4 @@ public class MatchRules {
             }
         }
     }
-
 }

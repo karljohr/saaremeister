@@ -15,7 +15,7 @@ public class DamageEffects {
 
     public DamageEffects() {
         shakeTime = 0;
-        previousHealth = 10; // TODO: change after merging with branch "133-elude-riba-loomine".
+        previousHealth = 100;
     }
 
     public void checkDamage(GameStateMessage message, int myId) {
@@ -29,14 +29,14 @@ public class DamageEffects {
                 .orElse(null);
 
         if (p == null) {
-            previousHealth = 10;
+            previousHealth = 100;
             return;
         }
 
         if (p.getLives() < previousHealth && previousHealth > 0) {
             shakeTime = SHAKE_DURATION;
-            previousHealth = p.getLives();
         }
+        previousHealth = p.getLives();
     }
 
     public void affectCamera(float delta, OrthographicCamera camera) {

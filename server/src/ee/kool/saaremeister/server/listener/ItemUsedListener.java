@@ -16,15 +16,26 @@ public class ItemUsedListener extends Listener {
 
     @Override
     public void received(Connection conn, Object object) {
-        if (object instanceof ItemUsedMessage) {
+        if (object instanceof ItemUsedMessage msg) {
             Player p = activePlayers.get(conn.getID());
             if (p != null) {
-                // Check if hotbar contains anything
-                if (p.getHotbarItemCount() > 0) {
-                    p.removeHotbarItem();
-                } else {
+                Integer itemId = p.getHotbarItemId(msg.getSelectedSlot());
+                if (itemId == null) {
                     Log.warn("Mängija " + p.getUsername() + " üritas kasutada eset tühjast hotbarist!");
+                    return;
                 }
+
+                switch (itemId) {
+                    case 5 -> p.consumeHealthPotion();
+                    case 6 -> p.consumeSpeedPotion();
+                    case 7 -> p.consumeStrengthPotion();
+                    default -> {
+                        Log.warn("Mängija " + p.getUsername() + " üritas kasutada mittetarbitavat eset slotist " + msg.getSelectedSlot());
+                        return;
+                    }
+                }
+
+                p.clearHotbarSlot(msg.getSelectedSlot());
             }
         }
     }

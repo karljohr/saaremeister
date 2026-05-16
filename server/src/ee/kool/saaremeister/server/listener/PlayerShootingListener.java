@@ -36,10 +36,17 @@ public class PlayerShootingListener extends Listener {
             return;
         }
 
-        lastShotTime = now;
-        if (msg.getAim() != null && !msg.getAim().isZero(0.001f)) {
-            player.shoot(msg.getAim());
+        if (!player.canShootFromSlot(msg.getSelectedSlot())) {
+            Log.warn("Player " + connection.getID() + " attempted to shoot without pistol selected.");
+            return;
         }
+
+        if (msg.getAim() == null || msg.getAim().isZero(0.001f)) {
+            return;
+        }
+
+        lastShotTime = now;
+        player.shoot(msg.getAim());
 
         Log.info("shot msg from " + connection.getID());
     }

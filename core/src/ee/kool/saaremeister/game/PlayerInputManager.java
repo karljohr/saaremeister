@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import ee.kool.saaremeister.component.Hotbar;
 import ee.kool.saaremeister.network.ServerConnection;
+import message.ItemUsedMessage;
 import message.PlayerMovementMessage;
 import message.PlayerShootingMessage;
 import message.dto.Direction;
@@ -67,7 +68,7 @@ public class PlayerInputManager {
     /**
      * Handles the player's shooting input.
      */
-    public void handleShootingInput(float px, float py, float mx, float my) {
+    public void handleShootingInput(float px, float py, float mx, float my, int selectedSlot) {
         if (!Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) return;
 
         Vector2 aim = new Vector2(mx - px, my - py);
@@ -75,43 +76,28 @@ public class PlayerInputManager {
 
         PlayerShootingMessage msg = new PlayerShootingMessage();
         msg.setAim(aim.nor());
+        msg.setSelectedSlot(selectedSlot);
         ServerConnection.getInstance().getClient().sendTCP(msg);
     }
 
-    public void handleShootingInput() {
-        if (!Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) return;
-
-        PlayerShootingMessage msg = new PlayerShootingMessage();
-        ServerConnection.getInstance().getClient().sendTCP(msg);
-    }
-
-    public void handleActionInput(Hotbar hotbar) {
+    public void handleActionInput(Hotbar hotbar, float px, float py, float mx, float my) {
         String selected = hotbar.getSelectedItem();
-        if (selected == null) return;
-        if (hotbar.isGunSelected()) {
-            handleShootingInput();
-        }
-
         int selectedIndex = hotbar.getSelectedIndex();
 
-        // Check if selected slot 0 and has gun
         if (selectedIndex == 0 && "Püstol".equals(selected)) {
-            handleShootingInput();
+            handleShootingInput(px, py, mx, my, selectedIndex);
+        } else if (selected != null && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            hotbar.clearSlot(selectedIndex);
+            ItemUsedMessage msg = new ItemUsedMessage();
+            msg.setSelectedSlot(selectedIndex);
+            ServerConnection.getInstance().getClient().sendTCP(msg);
         }
-        // For potions left-click
-        else if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            System.out.println("Kasutati: " + selected);
-            hotbar.clearSlot(hotbar.getSelectedIndex());
-            ServerConnection.getInstance().getClient().sendTCP(new message.ItemUsedMessage());
-        }
-
     }
 
     /**
      * Stops sending shooting messages when something else is focused on.
      */
     public void stopShooting() {
-        var shootingMessage = new PlayerShootingMessage();
-        ServerConnection.getInstance().getClient().sendTCP(shootingMessage);
+        // Shooting is sent only on key press; there is no continuous fire state to clear.
     }
 }

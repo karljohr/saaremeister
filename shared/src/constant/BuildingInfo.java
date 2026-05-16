@@ -53,9 +53,9 @@ public final class BuildingInfo {
     );
 
     private static final Map<Integer, Integer> BUILDING_TO_HEALTH = Map.of(
-            BUILDING_NAME_TO_ID.get(BuildingName.WALLS), 20,
-            BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER), 10,
-            BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCHER), 10
+            BUILDING_NAME_TO_ID.get(BuildingName.WALLS), 200,
+            BUILDING_NAME_TO_ID.get(BuildingName.GUN_TOWER), 100,
+            BUILDING_NAME_TO_ID.get(BuildingName.ROCKET_LAUNCHER), 100
     );
 
     private static final Map<Integer, Integer> BUILDING_TO_RANGE = Map.of(

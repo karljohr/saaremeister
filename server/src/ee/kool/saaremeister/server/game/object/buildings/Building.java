@@ -3,7 +3,6 @@ package ee.kool.saaremeister.server.game.object.buildings;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
-import constant.Constants;
 import ee.kool.saaremeister.server.game.Box2dWorldGenerator;
 import lombok.Getter;
 import message.dto.BuildingState;
@@ -21,7 +20,7 @@ public abstract class Building {
     protected float y;
     protected final World world;
     protected int health;
-    protected  int maxHealth;
+    protected int maxHealth;
 
     protected Body body;
 
@@ -63,10 +62,10 @@ public abstract class Building {
     }
 
     /**
-     * Decreases the buildings health by bullet damage.
+     * Decreases the building's health by incoming damage.
      */
-    public void decreaseHealth() {
-        health -= (int) Constants.BULLET_DAMAGE;
+    public void decreaseHealth(float damage) {
+        health -= Math.max(1, Math.round(damage));
     }
 
     /**

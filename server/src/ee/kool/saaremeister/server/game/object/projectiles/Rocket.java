@@ -18,7 +18,7 @@ public class Rocket extends Bullet{
 
     @Getter
     private final static float BLAST_RADIUS = 0.5f;
-    private final static int DAMAGE = 2;
+    private final static int DAMAGE = 20;
     private static final float ARC_HEIGHT = 120f;
 
     public Rocket(float x, float y, Vector2 target,  int shotById) {

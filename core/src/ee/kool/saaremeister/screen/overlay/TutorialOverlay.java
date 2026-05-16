@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
+import static constant.Constants.*;
+
 /**
  * TutorialOverlay is a UI component that displays the game's manual.
  * It provides information about the goal, controls, and economy.
@@ -20,13 +22,14 @@ public class TutorialOverlay extends Table {
         this.center();
 
         try {
-            Texture backgroundTexture = new Texture(Gdx.files.internal("assets/background/sand.png"));
+            Texture backgroundTexture = new Texture(Gdx.files.internal("background/sand.png"));
             this.setBackground(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
         } catch (Exception e) {
             // If textures not found, no background
         }
 
-        String text = """
+        String text = String.format(
+                """
                 M2NGUJUHEND
                \s
                 M2NGU EESM2RK:
@@ -37,16 +40,25 @@ public class TutorialOverlay extends Table {
                 - SURM: M6lemad osapooled synnivad uuesti (respawn) 5 sekundit peale surma.
                \s
                 MAJANDUS:
-                - ALGKAPITAL: Iga m2ngija alustab m2ngu kindla rahasummaga.
-                - TULUALLIKAD: Raha teenid vastaste alistamisel ja aardekirstude leidmisel. (Coming soon)
-                - MAKSUTULU: Maksuametnikuna teenid lisaressursse iga vallutatud objekti pealt. (Coming soon)
+                - ALGKAPITAL: Iga m2ngija alustab m2ngu kindla rahasummaga (Saaremeister: %d, Maksuametnik: %d).
+                - TULUALLIKAD: Raha teenid j2rgmisetel viisidel:
+                    - vastase tapmisel (Saaremeister: %d, Maksuametnik: %d),
+                    - maksuametnikuna ehitiste lõhkumisel %d
+                    - vallutatud ala eest iga %.0f sekundi p2rast
+                      (Saaremeister: %d, Maksuametnik: %d),
+                    - aardekirstu leidmisel (Coming Soon).
                \s
                 JUHTIMINE:
                 - WASD: Liikumine
                 - SPACE: Tulistamine (sihtimine hiirega)
                 - B: Pood
                 - Ehitamise juhtimised: Ehitamise ajal all vasakus nurgas
-               \s""";
+               \s""",
+                MASTER_MONEY, OFFICER_MONEY,
+                MASTER_KILL_PROFIT, OFFICER_KILL_PROFIT,
+                OFFICER_DESTROY_PROFIT,
+                ZONE_PROFIT_INTERVAL, MASTER_ZONE_PROFIT, OFFICER_ZONE_PROFIT
+                );
 
         Label infoLabel = new Label(text, skin);
         infoLabel.setWrap(true);

@@ -13,4 +13,5 @@ public class RoundEndMessage {
     private boolean finalRound;
     private PlayerRole winnerRole;
     private HashMap<Integer, Integer> winsByPlayerId = new HashMap<>();
+    private HashMap<String, Integer> winsByUsername = new HashMap<>();
 }

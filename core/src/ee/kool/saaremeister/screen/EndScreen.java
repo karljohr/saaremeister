@@ -48,9 +48,9 @@ public class EndScreen extends ScreenAdapter {
         this.lobbyId = lobbyId;
         this.username = username;
         this.winsByUsername = winsByUsername;
-        this.music = Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_end.wav"));
+        this.music = Gdx.audio.newMusic(Gdx.files.internal("music/gameplay_retro_end.wav"));
 
-        background = new Texture("assets/background/grass.png");
+        background = new Texture("background/grass.png");
         spriteBatch = new SpriteBatch();
 
         // Will make the stage listen for user input.
@@ -60,7 +60,11 @@ public class EndScreen extends ScreenAdapter {
         Label resultLabel = new Label(resultMessage, skin, "title");
 
         Label roundLabel = new Label("Raund " + currentRound + "/" + totalRounds, skin, "default");
-        Label leaderboardLabel = new Label(winsByUsername.toString(), skin, "default");
+        Label leaderboardLabel = new Label(
+                winsByUsername == null || winsByUsername.isEmpty() ? "-" : winsByUsername.toString(),
+                skin,
+                "default"
+        );
         String exitInstruction = finalRound
                 ? "Vajuta ESC, et minna tagasi avaekraanile"
                 : "Vajuta ESC, et minna tagasi lobbyisse";

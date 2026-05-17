@@ -129,6 +129,9 @@ public class Bot extends Player {
             Vector2 playerPos = player.getBody().getPosition().cpy();
             playerPos.y -= PLAYER_PIXEL_HEIGHT /2f / PPM;
             float distance = botPos.dst2(playerPos);
+            if (!isWithinEngagementRange(distance)) {
+                continue;
+            }
             if (distance < priorityDistance) {
                 priorityDistance = distance;
                 priorityTarget = playerPos;
@@ -141,6 +144,9 @@ public class Bot extends Player {
             }
 
             float distance = botPos.dst2(building.getBody().getPosition());
+            if (!isWithinEngagementRange(distance)) {
+                continue;
+            }
             if (distance < priorityDistance) {
                 priorityDistance = distance;
                 priorityTarget = building.getBody().getPosition().cpy();
@@ -159,6 +165,9 @@ public class Bot extends Player {
             }
 
             float distance = botPos.dst2(building.getBody().getPosition());
+            if (!isWithinEngagementRange(distance)) {
+                continue;
+            }
             if (distance < fallbackDistance) {
                 fallbackDistance = distance;
                 fallbackTarget = building.getBody().getPosition().cpy();
@@ -350,10 +359,14 @@ public class Bot extends Player {
             return;
         }
 
-        if (botPos.dst(targetPos) < 15f) {
+        if (isWithinEngagementRange(botPos.dst2(targetPos))) {
             Vector2 shootDir = new Vector2(targetPos).sub(botPos).nor();
             this.shoot(shootDir);
         }
+    }
+
+    private boolean isWithinEngagementRange(float distanceSquared) {
+        return distanceSquared < BOT_ENGAGEMENT_RANGE * BOT_ENGAGEMENT_RANGE;
     }
 
     /**

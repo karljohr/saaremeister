@@ -45,6 +45,7 @@ public class Constants {
     // Bot
     public static final int BOT_LIVES = 30;
     public static final float BOT_SPEED = 100f;
+    public static final float BOT_ENGAGEMENT_RANGE = 7f;
 
     // Bullet
     public static final float BULLET_SPEED = 8.0f;

@@ -15,15 +15,12 @@ import ee.kool.saaremeister.screen.gamescreen.render.DamageEffects;
 import ee.kool.saaremeister.screen.gamescreen.render.DepthWorldRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.HealthBarRenderer;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PlayerRenderSource;
-import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.ProjectileRenderSource;
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
 import ee.kool.saaremeister.utility.AudioManager;
 import ee.kool.saaremeister.utility.DebugRenderer;
-import ee.kool.saaremeister.utility.Settings;
-import ee.kool.saaremeister.utility.SettingsManager;
 import lombok.Getter;
 import lombok.Setter;
 import message.LobbyExitMessage;
@@ -60,10 +57,6 @@ public class GameScreen extends ScreenAdapter {
     private final GameScreenInputController inputController;
     private final GameScreenUpdateController updateController;
     private final GameScreenRenderController renderController;
-    private final DepthWorldRenderer depthWorldRenderer;
-    private final HealthBarRenderer healthBarRenderer;
-    private final DamageEffects damageEffects;
-    private final Settings settings;
 
     @Setter
     @Getter
@@ -91,39 +84,29 @@ public class GameScreen extends ScreenAdapter {
         this.hud = new Hud(spriteBatch, lobbyId, username, skin);  // info overlay
         this.shopOverlay = new ShopOverlay(spriteBatch, this);
         AudioManager.setMusic(Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_main.wav")));
+        AudioManager.play();
 
         this.screenState = new GameScreenState();
         this.worldView = new GameWorldView();
         this.buildManager = new BuildManager(this);
         this.worldView.initPreview(this.buildManager);
-        this.healthBarRenderer = new HealthBarRenderer();
+        HealthBarRenderer healthBarRenderer = new HealthBarRenderer();
 
-        this.pauseOverlay = new PauseOverlay(
-                spriteBatch,
-                game,
-                this,
-                () -> screenState.setPaused(false),
-                () -> leaveMatch(game, lobbyId),
-                ((Main) game).getSkin()
-        );
-        depthWorldRenderer = new DepthWorldRenderer(
-                worldView.getStaticStructureMap(),
-                worldView.getPlacedBuildingRenderSource(),
-                new PlayerRenderSource(),
-                new ProjectileRenderSource(),
-                worldView.getPreviewRenderSource()
-        );
+        this.pauseOverlay = new PauseOverlay(spriteBatch, game, this,
+                () -> screenState.setPaused(false), () -> leaveMatch(game, lobbyId), ((Main) game).getSkin());
+        DepthWorldRenderer depthWorldRenderer = new DepthWorldRenderer(worldView.getStaticStructureMap(),
+                worldView.getPlacedBuildingRenderSource(), new PlayerRenderSource(), new ProjectileRenderSource(),
+                worldView.getPreviewRenderSource());
 
         this.debugRenderer = new DebugRenderer();
 
         this.inputController = new GameScreenInputController(hud, shopOverlay, screenState, lobbyId, pauseOverlay);
-        this.damageEffects = new DamageEffects();
-        this.updateController = new GameScreenUpdateController(game, myId, gameStateManager, playerInputManager, arena,
+        DamageEffects damageEffects = new DamageEffects();
+        this.updateController = new GameScreenUpdateController(myId, gameStateManager, playerInputManager, arena,
                 hud, buildManager, worldView, screenState, healthBarRenderer, damageEffects);
         this.renderController = new GameScreenRenderController(spriteBatch, shapeRenderer, arena, hud, shopOverlay,
                 debugRenderer, worldView, screenState, healthBarRenderer, pauseOverlay, depthWorldRenderer, buildManager
         );
-        this.settings = SettingsManager.get();
 
         ServerConnection.getInstance().setStaticBodiesListener(bodies -> Gdx.app.postRunnable(() ->
                 debugRenderer.loadStaticBodies(Arrays.asList(bodies))));
@@ -138,7 +121,6 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         inputController.show();
-        AudioManager.play();
 
         // Determines which end screen to show, based on the server's response.
         ServerConnection.getInstance().setRoundEndListener(msg -> {
@@ -183,13 +165,9 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         if (disposed) return;
-
         disposed = true;
-        AudioManager.dispose();
-
         ServerConnection.getInstance().setRoundEndListener(null);
         ServerConnection.getInstance().setStaticBodiesListener(null);
-
         gameStateManager.dispose();
         shapeRenderer.dispose();
         spriteBatch.dispose();

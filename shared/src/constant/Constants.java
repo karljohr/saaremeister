@@ -18,7 +18,6 @@ public class Constants {
 
     // Game
     public static final int GAME_TICK_RATE = 60;
-    public static final int PLAYER_COUNT_INGAME_LIMIT = 2;
     public static final int MATCH_DURATION_SECONDS = 155;
     public static final int MAX_SLOTS = 15;
 
@@ -66,7 +65,8 @@ public class Constants {
     public static final float ROCKET_HEIGHT_IN_PIXELS = 16;
 
     // Lobby
-    public static final int LOBBY_MAX_PLAYERS = 2;
+    public static final int LOBBY_MAX_PLAYERS = 5;
+    public static final int PLAYER_COUNT_INGAME_LIMIT = 5;
 
     // Capture Zone
     public static final int CAPTURE_SECONDS_REQUIRED = 5;

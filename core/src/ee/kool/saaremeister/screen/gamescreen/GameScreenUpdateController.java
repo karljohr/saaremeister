@@ -1,6 +1,5 @@
 package ee.kool.saaremeister.screen.gamescreen;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
@@ -22,7 +21,6 @@ import message.dto.PlayerRole;
  */
 public class GameScreenUpdateController {
 
-    private final Game game;
     private final int myId;
     private PlayerRole myRole;
     private final GameStateManager gameStateManager;
@@ -38,7 +36,6 @@ public class GameScreenUpdateController {
     private final DamageEffects damageEffects;
 
     public GameScreenUpdateController(
-            Game game,
             int myId,
             GameStateManager gameStateManager,
             PlayerInputManager playerInputManager,
@@ -50,7 +47,6 @@ public class GameScreenUpdateController {
             HealthBarRenderer healthBarRenderer,
             DamageEffects damageEffects
     ) {
-        this.game = game;
         this.myId = myId;
         this.gameStateManager = gameStateManager;
         this.playerInputManager = playerInputManager;

@@ -1,5 +1,7 @@
 package ee.kool.saaremeister.screen.gamescreen;
 
+import lombok.Setter;
+
 /**
  * Contains methods for managing the state of the game screen.
  */
@@ -8,6 +10,7 @@ public class GameScreenState {
     private boolean wasChatFocused;
     private boolean buildMode;
     private boolean debugMode;
+    @Setter
     private boolean paused;
 
     boolean isShopOpen() {
@@ -44,5 +47,4 @@ public class GameScreenState {
 
     boolean isPaused() {return paused;}
 
-    public void setPaused(boolean paused) {this.paused = paused;}
 }

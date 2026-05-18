@@ -34,6 +34,10 @@ public class Player implements HasHealth {
     @Setter
     @Getter
     private int maxHealth;
+    @Getter
+    private boolean alive = true;
+    @Getter
+    private int respawnRemainingMs = 0;
 
     private float stateTime = 0f;
     private boolean moving = false;
@@ -58,16 +62,20 @@ public class Player implements HasHealth {
     /**
      * Applies the server state to the player (position, current movement, and facing).
      */
-    public void applyServerState(float nx, float ny, PlayerRole role, boolean isBot, int maxHealth, int health) {
+    public void applyServerState(float nx, float ny, PlayerRole role, boolean isBot, int maxHealth, int health,
+                                 boolean alive, int respawnRemainingMs) {
         this.role = role;
         this.isBot = isBot;
+        this.alive = alive;
+        this.respawnRemainingMs = Math.max(0, respawnRemainingMs);
+
         float dx = nx - x;
         float dy = ny - y;
 
         float eps = 0.1f;
         boolean movedX = Math.abs(dx) > eps;
         boolean movedY = Math.abs(dy) > eps;
-        moving = movedX || movedY;
+        moving = alive && (movedX || movedY);
 
         if (moving) {
             if (movedY) {
@@ -81,7 +89,6 @@ public class Player implements HasHealth {
 
         x = nx;
         y = ny;
-
         this.maxHealth = maxHealth;
         this.health = health;
     }
@@ -100,9 +107,11 @@ public class Player implements HasHealth {
             stateTime = 0f;
         }
 
-        TextureRegion frame = moving
-                ? Sprites.getPlayerAnimation(role, facing, isBot).getKeyFrame(stateTime, true)
-                : Sprites.getPlayerIdleFrame(role, facing, isBot);
+        TextureRegion frame = !alive
+                ? Sprites.getPlayerDeadFrame(role, facing, isBot)
+                : (moving
+                   ? Sprites.getPlayerAnimation(role, facing, isBot).getKeyFrame(stateTime, true)
+                   : Sprites.getPlayerIdleFrame(role, facing, isBot));
 
         spriteBatch.draw(frame, x - w / 2f, y - h / 2f, w, h);
     }

@@ -91,10 +91,7 @@ public class Hud implements Disposable {
 
         hotbarContainer.bottom();
 
-        hotbarContainer.add(hotbar)
-                .expandX()
-                .center()
-                .padBottom(20);
+        hotbarContainer.add(hotbar).expandX().center().padBottom(20);
 
         // Keep zone control and active potion effects together in the same top-left cluster.
         Table topLeftContainer = new Table();
@@ -145,21 +142,21 @@ public class Hud implements Disposable {
      */
     public void update(GameStateMessage msg, int myId, PlayerRole myRole) {
         // Updates the player's money and lives. Lives are set to 0 if the player is currently not in the game (dead).
+        timerUI.setPlayerRole(myRole);
+        zonesUI.setPlayerRole(myRole);
+        zonesUI.update(msg);
+        timerUI.update(msg);
+
         var me = msg.getPlayerStates().stream()
                 .filter(p -> p.getId() == myId)
                 .findFirst();
-        if (me.isPresent()) {
-            timerUI.setPlayerRole(myRole);
-            zonesUI.setPlayerRole(myRole);
 
-            zonesUI.update(msg);
-            timerUI.update(msg);
+        if (me.isPresent()) {
             healthUI.update(me.get());
             armorUI.update(me.get());
             moneyUI.update(me.get());
             potionEffectsUI.update(me.get());
             damageOverlay.checkDamage(me.get().getLives());
-
         } else {
             healthUI.update();
             armorUI.update();

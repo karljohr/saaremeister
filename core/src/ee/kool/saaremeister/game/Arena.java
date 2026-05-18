@@ -72,7 +72,9 @@ public class Arena {
                     playerState.getRole(),
                     playerState.isBot(),
                     playerState.getMaxHealth(),
-                    playerState.getLives()
+                    playerState.getLives(),
+                    playerState.isAlive(),
+                    playerState.getRespawnRemainingMs()
             );
         });
 

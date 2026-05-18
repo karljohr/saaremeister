@@ -48,12 +48,7 @@ public class GameStateHandler {
     ) {
         // Create player states for the game state message.
         var playerStates = new ArrayList<PlayerState>();
-        players.forEach(player -> {
-            // Only include live players in the game state.
-            if (player.isAlive()) {
-                playerStates.add(player.getPlayerState());
-            }
-        });
+        players.forEach(player -> playerStates.add(player.getPlayerState()));
 
         // Create bullet & rocket states for the game state message.
         var bulletStates = new ArrayList<BulletState>();

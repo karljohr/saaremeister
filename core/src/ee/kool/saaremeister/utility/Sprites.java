@@ -20,15 +20,23 @@ public class Sprites {
     public static final Texture bulletTexture = new Texture("sprites/bullet.png");
     public static final Texture rocketTexture = new Texture("sprites/rocket.png");
     public static final Texture rocketDownTexture = new Texture("sprites/rocket_down.png");
+    public static final Texture deadTexture = new Texture("sprites/characters/dead.png");
 
     private static final int FRAME_SIZE = 16;
     private static final float FRAME_DURATION = 0.1f;
     private static final int IDLE_COLUMN = 0;
 
+    private static final int DEAD_ROW = 0;
+    private static final int DEAD_MASTER_COL = 0;
+    private static final int DEAD_OFFICER_COL = 1;
+    private static final int DEAD_BOT_COL = 2;
+
     // Player grid for the default player texture.
     private static final TextureRegion[][] defaultGrid = getPlayerGrid(playerTexture);
     // Player grid for the bot texture.
     private static final TextureRegion[][] botGrid = getPlayerGrid(botTexture);
+    // Player grid for the dead player textures.
+    private static final TextureRegion[][] deadGrid = TextureRegion.split(deadTexture, FRAME_SIZE, FRAME_SIZE);;
 
     // Mapping of the player's direction to the row in the grid.
     private static final Map<Direction, Integer> PLAYER_ROW_MAP = Map.of(
@@ -137,5 +145,30 @@ public class Sprites {
     public static TextureRegion getPlayerIdleFrame(PlayerRole role, Direction direction, boolean isBot) {
         if (isBot) return getIdleFrame(botGrid, direction, PLAYER_ROW_MAP, IDLE_COLUMN);
         return getIdleFrame(gridFor(role), direction, PLAYER_ROW_MAP, IDLE_COLUMN);
+    }
+
+    /**
+     * Returns the dead frame for the given column.
+     */
+    private static TextureRegion deadAt(int col) {
+        if (deadGrid.length <= DEAD_ROW || deadGrid[DEAD_ROW] == null || deadGrid[DEAD_ROW].length <= col) return null;
+        return deadGrid[DEAD_ROW][col];
+    }
+
+    /**
+     * Returns the dead frame for the given player role and direction.
+     */
+    public static TextureRegion getPlayerDeadFrame(PlayerRole role, Direction facing, boolean isBot) {
+        TextureRegion region;
+        if (isBot) {
+            region = deadAt(DEAD_BOT_COL);
+        } else if (role == PlayerRole.MASTER) {
+            region = deadAt(DEAD_MASTER_COL);
+        } else if (role == PlayerRole.OFFICER) {
+            region = deadAt(DEAD_OFFICER_COL);
+        } else {
+            region = null;
+        }
+        return region != null ? region : getPlayerIdleFrame(role, facing, isBot);
     }
 }

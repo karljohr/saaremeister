@@ -110,8 +110,8 @@ public abstract class Player {
         PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes, etc.
         // Adjust hit-box size as needed.
         shape.setAsBox(
-                PLAYER_PIXEL_WIDTH / 3f / PPM,
-                PLAYER_PIXEL_HEIGHT / 3f / PPM,
+                PLAYER_PIXEL_WIDTH / 2.5f / PPM,
+                PLAYER_PIXEL_HEIGHT / 2.5f / PPM,
                 new Vector2(0, 0),
                 0
         );
@@ -141,6 +141,8 @@ public abstract class Player {
         playerState.setMoney(this.money);
         playerState.setRole(role);
         playerState.setBot(this instanceof Bot);
+        playerState.setAlive(alive);
+        playerState.setRespawnRemainingMs(alive ? 0 : (int) Math.max(0L, respawnAtMs - now));
         return playerState;
     }
 

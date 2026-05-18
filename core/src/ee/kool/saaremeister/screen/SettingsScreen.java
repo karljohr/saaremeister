@@ -2,20 +2,18 @@ package ee.kool.saaremeister.screen;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
-import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.utility.AudioManager;
 import ee.kool.saaremeister.utility.Settings;
 import ee.kool.saaremeister.utility.SettingsManager;
@@ -29,6 +27,7 @@ public class SettingsScreen extends ScreenAdapter {
     private final Texture background;
     private final SpriteBatch spriteBatch;
     private final SettingsMode mode;
+    private boolean closing = false;
 
     public enum SettingsMode {
         FULL,
@@ -112,6 +111,7 @@ public class SettingsScreen extends ScreenAdapter {
         // Fullscreen
         Label displayLabel = new Label("Display Mode", descStyle);
         TextButton fullscreen = new TextButton(settings.fullscreen ? "Fullscreen" : "Windowed", skin);
+        Label escHintLabel = new Label("Esc - save and exit", descStyle);
 
         fullscreen.addListener(new ClickListener() {
             @Override
@@ -132,31 +132,7 @@ public class SettingsScreen extends ScreenAdapter {
         back.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.postRunnable(() -> {
-                    settings.save();
-
-                    if (settings.fullscreen) {
-                        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-                    } else {
-                        Gdx.graphics.setWindowedMode(settings.width, settings.height);
-                    }
-
-                    if (previous instanceof LobbyScreen p) {
-                        game.setScreen(new LobbyScreen(
-                                game,
-                                p.getLobbyId(),
-                                p.getCurrentPlayerCount(),
-                                p.getCurrentPlayerNames(),
-                                p.getUsername()
-                        ));
-                        previous.dispose();
-                    } else if (previous instanceof GameScreen g) {
-                        game.setScreen(g);
-                    } else {
-                        game.setScreen(new TitleScreen(game));
-                        previous.dispose();
-                    }
-                });
+                applySettingsAndReturn(settings);
             }
         });
 
@@ -180,13 +156,24 @@ public class SettingsScreen extends ScreenAdapter {
 
         root.add(back).pad(10);
 
+        Table hintContainer = new Table();
+        hintContainer.setFillParent(true);
+        hintContainer.top().left();
+        hintContainer.pad(24);
+        hintContainer.add(escHintLabel).left();
+
         stage.addActor(blocker);
         stage.addActor(root);
+        stage.addActor(hintContainer);
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
+
+        if (!closing && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            applySettingsAndReturn(SettingsManager.get());
+        }
 
         spriteBatch.begin();
         spriteBatch.enableBlending();
@@ -207,5 +194,41 @@ public class SettingsScreen extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+    }
+
+    /**
+     * Saves valid settings, applies the display mode, and returns to the previous screen.
+     */
+    private void applySettingsAndReturn(Settings settings) {
+        if (closing) {
+            return;
+        }
+
+        closing = true;
+        Gdx.app.postRunnable(() -> {
+            settings.save();
+
+            if (settings.fullscreen) {
+                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+            } else {
+                Gdx.graphics.setWindowedMode(settings.width, settings.height);
+            }
+
+            if (previous instanceof LobbyScreen p) {
+                game.setScreen(new LobbyScreen(
+                        game,
+                        p.getLobbyId(),
+                        p.getCurrentPlayerCount(),
+                        p.getCurrentPlayerNames(),
+                        p.getUsername()
+                ));
+                previous.dispose();
+            } else if (previous instanceof GameScreen g) {
+                game.setScreen(g);
+            } else {
+                game.setScreen(new TitleScreen(game));
+                previous.dispose();
+            }
+        });
     }
 }

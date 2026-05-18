@@ -9,20 +9,14 @@ import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.utility.Settings;
 import ee.kool.saaremeister.utility.SettingsManager;
-import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Set;
 
 /**
  * Main class of the game on the client side.
  */
 public class
 Main extends Game {
-    // Temporary local override for testing. Remove after fixing the settings issue.
-    private static final boolean FORCE_FULLSCREEN_FOR_TESTING = true;
-
     @Getter
     @Setter
     private Player player;
@@ -38,11 +32,10 @@ Main extends Game {
 
         Settings s = SettingsManager.get();
         s.load();
+        // Persist sanitized settings so an invalid saved resolution fixes itself on next launch.
+        s.save();
 
-        // Temporary, later remove to if s.fullscreen.
-        if (FORCE_FULLSCREEN_FOR_TESTING) {
-            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-        } else if (s.fullscreen) {
+        if (s.fullscreen) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         } else {
             Gdx.graphics.setWindowedMode(s.width, s.height);

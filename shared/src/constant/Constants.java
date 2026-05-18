@@ -25,7 +25,7 @@ public class Constants {
     public static final float ZONE_PROFIT_INTERVAL = 6f;
 
     // Player
-    public static final float PLAYER_SPEED = 200.0f;
+    public static final float PLAYER_SPEED = 250.0f;
     public static final int PLAYER_PIXEL_HEIGHT = 32;
     public static final int PLAYER_PIXEL_WIDTH = 32;
 
@@ -44,7 +44,7 @@ public class Constants {
 
     // Bot
     public static final int BOT_LIVES = 30;
-    public static final float BOT_SPEED = 100f;
+    public static final float BOT_SPEED = 150f;
     public static final float BOT_ENGAGEMENT_RANGE = 7f;
 
     // Bullet
@@ -70,6 +70,9 @@ public class Constants {
 
     // Capture Zone
     public static final int CAPTURE_SECONDS_REQUIRED = 5;
-    public static final int NEUTRAL_OWNER_ID = -1;
 
+    // World
+    public static final float WATER_SLOW_MULTIPLIER = 0.5f;
+    public static final String GROUND_LAYER_NAME = "ground";
+    public static final String IS_WATER_PROPERTY = "isWater";
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.0" orientation="isometric" renderorder="right-down" width="260" height="260" tilewidth="32" tileheight="16" infinite="0" parallaxoriginx="-4160" parallaxoriginy="0" nextlayerid="29" nextobjectid="1345">
+<map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="260" height="260" tilewidth="32" tileheight="16" infinite="0" parallaxoriginx="-4160" parallaxoriginy="0" nextlayerid="31" nextobjectid="1345">
  <tileset firstgid="1" source="blocks.tsx"/>
  <tileset firstgid="17" source="tank.tsx"/>
  <tileset firstgid="20" source="buildings.tsx"/>
@@ -317,19 +317,19 @@
    </properties>
    <point/>
   </object>
-  <object id="1340" name="officer_spawn_3" x="-8" y="3200">
+  <object id="1340" name="officer_spawn_3" x="60" y="3200">
    <properties>
     <property name="role" value="OFFICER"/>
    </properties>
    <point/>
   </object>
-  <object id="1341" name="officer_spawn_4" x="1408" y="4664">
+  <object id="1341" name="officer_spawn_4" x="1509" y="4643">
    <properties>
     <property name="role" value="OFFICER"/>
    </properties>
    <point/>
   </object>
-  <object id="1342" name="officer_spawn_1" x="484" y="5648">
+  <object id="1342" name="officer_spawn_1" x="466" y="5662">
    <properties>
     <property name="role" value="OFFICER"/>
    </properties>

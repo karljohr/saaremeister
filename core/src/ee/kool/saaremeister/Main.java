@@ -20,6 +20,9 @@ import java.util.Set;
  */
 public class
 Main extends Game {
+    // Temporary local override for testing. Remove after fixing the settings issue.
+    private static final boolean FORCE_FULLSCREEN_FOR_TESTING = true;
+
     @Getter
     @Setter
     private Player player;
@@ -36,7 +39,10 @@ Main extends Game {
         Settings s = SettingsManager.get();
         s.load();
 
-        if (s.fullscreen) {
+        // Temporary, later remove to if s.fullscreen.
+        if (FORCE_FULLSCREEN_FOR_TESTING) {
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        } else if (s.fullscreen) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         } else {
             Gdx.graphics.setWindowedMode(s.width, s.height);

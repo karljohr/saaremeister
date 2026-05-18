@@ -3,6 +3,7 @@ package ee.kool.saaremeister.server.game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.*;
 import ee.kool.saaremeister.server.game.object.player.Bot;
@@ -10,6 +11,7 @@ import ee.kool.saaremeister.server.game.object.player.Master;
 import ee.kool.saaremeister.server.game.object.player.Officer;
 import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
+import ee.kool.saaremeister.server.listener.ItemUsedListener;
 import ee.kool.saaremeister.server.listener.ShopPurchaseListener;
 import ee.kool.saaremeister.server.lobby.LobbyManager;
 import message.dto.PlayerRole;
@@ -36,7 +38,12 @@ public class GameConnectionManager {
     private final Set<Connection> connections;
     private final List<StaticBodyState> staticBodyData;
     private final Map<PlayerRole, List<Vector2>> spawnPoints;
+    private final Map<Integer, Listener> itemUsedListeners = new HashMap<>();
+    private final Map<Integer, Listener> shopPurchaseListeners = new HashMap<>();
 
+    /**
+     * Creates a new connection manager for one running game instance.
+     */
     public GameConnectionManager(
             LobbyManager lobbyManager,
             GameStateHandler gameStateHandler,
@@ -108,11 +115,18 @@ public class GameConnectionManager {
         players.add(newPlayer);
         connections.add(connection);
 
-       SpawnPointLoader.setRandomSpawnPoint(newPlayer, role, spawnPoints);
+        SpawnPointLoader.setRandomSpawnPoint(newPlayer, role, spawnPoints);
 
-        connection.addListener(new ee.kool.saaremeister.server.listener.ItemUsedListener(activePlayers));
+        // Remove any stale per-match listeners before wiring this connection into a new round.
+        removeGameplayListeners(connection);
 
-        connection.addListener(new ShopPurchaseListener(activePlayers));
+        Listener itemUsedListener = new ItemUsedListener(activePlayers);
+        Listener shopPurchaseListener = new ShopPurchaseListener(activePlayers);
+        itemUsedListeners.put(connection.getID(), itemUsedListener);
+        shopPurchaseListeners.put(connection.getID(), shopPurchaseListener);
+
+        connection.addListener(itemUsedListener);
+        connection.addListener(shopPurchaseListener);
 
         // Debug hitbox info
         StaticBodyState[] arr = staticBodyData.toArray(new StaticBodyState[0]);
@@ -151,9 +165,12 @@ public class GameConnectionManager {
         Player p = activePlayers.remove(connection.getID());
 
         if (p != null) {
+            p.dispose();
             players.remove(p);
             captureZones.forEach(zone -> zone.clearPlayer(p.getRole()));
         }
+
+        removeGameplayListeners(connection);
 
         var gameStateMessage = gameStateHandler.getGameStateMessage(
                 players,
@@ -164,5 +181,30 @@ public class GameConnectionManager {
         connections.forEach(c -> c.sendTCP(gameStateMessage));
 
         Log.info("Player left the game: " + connection.getID());
+    }
+
+    /**
+     * Disposes all per-match listeners and clears tracked connection state.
+     */
+    public void dispose() {
+        players.forEach(Player::dispose);
+        new ArrayList<>(connections).forEach(this::removeGameplayListeners);
+        activePlayers.clear();
+        connections.clear();
+    }
+
+    /**
+     * Removes the gameplay listeners registered for one connection.
+     */
+    private void removeGameplayListeners(Connection connection) {
+        Listener itemUsedListener = itemUsedListeners.remove(connection.getID());
+        if (itemUsedListener != null) {
+            connection.removeListener(itemUsedListener);
+        }
+
+        Listener shopPurchaseListener = shopPurchaseListeners.remove(connection.getID());
+        if (shopPurchaseListener != null) {
+            connection.removeListener(shopPurchaseListener);
+        }
     }
 }

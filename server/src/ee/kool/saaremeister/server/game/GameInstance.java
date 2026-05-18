@@ -79,7 +79,7 @@ public class GameInstance extends Thread {
                 spawnPoints
         );
 
-        GameDisposer gameDisposer = new GameDisposer(players, connections, lobbyManager, lobbyId);
+        GameDisposer gameDisposer = new GameDisposer(connectionManager, lobbyManager, lobbyId);
 
         MatchRules matchRules = new MatchRules();
         this.tickProcessor = new GameTickProcessor(

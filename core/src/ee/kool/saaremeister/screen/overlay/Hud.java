@@ -36,17 +36,22 @@ public class Hud implements Disposable {
     private final HealthUI healthUI;
     private final ArmorUI armorUI;
     private final MoneyUI moneyUI;
+    private final PotionEffectsUI potionEffectsUI;
     private final TimerUI timerUI;
     private final ZonesUI zonesUI;
     private final DamageOverlay damageOverlay;
 
 
+    /**
+     * Creates the in-game HUD and all of its child UI components.
+     */
     public Hud(SpriteBatch spriteBatch, int lobbyId, String username, Skin skin) {
         stage = new Stage(Ui.createViewport(), spriteBatch);
 
         healthUI = new HealthUI(skin);
         armorUI = new ArmorUI(skin);
         moneyUI = new MoneyUI();
+        potionEffectsUI = new PotionEffectsUI();
         timerUI = new TimerUI();
         zonesUI = new ZonesUI(skin);
 
@@ -91,6 +96,15 @@ public class Hud implements Disposable {
                 .center()
                 .padBottom(20);
 
+        // Keep zone control and active potion effects together in the same top-left cluster.
+        Table topLeftContainer = new Table();
+        topLeftContainer.setFillParent(true);
+        topLeftContainer.setTouchable(Touchable.childrenOnly);
+        topLeftContainer.top().left();
+        topLeftContainer.pad(50);
+        topLeftContainer.add(zonesUI.getActor()).left().row();
+        topLeftContainer.add(potionEffectsUI.getActor()).left().padTop(12);
+
         // BuildMode Legend
         buildLegend = new Table();
         buildLegend.setFillParent(true);
@@ -114,7 +128,7 @@ public class Hud implements Disposable {
         stage.addActor(statsTable);
         stage.addActor(chatContainer);
         stage.addActor(hotbarContainer);
-        stage.addActor(zonesUI.getActor());
+        stage.addActor(topLeftContainer);
     }
 
     public void selectHotbarSlot(int index) {
@@ -143,11 +157,13 @@ public class Hud implements Disposable {
             healthUI.update(me.get());
             armorUI.update(me.get());
             moneyUI.update(me.get());
+            potionEffectsUI.update(me.get());
             damageOverlay.checkDamage(me.get().getLives());
 
         } else {
             healthUI.update();
             armorUI.update();
+            potionEffectsUI.update(null);
             damageOverlay.checkDamage(0);
         }
     }
@@ -184,6 +200,9 @@ public class Hud implements Disposable {
         buildLegend.setVisible(!buildLegend.isVisible());
     }
 
+    /**
+     * Renders and animates the HUD.
+     */
     public void render(float delta) {
         timerUI.updatePulseTimer(delta);
         damageOverlay.update(delta);
@@ -196,5 +215,6 @@ public class Hud implements Disposable {
     public void dispose() {
         stage.dispose();
         moneyUI.dispose();
+        potionEffectsUI.dispose();
     }
 }

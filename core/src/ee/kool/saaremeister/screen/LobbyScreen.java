@@ -41,6 +41,7 @@ public class LobbyScreen extends ScreenAdapter {
     @Getter
     private int currentPlayerCount;
     private Label playerNameLabel;
+    private Label leaderboardLabel;
     @Getter
     private List<String> currentPlayerNames;
     private ChatTable chatTable;
@@ -100,10 +101,7 @@ public class LobbyScreen extends ScreenAdapter {
 
         // Leaderboard
         Label leaderboardLabelTitle = new Label("Edetabel:", skin);
-        Label leaderboardLabel = null;
-        if (winsByUsername != null) {
-            leaderboardLabel = new Label(winsByUsername.toString(), skin);
-        }
+        leaderboardLabel = new Label(formatLeaderboard(), skin);
 
         // A button to start the game.
         TextButton startButton = new TextButton("Mine saarele", skin);
@@ -214,6 +212,7 @@ public class LobbyScreen extends ScreenAdapter {
                 Gdx.app.postRunnable(() -> {
                     updatePlayerCount(msg.getPlayerCount());
                     updatePlayerNames(msg.getUsernames());
+                    updateLeaderboard(msg.getWinsByUsername());
                 });
             }
         });
@@ -255,6 +254,18 @@ public class LobbyScreen extends ScreenAdapter {
         currentPlayerNames = playerNames;
         playerNameLabel.setText(currentPlayerNames.toString());
         Log.info("Player names updated to " + currentPlayerNames);
+    }
+
+    public void updateLeaderboard(Map<String, Integer> winsByUsername) {
+        this.winsByUsername = winsByUsername;
+        leaderboardLabel.setText(formatLeaderboard());
+    }
+
+    private String formatLeaderboard() {
+        if (winsByUsername == null || winsByUsername.isEmpty()) {
+            return "-";
+        }
+        return winsByUsername.toString();
     }
 
     /**

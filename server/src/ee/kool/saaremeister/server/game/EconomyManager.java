@@ -7,12 +7,11 @@ import ee.kool.saaremeister.server.game.object.player.Player;
 import java.util.List;
 
 import static constant.Constants.GAME_TICK_RATE;
+import static constant.Constants.ZONE_PROFIT_INTERVAL;
 
 public class EconomyManager {
 
     private float zoneProfitTimer;
-
-    private static final float ZONE_PROFIT_INTERVAL = 6f;
 
     public EconomyManager() {
 

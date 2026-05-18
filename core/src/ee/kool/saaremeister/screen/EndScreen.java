@@ -61,7 +61,11 @@ public class EndScreen extends ScreenAdapter {
         Label resultLabel = new Label(resultMessage, skin, "title");
 
         Label roundLabel = new Label("Raund " + currentRound + "/" + totalRounds, skin, "default");
-        Label leaderboardLabel = new Label(winsByUsername.toString(), skin, "default");
+        Label leaderboardLabel = new Label(
+                winsByUsername == null || winsByUsername.isEmpty() ? "-" : winsByUsername.toString(),
+                skin,
+                "default"
+        );
         String exitInstruction = finalRound
                 ? "Vajuta ESC, et minna tagasi avaekraanile"
                 : "Vajuta ESC, et minna tagasi lobbyisse";

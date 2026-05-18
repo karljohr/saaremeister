@@ -166,6 +166,7 @@ public class GameTickProcessor {
                 case NO_PLAYERS_CONNECTED -> Log.info("No players connected, stopping game.");
                 case ALL_ZONES_CAPTURED -> Log.info("All zones captured by the officers, stopping game.");
                 case TIME_LIMIT_REACHED -> Log.info("Time limit reached, Island Master won, stopping game.");
+                case MASTER_DISCONNECTED -> Log.info("Island Master disconnected, officers won the round.");
             }
             connections.forEach(connection -> connection.sendTCP(finalGameStateMessage));
 

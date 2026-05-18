@@ -15,6 +15,7 @@ public class LobbyUpdateMessage {
     private int totalRounds;
     private boolean seriesActive;
     private HashMap<Integer, Integer> winsByPlayerId = new HashMap<>();
+    private HashMap<String, Integer> winsByUsername = new HashMap<>();
 
     public LobbyUpdateMessage() {
     }

@@ -7,6 +7,7 @@ import ee.kool.saaremeister.server.game.object.buildings.Building;
 import ee.kool.saaremeister.server.game.object.player.Player;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.projectiles.Rocket;
+import lombok.Setter;
 import message.dto.ExplosionState;
 import message.dto.PlayerRole;
 
@@ -22,14 +23,11 @@ public class BulletCollisionHandler {
 
     private final World world;
     private final Array<Body> worldBodies = new Array<>();
+    @Setter
     private GameInstance gameInstance;
 
     public BulletCollisionHandler(World world) {
         this.world = world;
-    }
-
-    public void setGameInstance(GameInstance gameInstance) {
-        this.gameInstance = gameInstance;
     }
 
     /**
@@ -82,6 +80,7 @@ public class BulletCollisionHandler {
                     gameInstance.addExplosion(explosionState);
                 }
                 bulletIterator.remove();
+                continue;
 
             } else {
 

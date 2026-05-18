@@ -67,15 +67,8 @@ public abstract class Player {
     /**
      * Initializes a new server/side representation of a standard player.
      */
-    public Player(
-            Connection connection,
-            int id,
-            GameInstance gameInstance,
-            World world,
-            BuildHandler buildHandler,
-            int money,
-            int lives,
-            PlayerRole role
+    public Player(Connection connection, int id, GameInstance gameInstance, World world, BuildHandler buildHandler,
+            int money, int lives, PlayerRole role
     ) {
         this.connection = connection;
         // For bots which dont have connection
@@ -117,9 +110,9 @@ public abstract class Player {
         PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes, etc.
         // Adjust hit-box size as needed.
         shape.setAsBox(
-                PLAYER_PIXEL_WIDTH / 4f / PPM,
-                PLAYER_PIXEL_HEIGHT / 8f / PPM,
-                new Vector2(0, -PLAYER_PIXEL_HEIGHT / 2f / PPM),
+                PLAYER_PIXEL_WIDTH / 3f / PPM,
+                PLAYER_PIXEL_HEIGHT / 3f / PPM,
+                new Vector2(0, 0),
                 0
         );
 
@@ -238,7 +231,7 @@ public abstract class Player {
     /**
      * Determines if the player is on a water tile, which is used to reduce the player's speed (if they are on water).
      */
-    private boolean isOnWaterTile() {
+    protected boolean isOnWaterTile() {
         if (body == null) {
             return false;
         }

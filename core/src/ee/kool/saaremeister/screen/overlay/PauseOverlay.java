@@ -1,5 +1,7 @@
 package ee.kool.saaremeister.screen.overlay;
 
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import ee.kool.saaremeister.screen.SettingsScreen;
+import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
 
 /**
@@ -33,9 +37,13 @@ public class PauseOverlay implements Disposable {
     /**
      * Creates a new pause overlay.
      */
-    public PauseOverlay(SpriteBatch spriteBatch, Runnable onResume, Runnable onLeave, Skin skin) {
-        ScreenViewport viewport = new ScreenViewport();
-        stage = new Stage(viewport, spriteBatch);
+    public PauseOverlay(SpriteBatch spriteBatch,
+                        Game game,
+                        Screen currentGameScreen,
+                        Runnable onResume,
+                        Runnable onLeave,
+                        Skin skin) {
+        stage = new Stage(Ui.createViewport(), spriteBatch);
 
         dimTexture = createDimTexture();
 
@@ -71,9 +79,25 @@ public class PauseOverlay implements Disposable {
             }
         });
 
+        // Settings button
+        TextButton settingsButton = new TextButton("Settings", skin);
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new SettingsScreen(
+                        game,
+                        skin,
+                        currentGameScreen,
+                        SettingsScreen.SettingsMode.AUDIO_ONLY
+                )
+                );
+            }
+        });
+
         panel.defaults().width(220).pad(8);
         panel.add(title).center().padBottom(16).row();
         panel.add(resumeButton).height(56).row();
+        panel.add(settingsButton).height(56).row();
         panel.add(leaveButton).height(56).row();
     }
 

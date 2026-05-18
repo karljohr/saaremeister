@@ -13,6 +13,7 @@ import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.component.Hotbar;
 import ee.kool.saaremeister.component.LabelComponent;
 import ee.kool.saaremeister.screen.overlay.Components.*;
+import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
 import message.GameStateMessage;
 import message.dto.PlayerRole;
@@ -41,7 +42,7 @@ public class Hud implements Disposable {
 
 
     public Hud(SpriteBatch spriteBatch, int lobbyId, String username, Skin skin) {
-        stage = new Stage(new ScreenViewport(), spriteBatch);
+        stage = new Stage(Ui.createViewport(), spriteBatch);
 
         healthUI = new HealthUI(skin);
         armorUI = new ArmorUI(skin);

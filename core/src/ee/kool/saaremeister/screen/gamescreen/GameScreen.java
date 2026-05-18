@@ -3,7 +3,6 @@ package ee.kool.saaremeister.screen.gamescreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -21,7 +20,10 @@ import ee.kool.saaremeister.screen.gamescreen.render.sources.ProjectileRenderSou
 import ee.kool.saaremeister.screen.overlay.Hud;
 import ee.kool.saaremeister.screen.overlay.PauseOverlay;
 import ee.kool.saaremeister.screen.overlay.ShopOverlay;
+import ee.kool.saaremeister.utility.AudioManager;
 import ee.kool.saaremeister.utility.DebugRenderer;
+import ee.kool.saaremeister.utility.Settings;
+import ee.kool.saaremeister.utility.SettingsManager;
 import lombok.Getter;
 import lombok.Setter;
 import message.LobbyExitMessage;
@@ -46,7 +48,6 @@ public class GameScreen extends ScreenAdapter {
     private final BuildManager buildManager;
     private final DebugRenderer debugRenderer;
     private final PauseOverlay pauseOverlay;
-    private final Music music;
 
     private final Game game;
     private final int lobbyId;
@@ -62,6 +63,7 @@ public class GameScreen extends ScreenAdapter {
     private final DepthWorldRenderer depthWorldRenderer;
     private final HealthBarRenderer healthBarRenderer;
     private final DamageEffects damageEffects;
+    private final Settings settings;
 
     @Setter
     @Getter
@@ -88,7 +90,7 @@ public class GameScreen extends ScreenAdapter {
         Arena arena = new Arena();  // manages players and bullets
         this.hud = new Hud(spriteBatch, lobbyId, username, skin);  // info overlay
         this.shopOverlay = new ShopOverlay(spriteBatch, this);
-        this.music = Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_main.wav"));
+        AudioManager.setMusic(Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_main.wav")));
 
         this.screenState = new GameScreenState();
         this.worldView = new GameWorldView();
@@ -98,6 +100,8 @@ public class GameScreen extends ScreenAdapter {
 
         this.pauseOverlay = new PauseOverlay(
                 spriteBatch,
+                game,
+                this,
                 () -> screenState.setPaused(false),
                 () -> leaveMatch(game, lobbyId),
                 ((Main) game).getSkin()
@@ -119,6 +123,7 @@ public class GameScreen extends ScreenAdapter {
         this.renderController = new GameScreenRenderController(spriteBatch, shapeRenderer, arena, hud, shopOverlay,
                 debugRenderer, worldView, screenState, healthBarRenderer, pauseOverlay, depthWorldRenderer, buildManager
         );
+        this.settings = SettingsManager.get();
 
         ServerConnection.getInstance().setStaticBodiesListener(bodies -> Gdx.app.postRunnable(() ->
                 debugRenderer.loadStaticBodies(Arrays.asList(bodies))));
@@ -133,8 +138,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         inputController.show();
-        music.setVolume(0.2f);
-        music.play();
+        AudioManager.play();
 
         // Determines which end screen to show, based on the server's response.
         ServerConnection.getInstance().setRoundEndListener(msg -> {
@@ -181,7 +185,7 @@ public class GameScreen extends ScreenAdapter {
         if (disposed) return;
 
         disposed = true;
-        music.dispose();
+        AudioManager.dispose();
 
         ServerConnection.getInstance().setRoundEndListener(null);
         ServerConnection.getInstance().setStaticBodiesListener(null);

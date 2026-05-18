@@ -6,6 +6,10 @@ public class AudioManager {
     private static Music music;
 
     public static void setMusic(Music m) {
+        if (music != null) {
+            music.stop();
+            music.dispose();
+        }
         music = m;
         updateVolume();
     }

@@ -7,7 +7,6 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import ee.kool.saaremeister.game.BuildManager;
-import ee.kool.saaremeister.screen.gamescreen.render.DamageEffects;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PlacedBuildingRenderSource;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.StaticStructureMap;
@@ -16,20 +15,15 @@ import lombok.Getter;
 /**
  * Controls rendering of the game world.
  */
+@Getter
 public class GameWorldView {
 
-    @Getter
     private final OrthographicCamera camera;
-    @Getter
     private final FitViewport viewport;
-    @Getter
     private final TiledMap map;
-    @Getter
     private final StaticStructureMap staticStructureMap;
     private final IsometricTiledMapRenderer renderer;
-    @Getter
     private final PlacedBuildingRenderSource placedBuildingRenderSource;
-    @Getter
     private PreviewRenderSource previewRenderSource;
 
     /**
@@ -53,10 +47,6 @@ public class GameWorldView {
                 tileId -> tileId >= 20 && tileId < 275
         );
         placedBuildingRenderSource = new PlacedBuildingRenderSource(map);
-    }
-
-    public IsometricTiledMapRenderer getRenderer() {
-        return renderer;
     }
 
     public void resize(int width, int height) {

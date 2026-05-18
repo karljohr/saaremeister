@@ -50,6 +50,7 @@ public class EndScreen extends ScreenAdapter {
         this.username = username;
         this.winsByUsername = winsByUsername;
         AudioManager.setMusic(Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_end.wav")));
+        AudioManager.play();
 
         background = new Texture("assets/background/grass.png");
         spriteBatch = new SpriteBatch();
@@ -107,6 +108,7 @@ public class EndScreen extends ScreenAdapter {
                 exitMessage.setLobbyId(lobbyId);
                 ServerConnection.getInstance().getClient().sendTCP(exitMessage);
                 game.setScreen(new TitleScreen(game));
+                this.dispose();
             } else {
                 game.setScreen(new LobbyScreen(game, lobbyId, 0, new ArrayList<>(), username,
                         winsByUsername));
@@ -122,17 +124,12 @@ public class EndScreen extends ScreenAdapter {
     }
 
     @Override
-    public void show() {
-        AudioManager.play();
-    }
-
-    @Override
     public void dispose() {
+        AudioManager.stop();
+        AudioManager.dispose();
         super.dispose();
         stage.dispose();
         background.dispose();
         spriteBatch.dispose();
-        AudioManager.stop();
-        AudioManager.dispose();
     }
 }

@@ -120,8 +120,8 @@ public class StaticStructureExtractor {
     public static GridPoint2 findBaseTile(List<GridPoint2> footprint) {
         GridPoint2 best = footprint.getFirst();
         for (GridPoint2 tile : footprint) {
-            int bestDiagonal = best.x + best.y;
-            int tileDiagonal = tile.x + tile.y;
+            int bestDiagonal = best.x - best.y;
+            int tileDiagonal = tile.x - tile.y;
             if (tileDiagonal > bestDiagonal
                     || (tileDiagonal == bestDiagonal && tile.x > best.x)) {
                 best = tile;

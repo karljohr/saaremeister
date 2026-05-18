@@ -216,7 +216,7 @@ public class Bot extends Player {
             }
 
             Vector2 direction = nextStepWorld.sub(botPos).nor();
-            getBody().setLinearVelocity(direction.scl(BOT_SPEED / PPM));
+            getBody().setLinearVelocity(direction.scl(BOT_SPEED / PPM * getWaterMultiplier()));
             return;
         }
 
@@ -231,7 +231,7 @@ public class Bot extends Player {
             getBody().setLinearVelocity(0, 0);
             return;
         }
-        getBody().setLinearVelocity(direction.nor().scl(BOT_SPEED / PPM));
+        getBody().setLinearVelocity(direction.nor().scl(BOT_SPEED / PPM * getWaterMultiplier()));
     }
 
     /**
@@ -391,6 +391,13 @@ public class Bot extends Player {
     @Override
     public void passiveIncome(int zoneCount) {
         setMoney(getMoney() + OFFICER_ZONE_PROFIT * zoneCount);
+    }
+
+    /**
+     * Returns a speed multiplier so that when the bot is in water, it is slower.
+     */
+    private float getWaterMultiplier() {
+        return isOnWaterTile() ? WATER_SLOW_MULTIPLIER : 1f;
     }
 
     @Override

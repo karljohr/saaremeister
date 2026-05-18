@@ -14,11 +14,11 @@ import ee.kool.saaremeister.server.listener.PlayerMovementListener;
 import ee.kool.saaremeister.server.listener.PlayerShootingListener;
 import lombok.Getter;
 import lombok.Setter;
-
 import message.PlayerBuildMessage;
 import message.dto.Direction;
 import message.dto.PlayerRole;
 import message.dto.PlayerState;
+import message.dto.ShopItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,9 @@ public abstract class Player {
     private int money;
     private PlayerRole role;
     private String username = "Player";
-    private int hotbarItemCount = 0;
+    private final Integer[] hotbarItemIds = new Integer[3];
+    private long speedBoostExpiresAtMs = 0L;
+    private long damageBoostExpiresAtMs = 0L;
 
     private final World world;
     private Body body;
@@ -112,12 +114,12 @@ public abstract class Player {
 
         PolygonShape shape = new PolygonShape(); // Also circleShapes, PolygonShapes, etc.
         // Adjust hit-box size as needed.
-    shape.setAsBox(
-            PLAYER_PIXEL_WIDTH / 4f / PPM,
-            PLAYER_PIXEL_HEIGHT / 8f / PPM,
-            new Vector2(0, -PLAYER_PIXEL_HEIGHT / 2f / PPM),
-            0
-    );
+        shape.setAsBox(
+                PLAYER_PIXEL_WIDTH / 4f / PPM,
+                PLAYER_PIXEL_HEIGHT / 8f / PPM,
+                new Vector2(0, -PLAYER_PIXEL_HEIGHT / 2f / PPM),
+                0
+        );
 
         fdef.shape = shape;
         body.createFixture(fdef);
@@ -155,7 +157,7 @@ public abstract class Player {
      * Moves the player in the given direction.
      */
     public void move(Direction directionX, Direction directionY) {
-        float speed = PLAYER_SPEED / PPM;
+        float speed = (PLAYER_SPEED * getSpeedMultiplier()) / PPM;
         Vector2 velocity = new Vector2(0, 0);
 
         if (directionX == Direction.LEFT) velocity.x = -speed;
@@ -186,8 +188,14 @@ public abstract class Player {
      */
     public void decreaseLives(int damage) {
         if (lives > 0) {
-            setLives(lives - damage);
+            setLives(Math.max(0, lives - damage));
         }
+    }
+
+    public void takeBulletDamage(float baseDamage) {
+        float reducedDamage = baseDamage * Math.max(0f, 1f - (defense / 100f));
+        int appliedDamage = Math.max(1, Math.round(reducedDamage));
+        decreaseLives(appliedDamage);
     }
 
     /**
@@ -206,6 +214,26 @@ public abstract class Player {
         gameInstance.addBullet(new Bullet(x, y, aim.cpy().nor(), id));
     }
 
+    public float getBulletDamage() {
+        return BULLET_DAMAGE * getDamageMultiplier();
+    }
+
+    private float getSpeedMultiplier() {
+        return isSpeedBoostActive() ? SPEED_POTION_MULTIPLIER : 1f;
+    }
+
+    private float getDamageMultiplier() {
+        return isDamageBoostActive() ? STRENGTH_POTION_MULTIPLIER : 1f;
+    }
+
+    private boolean isSpeedBoostActive() {
+        return System.currentTimeMillis() < speedBoostExpiresAtMs;
+    }
+
+    private boolean isDamageBoostActive() {
+        return System.currentTimeMillis() < damageBoostExpiresAtMs;
+    }
+
     /**
      * Attempts to buy an item.
      *
@@ -219,21 +247,66 @@ public abstract class Player {
         return false;
     }
 
-    // Don't count slot 1 since it's permanent for gun
-    // Using this only for counting potions
     public boolean isHotbarFull() {
-        return hotbarItemCount >= 2;
+        return hotbarItemIds[1] != null && hotbarItemIds[2] != null;
     }
 
-    public void addHotbarItem() {
-        this.hotbarItemCount++;
-    }
-
-    public void removeHotbarItem() {
-        if (this.hotbarItemCount > 0) {
-            this.hotbarItemCount--;
-            Log.info(username + " kasutas eseme. Hotbaris nüüd ruumi: " + (3 - hotbarItemCount));
+    public boolean addHotbarItem(ShopItem item) {
+        int slot = getTargetHotbarSlot(item);
+        if (slot < 0) {
+            return false;
         }
+        hotbarItemIds[slot] = item.getId();
+        return true;
+    }
+
+    private int getTargetHotbarSlot(ShopItem item) {
+        if (item.getCategory() == constant.Category.RELVAD) {
+            return 0;
+        }
+
+        if (item.getCategory() == constant.Category.TARVIKUD && !item.getName().contains("rüü")) {
+            if (hotbarItemIds[1] == null) return 1;
+            if (hotbarItemIds[2] == null) return 2;
+        }
+
+        return -1;
+    }
+
+    public Integer getHotbarItemId(int slot) {
+        if (slot < 0 || slot >= hotbarItemIds.length) {
+            return null;
+        }
+        return hotbarItemIds[slot];
+    }
+
+    public boolean canShootFromSlot(int selectedSlot) {
+        return selectedSlot == 0 && Objects.equals(hotbarItemIds[0], 1);
+    }
+
+    public void clearHotbarSlot(int slot) {
+        if (slot < 0 || slot >= hotbarItemIds.length) {
+            return;
+        }
+        hotbarItemIds[slot] = null;
+        Log.info(username + " kasutas eseme slotist " + slot + ".");
+    }
+
+    public void consumeHealthPotion() {
+        setLives(Math.min(maxHealth, lives + HEALTH_POTION_HEAL));
+    }
+
+    public void consumeSpeedPotion() {
+        speedBoostExpiresAtMs = System.currentTimeMillis() + SPEED_POTION_DURATION_MILLISECONDS;
+    }
+
+    public void consumeStrengthPotion() {
+        damageBoostExpiresAtMs = System.currentTimeMillis() + STRENGTH_POTION_DURATION_MILLISECONDS;
+    }
+
+    public void resetCombatBonuses() {
+        speedBoostExpiresAtMs = 0L;
+        damageBoostExpiresAtMs = 0L;
     }
 
     /**

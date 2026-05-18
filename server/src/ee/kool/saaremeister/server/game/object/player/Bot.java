@@ -37,7 +37,7 @@ public class Bot extends Player {
      * Creates a new bot player, that bypasses the network.
      */
     public Bot(int id, GameInstance gameInstance, World world, BuildHandler buildHandler) {
-        super(null, id, gameInstance, world, buildHandler, 500, 3, PlayerRole.OFFICER);
+        super(null, id, gameInstance, world, buildHandler, 500, BOT_LIVES, PlayerRole.OFFICER);
         this.setUsername("BOT_" + id);
     }
 

@@ -4,11 +4,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.server.game.object.buildings.Building;
-import ee.kool.saaremeister.server.game.object.player.Bot;
-import ee.kool.saaremeister.server.game.object.player.Master;
-import ee.kool.saaremeister.server.game.object.player.Officer;
-import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.player.Player;
+import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
 import ee.kool.saaremeister.server.game.object.projectiles.Rocket;
 import message.dto.ExplosionState;
 import message.dto.PlayerRole;
@@ -72,11 +69,9 @@ public class BulletCollisionHandler {
                         buildings
                 );
                 if (!hitPlayers.isEmpty()) {
-                    hitPlayers.forEach(player -> player.decreaseLives(rocket.getDamage()));
+                    hitPlayers.forEach(player -> player.takeBulletDamage(rocket.getDamage()));
                     Log.info("Players "
-                            + hitPlayers.stream()
-                            .map(Player::getId)
-                            .toList()
+                            + hitPlayers.stream().map(Player::getId).toList()
                             + " got hit by rocket explosion"
                     );
                 }
@@ -90,18 +85,16 @@ public class BulletCollisionHandler {
 
             } else {
 
-            // Hitting another player (not the shooter itself).
-            Player hit = findHitPlayer(bulletX, bulletY, bullet.getShotById(), players, buildings);
-            if (hit != null) {
-                hit.decreaseLives((int)BULLET_DAMAGE);
-                checkDeathAndHandleProfits(hit, bullet.getShotById(), playersById);
-                Log.info("Player " + hit.getId() + " hit by bullet from " + bullet.getShotById());
-                bulletIterator.remove();
-                continue;
+                // Hitting another player (not the shooter itself).
+                Player hit = findHitPlayer(bulletX, bulletY, bullet.getShotById(), players, buildings);
+                if (hit != null) {
+                    hit.takeBulletDamage(resolvePlayerDamage(bullet.getShotById(), playersById));
+                    checkDeathAndHandleProfits(hit, bullet.getShotById(), playersById);
+                    Log.info("Player " + hit.getId() + " hit by bullet from " + bullet.getShotById());
+                    bulletIterator.remove();
+                    continue;
+                }
             }
-
-            }
-
 
             // Hitting a blocking static body.
             if (hitsBlockingStaticBody(bulletX, bulletY, bullet.getShotById(), playersById, buildingById)) {
@@ -199,19 +192,15 @@ public class BulletCollisionHandler {
             for (Fixture fixture : body.getFixtureList()) {
                 if (fixture.testPoint(bulletX, bulletY)) {
                     if (shooterRole == PlayerRole.OFFICER) {
-                        buildingById
-                                .entrySet()
-                                .stream()
-                                .filter(entry ->
-                                        entry.getValue().getBody() == fixture.getBody())
+                        buildingById.entrySet().stream()
+                                .filter(entry -> entry.getValue().getBody() == fixture.getBody())
                                 .findAny()
                                 .ifPresent(entry -> {
-                                    entry.getValue().decreaseHealth();
+                                    entry.getValue().decreaseHealth(resolvePlayerDamage(shooterId, playersById));
                                     checkDeathAndHandleProfits(entry.getValue(), shooterId, playersById);
                                 });
                     }
                     return true;
-
                 }
             }
         }
@@ -233,6 +222,14 @@ public class BulletCollisionHandler {
         return shooterRole;
     }
 
+    private float resolvePlayerDamage(int shooterId, Map<Integer, Player> playersById) {
+        Player shooter = playersById.get(shooterId);
+        if (shooter == null) {
+            return BULLET_DAMAGE;
+        }
+        return shooter.getBulletDamage();
+    }
+
     /**
      * Checks if the player that got shot died, if so then distributes profits.
      * @param hit player that got hit.
@@ -244,7 +241,6 @@ public class BulletCollisionHandler {
         if (hit.getLives() > 0) return;
 
         playersById.get(shooterId).earnFromKill();
-
     }
 
     /**
@@ -259,6 +255,5 @@ public class BulletCollisionHandler {
 
         Player shooter = playersById.get(shooterId);
         shooter.earnFromDestroying();
-
     }
 }

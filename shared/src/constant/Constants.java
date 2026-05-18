@@ -30,19 +30,20 @@ public class Constants {
     public static final int PLAYER_PIXEL_WIDTH = 32;
 
     // Island master
-    public static final int MASTER_LIVES = 10;
+    public static final int MASTER_LIVES = 100;
     public static final int MASTER_MONEY = 1000;
     public static final int MASTER_KILL_PROFIT = 200;
     public static final int MASTER_ZONE_PROFIT = 100;
 
     // Tax officer
-    public static final int OFFICER_LIVES = 5;
+    public static final int OFFICER_LIVES = 50;
     public static final int OFFICER_MONEY = 500;
     public static final int OFFICER_KILL_PROFIT = 200;
     public static final int OFFICER_DESTROY_PROFIT = 100;
     public static final int OFFICER_ZONE_PROFIT = 50;
 
     // Bot
+    public static final int BOT_LIVES = 30;
     public static final float BOT_SPEED = 100f;
 
     // Bullet
@@ -50,7 +51,14 @@ public class Constants {
     public static final long BULLET_TIMEOUT_MILLISECONDS = 500;
     public static final float BULLET_WIDTH_IN_PIXELS = 8;
     public static final float BULLET_HEIGHT_IN_PIXELS = 8;
-    public static final float BULLET_DAMAGE = 1;
+    public static final float BULLET_DAMAGE = 10;
+
+    // Consumables
+    public static final int HEALTH_POTION_HEAL = 2;
+    public static final float SPEED_POTION_MULTIPLIER = 1.25f;
+    public static final float STRENGTH_POTION_MULTIPLIER = 1.30f;
+    public static final long SPEED_POTION_DURATION_MILLISECONDS = 10_000L;
+    public static final long STRENGTH_POTION_DURATION_MILLISECONDS = 10_000L;
 
     // Rocket
     public static final float ROCKET_WIDTH_IN_PIXELS = 16;

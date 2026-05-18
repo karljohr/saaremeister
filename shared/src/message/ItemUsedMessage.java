@@ -1,5 +1,8 @@
 package message;
 
+import lombok.Data;
+
+@Data
 public class ItemUsedMessage {
-    // Can be empty.
+    private int selectedSlot;
 }

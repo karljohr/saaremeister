@@ -6,4 +6,5 @@ import lombok.Data;
 @Data
 public class PlayerShootingMessage {
     private Vector2 aim;
+    private int selectedSlot;
 }

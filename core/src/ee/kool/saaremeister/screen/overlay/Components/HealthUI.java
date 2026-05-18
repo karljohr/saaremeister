@@ -40,8 +40,8 @@ public class HealthUI implements UIComponent<PlayerState> {
     }
 
     public void update(PlayerState me) {
-            healthBar.setValue(me.getLives() * 10);
-            healthLabel.setText(me.getLives() * 10 + " HP");
+            healthBar.setValue(me.getLives());
+            healthLabel.setText(me.getLives() + " HP");
     }
 
     public void update() {

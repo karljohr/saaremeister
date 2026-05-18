@@ -76,10 +76,6 @@ public class ZonesUI implements UIComponent<GameStateMessage> {
         }
 
         container = new Table();
-        container.setFillParent(true);
-        container.top().left();
-        container.pad(50);
-
         container.add(zonesGrid);
 
     }

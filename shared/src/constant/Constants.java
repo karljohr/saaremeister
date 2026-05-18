@@ -55,7 +55,7 @@ public class Constants {
     public static final float BULLET_DAMAGE = 10;
 
     // Consumables
-    public static final int HEALTH_POTION_HEAL = 2;
+    public static final int HEALTH_POTION_HEAL = 20;
     public static final float SPEED_POTION_MULTIPLIER = 1.25f;
     public static final float STRENGTH_POTION_MULTIPLIER = 1.30f;
     public static final long SPEED_POTION_DURATION_MILLISECONDS = 10_000L;

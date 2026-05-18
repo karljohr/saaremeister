@@ -131,6 +131,7 @@ public abstract class Player {
      */
     public PlayerState getPlayerState() {
         PlayerState playerState = new PlayerState();
+        long now = System.currentTimeMillis();
         // Instead of connection.getID() use this.id for bots.
         playerState.setId(this.id);
         playerState.setX(body.getPosition().x * PPM);
@@ -138,6 +139,9 @@ public abstract class Player {
         playerState.setLives(lives);
         playerState.setMaxHealth(maxHealth);
         playerState.setDefense(defense);
+        // Send remaining duration so the HUD can render directly.
+        playerState.setSpeedPotionRemainingMs((int) Math.max(0L, speedBoostExpiresAtMs - now));
+        playerState.setStrengthPotionRemainingMs((int) Math.max(0L, damageBoostExpiresAtMs - now));
         playerState.setUsername(username);
         playerState.setMoney(this.money);
         playerState.setRole(role);
@@ -218,18 +222,30 @@ public abstract class Player {
         return BULLET_DAMAGE * getDamageMultiplier();
     }
 
+    /**
+     * Returns the current movement multiplier from active potion effects.
+     */
     private float getSpeedMultiplier() {
         return isSpeedBoostActive() ? SPEED_POTION_MULTIPLIER : 1f;
     }
 
+    /**
+     * Returns the current bullet damage multiplier from active potion effects.
+     */
     private float getDamageMultiplier() {
         return isDamageBoostActive() ? STRENGTH_POTION_MULTIPLIER : 1f;
     }
 
+    /**
+     * Returns true while the speed potion effect has not expired.
+     */
     private boolean isSpeedBoostActive() {
         return System.currentTimeMillis() < speedBoostExpiresAtMs;
     }
 
+    /**
+     * Returns true while the strength potion effect has not expired.
+     */
     private boolean isDamageBoostActive() {
         return System.currentTimeMillis() < damageBoostExpiresAtMs;
     }
@@ -251,6 +267,9 @@ public abstract class Player {
         return hotbarItemIds[1] != null && hotbarItemIds[2] != null;
     }
 
+    /**
+     * Adds a purchased weapon or consumable to the correct hotbar slot.
+     */
     public boolean addHotbarItem(ShopItem item) {
         int slot = getTargetHotbarSlot(item);
         if (slot < 0) {
@@ -260,6 +279,9 @@ public abstract class Player {
         return true;
     }
 
+    /**
+     * Resolves the hotbar slot for an item based on its category.
+     */
     private int getTargetHotbarSlot(ShopItem item) {
         if (item.getCategory() == constant.Category.RELVAD) {
             return 0;
@@ -273,6 +295,9 @@ public abstract class Player {
         return -1;
     }
 
+    /**
+     * Returns the item id stored in the given hotbar slot.
+     */
     public Integer getHotbarItemId(int slot) {
         if (slot < 0 || slot >= hotbarItemIds.length) {
             return null;
@@ -280,10 +305,16 @@ public abstract class Player {
         return hotbarItemIds[slot];
     }
 
+    /**
+     * Returns true if the selected slot can be used to fire a gun.
+     */
     public boolean canShootFromSlot(int selectedSlot) {
         return selectedSlot == 0 && Objects.equals(hotbarItemIds[0], 1);
     }
 
+    /**
+     * Removes the item from the given hotbar slot after use.
+     */
     public void clearHotbarSlot(int slot) {
         if (slot < 0 || slot >= hotbarItemIds.length) {
             return;
@@ -292,18 +323,30 @@ public abstract class Player {
         Log.info(username + " kasutas eseme slotist " + slot + ".");
     }
 
+    /**
+     * Heals the player by the health potion amount without exceeding max health.
+     */
     public void consumeHealthPotion() {
         setLives(Math.min(maxHealth, lives + HEALTH_POTION_HEAL));
     }
 
+    /**
+     * Applies the speed potion effect for its configured duration.
+     */
     public void consumeSpeedPotion() {
         speedBoostExpiresAtMs = System.currentTimeMillis() + SPEED_POTION_DURATION_MILLISECONDS;
     }
 
+    /**
+     * Applies the strength potion effect for its configured duration.
+     */
     public void consumeStrengthPotion() {
         damageBoostExpiresAtMs = System.currentTimeMillis() + STRENGTH_POTION_DURATION_MILLISECONDS;
     }
 
+    /**
+     * Clears all temporary combat potion effects.
+     */
     public void resetCombatBonuses() {
         speedBoostExpiresAtMs = 0L;
         damageBoostExpiresAtMs = 0L;

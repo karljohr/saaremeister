@@ -1,11 +1,13 @@
 package ee.kool.saaremeister.server.game.object.player;
 
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
 import common.ShopRegistry;
 import constant.BuildingInfo;
+import ee.kool.saaremeister.server.game.Box2dWorldGenerator;
 import ee.kool.saaremeister.server.game.BuildHandler;
 import ee.kool.saaremeister.server.game.GameInstance;
 import ee.kool.saaremeister.server.game.object.projectiles.Bullet;
@@ -226,7 +228,43 @@ public abstract class Player {
      * Returns the current movement multiplier from active potion effects.
      */
     private float getSpeedMultiplier() {
-        return isSpeedBoostActive() ? SPEED_POTION_MULTIPLIER : 1f;
+        float speedMultiplier = isSpeedBoostActive() ? SPEED_POTION_MULTIPLIER : 1f;
+        if (isOnWaterTile()) {
+            speedMultiplier *= WATER_SLOW_MULTIPLIER;
+        }
+        return speedMultiplier;
+    }
+
+    /**
+     * Determines if the player is on a water tile, which is used to reduce the player's speed (if they are on water).
+     */
+    private boolean isOnWaterTile() {
+        if (body == null) {
+            return false;
+        }
+
+        Vector2 tileIndex = Box2dWorldGenerator.worldToTileIndex(body.getPosition().x, body.getPosition().y);
+        int tileX = (int) tileIndex.x;
+        int tileY = (int) tileIndex.y;
+
+        TiledMapTileLayer layer = (TiledMapTileLayer) Box2dWorldGenerator.getMap().getLayers().get(GROUND_LAYER_NAME);
+        if (layer == null) {
+            return false;
+        }
+
+        TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
+        if (cell == null || cell.getTile() == null) {
+            return false;
+        }
+
+        Object tileProperty = cell.getTile().getProperties().get(IS_WATER_PROPERTY);
+        if (tileProperty instanceof Boolean) {
+            return (Boolean) tileProperty;
+        }
+        if (tileProperty instanceof String) {
+            return Boolean.parseBoolean((String) tileProperty);
+        }
+        return false;
     }
 
     /**

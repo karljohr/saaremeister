@@ -14,6 +14,7 @@ import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import ee.kool.saaremeister.utility.Ui;
 
 public class TitleScreen extends ScreenAdapter {
@@ -66,6 +67,7 @@ public class TitleScreen extends ScreenAdapter {
             tryJoiningLobby(1);
             return true;
         });
+        SoundEffectManager.bindMenuClick(startButton);
 
         retryButton = new TextButton("Proovi uuesti", skin);
         retryButton.addListener(event -> {
@@ -76,6 +78,7 @@ public class TitleScreen extends ScreenAdapter {
             ServerConnection.getInstance().connect();
             return true;
         });
+        SoundEffectManager.bindMenuClick(retryButton);
 
         TextButton exitButton = new TextButton("Lahku", skin);
         exitButton.addListener(event -> {
@@ -85,6 +88,7 @@ public class TitleScreen extends ScreenAdapter {
             Gdx.app.exit();
             return true;
         });
+        SoundEffectManager.bindMenuClick(exitButton);
 
         var tutorial = new TutorialOverlay(skin);
 
@@ -98,6 +102,7 @@ public class TitleScreen extends ScreenAdapter {
             tutorial.toFront(); // Brings the window on top
             return true;
         });
+        SoundEffectManager.bindMenuClick(helpButton);
 
         // Settings button
         TextButton settingsButton = new TextButton("Settings", skin);
@@ -115,6 +120,7 @@ public class TitleScreen extends ScreenAdapter {
                 });
             }
         });
+        SoundEffectManager.bindMenuClick(settingsButton);
 
         // positioning the buttons. you can think of the following as a table (or flexbox) in HTML
         var table = new Table();

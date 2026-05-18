@@ -19,6 +19,7 @@ import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
 import message.LobbyExitMessage;
@@ -114,6 +115,7 @@ public class LobbyScreen extends ScreenAdapter {
             ServerConnection.getInstance().getClient().sendTCP(startMessage);
             return true;
         });
+        SoundEffectManager.bindMenuClick(startButton);
 
         // A button to exit the lobby.
         TextButton leaveButton = new TextButton("Lahku lobbyst", skin);
@@ -127,6 +129,7 @@ public class LobbyScreen extends ScreenAdapter {
             ServerConnection.getInstance().getClient().sendTCP(exitMessage);
             return true;
         });
+        SoundEffectManager.bindMenuClick(leaveButton);
 
         var tutorial = new TutorialOverlay(skin);
 
@@ -140,6 +143,7 @@ public class LobbyScreen extends ScreenAdapter {
             tutorial.toFront();
             return true;
         });
+        SoundEffectManager.bindMenuClick(helpButton);
 
         // Settings button
         TextButton settingsButton = new TextButton("Settings", skin);
@@ -157,6 +161,7 @@ public class LobbyScreen extends ScreenAdapter {
                 });
             }
         });
+        SoundEffectManager.bindMenuClick(settingsButton);
 
         // Positioning the buttons.
         var table = new Table();

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import ee.kool.saaremeister.component.Hotbar;
 import ee.kool.saaremeister.network.ServerConnection;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import message.ItemUsedMessage;
 import message.PlayerMovementMessage;
 import message.PlayerShootingMessage;
@@ -87,6 +88,9 @@ public class PlayerInputManager {
         if (selectedIndex == 0 && "Püstol".equals(selected)) {
             handleShootingInput(px, py, mx, my, selectedIndex);
         } else if (selected != null && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            if (selectedIndex > 0) {
+                SoundEffectManager.playDrink();
+            }
             hotbar.clearSlot(selectedIndex);
             ItemUsedMessage msg = new ItemUsedMessage();
             msg.setSelectedSlot(selectedIndex);

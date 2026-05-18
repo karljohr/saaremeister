@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.kool.saaremeister.screen.SettingsScreen;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
 
@@ -71,6 +72,8 @@ public class PauseOverlay implements Disposable {
                 onResume.run();
             }
         });
+        SoundEffectManager.bindMenuClick(resumeButton);
+
         TextButton leaveButton = new TextButton("Lahku", skin);
         leaveButton.addListener(new ClickListener() {
             @Override
@@ -78,6 +81,7 @@ public class PauseOverlay implements Disposable {
                 onLeave.run();
             }
         });
+        SoundEffectManager.bindMenuClick(leaveButton);
 
         // Settings button
         TextButton settingsButton = new TextButton("Settings", skin);
@@ -93,6 +97,7 @@ public class PauseOverlay implements Disposable {
                 );
             }
         });
+        SoundEffectManager.bindMenuClick(settingsButton);
 
         panel.defaults().width(220).pad(8);
         panel.add(title).center().padBottom(16).row();

@@ -13,6 +13,7 @@ import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.component.Hotbar;
 import ee.kool.saaremeister.component.LabelComponent;
 import ee.kool.saaremeister.screen.overlay.Components.*;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
 import message.GameStateMessage;
@@ -40,7 +41,7 @@ public class Hud implements Disposable {
     private final TimerUI timerUI;
     private final ZonesUI zonesUI;
     private final DamageOverlay damageOverlay;
-
+    private Integer previousDefense = null;
 
     /**
      * Creates the in-game HUD and all of its child UI components.
@@ -157,11 +158,17 @@ public class Hud implements Disposable {
             moneyUI.update(me.get());
             potionEffectsUI.update(me.get());
             damageOverlay.checkDamage(me.get().getLives());
+            int defense = me.get().getDefense();
+            if (previousDefense != null && defense > previousDefense) {
+                SoundEffectManager.playArmorBought();
+            }
+            previousDefense = defense;
         } else {
             healthUI.update();
             armorUI.update();
             potionEffectsUI.update(null);
             damageOverlay.checkDamage(0);
+            previousDefense = null;
         }
     }
 

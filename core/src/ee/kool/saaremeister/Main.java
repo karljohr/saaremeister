@@ -9,6 +9,7 @@ import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.TitleScreen;
 import ee.kool.saaremeister.utility.Settings;
 import ee.kool.saaremeister.utility.SettingsManager;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,6 +35,8 @@ Main extends Game {
         s.load();
         // Persist sanitized settings so an invalid saved resolution fixes itself on next launch.
         s.save();
+
+        SoundEffectManager.init();
 
         if (s.fullscreen) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
@@ -62,6 +65,7 @@ Main extends Game {
     public void dispose() {
         super.dispose();
 
+        SoundEffectManager.dispose();
         SettingsManager.get().save();
 
         if (skin != null) {

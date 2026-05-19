@@ -16,6 +16,8 @@ public class PlayerState {
     private int money;
     private PlayerRole role;
     private boolean isBot;
+    private boolean alive;
+    private int respawnRemainingMs;
 
     /**
      * Resolves the armor tier from the current defense percentage.

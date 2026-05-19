@@ -36,7 +36,7 @@ public class ShopPurchaseListener extends Listener {
                     common.ArmorType itemArmor = common.ArmorType.fromName(item.getName());
                     boolean goesToHotbar = (itemArmor == common.ArmorType.NONE && item.getCategory() != Category.EHITISED);
 
-                    if (goesToHotbar && p.isHotbarFull()) {
+                    if (goesToHotbar && p.isHotbarFull(item)) {
                         Log.info(p.getUsername() + " hotbar on täis! Ost tühistatud.");
                         return;
                     }

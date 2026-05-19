@@ -296,8 +296,16 @@ public abstract class Player {
         return false;
     }
 
-    public boolean isHotbarFull() {
-        return hotbarItemIds[1] != null && hotbarItemIds[2] != null;
+    public boolean isHotbarFull(ShopItem item) {
+        if (item.getCategory() == constant.Category.RELVAD) {
+            return hotbarItemIds[0] != null;
+        }
+
+        if (item.getCategory() == constant.Category.TARVIKUD && !item.getName().contains("rüü")) {
+            return hotbarItemIds[1] != null && hotbarItemIds[2] != null;
+        }
+
+        return false;
     }
 
     /**

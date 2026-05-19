@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import ee.kool.saaremeister.game.Player;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.TitleScreen;
+import ee.kool.saaremeister.utility.AudioManager;
 import ee.kool.saaremeister.utility.Settings;
 import ee.kool.saaremeister.utility.SettingsManager;
 import ee.kool.saaremeister.utility.SoundEffectManager;
@@ -65,6 +66,7 @@ Main extends Game {
     public void dispose() {
         super.dispose();
 
+        AudioManager.dispose();
         SoundEffectManager.dispose();
         SettingsManager.get().save();
 

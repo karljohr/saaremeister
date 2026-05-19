@@ -14,6 +14,7 @@ import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
+import ee.kool.saaremeister.utility.AudioManager;
 import ee.kool.saaremeister.utility.SoundEffectManager;
 import ee.kool.saaremeister.utility.Ui;
 
@@ -41,6 +42,8 @@ public class TitleScreen extends ScreenAdapter {
         spriteBatch = new SpriteBatch();
         Skin skin = ((Main) game).getSkin();
         stage = new Stage(Ui.createViewport());
+
+        AudioManager.playMusic("assets/music/lobby_retro.wav", true);
 
         // NB! an important line - will make the stage listen for user input,
         // For example, when this is not set, no hover or click events will be triggered

@@ -1,12 +1,10 @@
 package ee.kool.saaremeister.screen.overlay;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import ee.kool.saaremeister.utility.SoundEffectManager;
 
@@ -18,6 +16,11 @@ import static constant.Constants.*;
  * It is designed to be shown as a popup on Title and Lobby screens.
  */
 public class TutorialOverlay extends Table {
+
+    private final Cell<ScrollPane> scrollPaneCell;
+    private final Table scrollContainer;
+    private final Label infoLabel;
+
     public TutorialOverlay(Skin skin) {
         this.setFillParent(false);
         this.center();
@@ -61,11 +64,21 @@ public class TutorialOverlay extends Table {
                 ZONE_PROFIT_INTERVAL, MASTER_ZONE_PROFIT, OFFICER_ZONE_PROFIT
                 );
 
-        Label infoLabel = new Label(text, skin);
+        infoLabel = new Label(text, skin);
         infoLabel.setWrap(true);
         infoLabel.setFontScale(0.9f);
 
-        this.add(infoLabel).width(1200).pad(40);
+        // Inner table for text
+        scrollContainer = new Table();
+        scrollContainer.add(infoLabel).pad(20).fillX().expandX();
+
+        // Scroll panel
+        ScrollPane scrollPane = new ScrollPane(scrollContainer, skin);
+        scrollPane.setScrollingDisabled(true, false);
+        scrollPane.setFadeScrollBars(false);
+
+        // Scrollable area to the main table
+        scrollPaneCell = this.add(scrollPane).pad(20);
         this.row();
 
         // Closing button
@@ -78,25 +91,44 @@ public class TutorialOverlay extends Table {
             this.setVisible(false);
             return true;
         });
-        this.add(closeButton).padBottom(40).size(200, 60);
+        this.add(closeButton).padBottom(30).size(200, 60);
 
         this.setVisible(false);
-        this.pack();
 
         updatePosition();
+    }
+
+    /**
+     * If tutorial opened and ESC is pressed, then tutorial gets closed.
+     */
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        if (this.isVisible() && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            this.setVisible(false);
+        }
     }
 
     /**
      * Updates the position of the overlay to be centered on the screen.
      */
     public void updatePosition() {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        // Calculate dynamic sizes, to consider lower resolutions
+        float targetWidth = Math.min(1000, screenWidth - 100);
+        float targetHeight = Math.min(600, screenHeight - 200);
+
+        // Scrollable areas limitations and text
+        scrollPaneCell.width(targetWidth).height(targetHeight);
+        scrollContainer.getCell(infoLabel).width(targetWidth - 60);
+
         this.pack();
 
-        // Horizontally centered
-        float x = (Gdx.graphics.getWidth() - this.getWidth()) / 2;
-
-        // Vertically 50 px from top
-        float y = Gdx.graphics.getHeight() - this.getHeight() - 50;
+        // Window to the middle of the screen
+        float x = (screenWidth - this.getWidth()) / 2;
+        float y = (screenHeight - this.getHeight()) / 2;
 
         this.setPosition(x, y);
     }

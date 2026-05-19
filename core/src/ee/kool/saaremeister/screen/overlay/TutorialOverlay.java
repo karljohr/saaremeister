@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 
 import static constant.Constants.*;
 
@@ -69,6 +70,7 @@ public class TutorialOverlay extends Table {
 
         // Closing button
         TextButton closeButton = new TextButton("Sulge", skin);
+        SoundEffectManager.bindMenuClick(closeButton);
         closeButton.addListener(event -> {
             if (!closeButton.isPressed()) {
                 return false;

@@ -16,6 +16,7 @@ import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import ee.kool.saaremeister.screen.gamescreen.render.sources.PreviewRenderSource;
 import ee.kool.saaremeister.utility.IsoMath;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import lombok.Getter;
 import lombok.Setter;
 import message.PlayerBuildMessage;
@@ -23,10 +24,8 @@ import message.RefundMessage;
 import message.dto.BuildingState;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Handles the building process in the game.
@@ -44,7 +43,6 @@ public class BuildManager {
 
     public BuildManager(GameScreen game) {
         this.game = game;
-
         currentBuildingStates = new ArrayList<>();
     }
 
@@ -93,6 +91,7 @@ public class BuildManager {
                 .getInstance()
                 .getClient()
                 .sendTCP(message);
+        SoundEffectManager.playBuild();
     }
 
     /**
@@ -103,8 +102,10 @@ public class BuildManager {
         selectedVariation = selectedBuilding;
     }
 
+    /**
+     * Updates the building states and plays a sound effect if a new building is seen.
+     */
     public void updateBuildingStates(List<BuildingState> buildingStates) {
-        currentBuildingStates = buildingStates;
+        currentBuildingStates = buildingStates != null ? buildingStates : new ArrayList<>();
     }
-
 }

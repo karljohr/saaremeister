@@ -14,6 +14,7 @@ import com.esotericsoftware.minlog.Log;
 import ee.kool.saaremeister.Main;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import ee.kool.saaremeister.utility.Ui;
 
 public class TitleScreen extends ScreenAdapter {
@@ -59,15 +60,16 @@ public class TitleScreen extends ScreenAdapter {
 
         // menu buttons
         startButton = new TextButton("Liitu lobbysse", skin);
-        startButton.addListener(event -> {
-            if (!startButton.isPressed()) {
-                return false;
+        SoundEffectManager.bindMenuClick(startButton);
+        startButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                tryJoiningLobby(1);
             }
-            tryJoiningLobby(1);
-            return true;
         });
 
         retryButton = new TextButton("Proovi uuesti", skin);
+        SoundEffectManager.bindMenuClick(retryButton);
         retryButton.addListener(event -> {
             if (!retryButton.isPressed()) {
                 return false;
@@ -78,6 +80,7 @@ public class TitleScreen extends ScreenAdapter {
         });
 
         TextButton exitButton = new TextButton("Lahku", skin);
+        SoundEffectManager.bindMenuClick(exitButton);
         exitButton.addListener(event -> {
             if (!exitButton.isPressed()) {
                 return false;
@@ -90,6 +93,7 @@ public class TitleScreen extends ScreenAdapter {
 
         // Tutorial button
         TextButton helpButton = new TextButton("Juhend", skin);
+        SoundEffectManager.bindMenuClick(helpButton);
         helpButton.addListener(event -> {
             if (!helpButton.isPressed()) {
                 return false;
@@ -101,6 +105,7 @@ public class TitleScreen extends ScreenAdapter {
 
         // Settings button
         TextButton settingsButton = new TextButton("Settings", skin);
+        SoundEffectManager.bindMenuClick(settingsButton);
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

@@ -19,6 +19,7 @@ import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
 import message.LobbyExitMessage;
@@ -105,33 +106,34 @@ public class LobbyScreen extends ScreenAdapter {
 
         // A button to start the game.
         TextButton startButton = new TextButton("Mine saarele", skin);
-        startButton.addListener(event -> {
-            if (!startButton.isPressed()) {
-                return false;
+        SoundEffectManager.bindMenuClick(startButton);
+        startButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                StartGameMessage startMessage = new StartGameMessage();
+                startMessage.setLobbyId(lobbyId);
+                ServerConnection.getInstance().getClient().sendTCP(startMessage);
             }
-            StartGameMessage startMessage = new StartGameMessage();
-            startMessage.setLobbyId(lobbyId);
-            ServerConnection.getInstance().getClient().sendTCP(startMessage);
-            return true;
         });
 
         // A button to exit the lobby.
         TextButton leaveButton = new TextButton("Lahku lobbyst", skin);
-        leaveButton.addListener(event -> {
-            if (!leaveButton.isPressed()) {
-                return false;
+        SoundEffectManager.bindMenuClick(leaveButton);
+        leaveButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.postRunnable(() -> game.setScreen(new TitleScreen(game)));
+                LobbyExitMessage exitMessage = new LobbyExitMessage();
+                exitMessage.setLobbyId(lobbyId);
+                ServerConnection.getInstance().getClient().sendTCP(exitMessage);
             }
-            Gdx.app.postRunnable(() -> game.setScreen(new TitleScreen(game)));
-            LobbyExitMessage exitMessage = new LobbyExitMessage();
-            exitMessage.setLobbyId(lobbyId);
-            ServerConnection.getInstance().getClient().sendTCP(exitMessage);
-            return true;
         });
 
         var tutorial = new TutorialOverlay(skin);
 
-        // Create tutorial button
+        // Tutorial button
         TextButton helpButton = new TextButton("Juhend", skin);
+        SoundEffectManager.bindMenuClick(helpButton);
         helpButton.addListener(event -> {
             if (!helpButton.isPressed()) {
                 return false;
@@ -143,6 +145,7 @@ public class LobbyScreen extends ScreenAdapter {
 
         // Settings button
         TextButton settingsButton = new TextButton("Settings", skin);
+        SoundEffectManager.bindMenuClick(settingsButton);
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

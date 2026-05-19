@@ -12,6 +12,7 @@ public class Settings {
     private static final int WINDOW_MARGIN = 20;
 
     public float musicVolume = 0.2f;
+    public float sfxVolume = 0.7f;
     public int width = DEFAULT_WIDTH;
     public int height = DEFAULT_HEIGHT;
     public boolean fullscreen = false;
@@ -31,6 +32,7 @@ public class Settings {
 
         Preferences prefs = getPrefs();
         prefs.putFloat("musicVolume", musicVolume);
+        prefs.putFloat("sfxVolume", sfxVolume);
         prefs.putInteger("width", width);
         prefs.putInteger("height", height);
         prefs.putBoolean("fullscreen", fullscreen);
@@ -41,6 +43,7 @@ public class Settings {
     public void load() {
         Preferences prefs = getPrefs();
         musicVolume = prefs.getFloat("musicVolume", 0.2f);
+        sfxVolume = prefs.getFloat("sfxVolume", 0.7f);
         width = prefs.getInteger("width", DEFAULT_WIDTH);
         height = prefs.getInteger("height", DEFAULT_HEIGHT);
         fullscreen = prefs.getBoolean("fullscreen", false);

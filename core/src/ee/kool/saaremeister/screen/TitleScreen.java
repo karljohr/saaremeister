@@ -60,16 +60,16 @@ public class TitleScreen extends ScreenAdapter {
 
         // menu buttons
         startButton = new TextButton("Liitu lobbysse", skin);
-        startButton.addListener(event -> {
-            if (!startButton.isPressed()) {
-                return false;
-            }
-            tryJoiningLobby(1);
-            return true;
-        });
         SoundEffectManager.bindMenuClick(startButton);
+        startButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                tryJoiningLobby(1);
+            }
+        });
 
         retryButton = new TextButton("Proovi uuesti", skin);
+        SoundEffectManager.bindMenuClick(retryButton);
         retryButton.addListener(event -> {
             if (!retryButton.isPressed()) {
                 return false;
@@ -78,9 +78,9 @@ public class TitleScreen extends ScreenAdapter {
             ServerConnection.getInstance().connect();
             return true;
         });
-        SoundEffectManager.bindMenuClick(retryButton);
 
         TextButton exitButton = new TextButton("Lahku", skin);
+        SoundEffectManager.bindMenuClick(exitButton);
         exitButton.addListener(event -> {
             if (!exitButton.isPressed()) {
                 return false;
@@ -88,12 +88,12 @@ public class TitleScreen extends ScreenAdapter {
             Gdx.app.exit();
             return true;
         });
-        SoundEffectManager.bindMenuClick(exitButton);
 
         var tutorial = new TutorialOverlay(skin);
 
         // Tutorial button
         TextButton helpButton = new TextButton("Juhend", skin);
+        SoundEffectManager.bindMenuClick(helpButton);
         helpButton.addListener(event -> {
             if (!helpButton.isPressed()) {
                 return false;
@@ -102,10 +102,10 @@ public class TitleScreen extends ScreenAdapter {
             tutorial.toFront(); // Brings the window on top
             return true;
         });
-        SoundEffectManager.bindMenuClick(helpButton);
 
         // Settings button
         TextButton settingsButton = new TextButton("Settings", skin);
+        SoundEffectManager.bindMenuClick(settingsButton);
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -120,7 +120,6 @@ public class TitleScreen extends ScreenAdapter {
                 });
             }
         });
-        SoundEffectManager.bindMenuClick(settingsButton);
 
         // positioning the buttons. you can think of the following as a table (or flexbox) in HTML
         var table = new Table();

@@ -49,7 +49,6 @@ public class PlacedBuildingRenderSource {
             } else {
                 addSingleTileBuilding(state);
             }
-            System.out.println("Added building at " + state.getX() + "," + state.getY());
         }
 
         for (BuildingState state : wallTiles) {

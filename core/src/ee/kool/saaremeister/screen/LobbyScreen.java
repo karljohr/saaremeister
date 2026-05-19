@@ -106,35 +106,34 @@ public class LobbyScreen extends ScreenAdapter {
 
         // A button to start the game.
         TextButton startButton = new TextButton("Mine saarele", skin);
-        startButton.addListener(event -> {
-            if (!startButton.isPressed()) {
-                return false;
-            }
-            StartGameMessage startMessage = new StartGameMessage();
-            startMessage.setLobbyId(lobbyId);
-            ServerConnection.getInstance().getClient().sendTCP(startMessage);
-            return true;
-        });
         SoundEffectManager.bindMenuClick(startButton);
+        startButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                StartGameMessage startMessage = new StartGameMessage();
+                startMessage.setLobbyId(lobbyId);
+                ServerConnection.getInstance().getClient().sendTCP(startMessage);
+            }
+        });
 
         // A button to exit the lobby.
         TextButton leaveButton = new TextButton("Lahku lobbyst", skin);
-        leaveButton.addListener(event -> {
-            if (!leaveButton.isPressed()) {
-                return false;
-            }
-            Gdx.app.postRunnable(() -> game.setScreen(new TitleScreen(game)));
-            LobbyExitMessage exitMessage = new LobbyExitMessage();
-            exitMessage.setLobbyId(lobbyId);
-            ServerConnection.getInstance().getClient().sendTCP(exitMessage);
-            return true;
-        });
         SoundEffectManager.bindMenuClick(leaveButton);
+        leaveButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.postRunnable(() -> game.setScreen(new TitleScreen(game)));
+                LobbyExitMessage exitMessage = new LobbyExitMessage();
+                exitMessage.setLobbyId(lobbyId);
+                ServerConnection.getInstance().getClient().sendTCP(exitMessage);
+            }
+        });
 
         var tutorial = new TutorialOverlay(skin);
 
-        // Create tutorial button
+        // Tutorial button
         TextButton helpButton = new TextButton("Juhend", skin);
+        SoundEffectManager.bindMenuClick(helpButton);
         helpButton.addListener(event -> {
             if (!helpButton.isPressed()) {
                 return false;
@@ -143,10 +142,10 @@ public class LobbyScreen extends ScreenAdapter {
             tutorial.toFront();
             return true;
         });
-        SoundEffectManager.bindMenuClick(helpButton);
 
         // Settings button
         TextButton settingsButton = new TextButton("Settings", skin);
+        SoundEffectManager.bindMenuClick(settingsButton);
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -161,7 +160,6 @@ public class LobbyScreen extends ScreenAdapter {
                 });
             }
         });
-        SoundEffectManager.bindMenuClick(settingsButton);
 
         // Positioning the buttons.
         var table = new Table();

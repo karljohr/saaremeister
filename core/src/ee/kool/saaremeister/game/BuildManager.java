@@ -40,12 +40,9 @@ public class BuildManager {
     private List<BuildingState> currentBuildingStates;
     @Setter
     private PreviewRenderSource previewRenderSource;
-    private boolean buildingsSeen = false;
-    private final Set<String> knownBuildingKeys = new HashSet<>();
 
     public BuildManager(GameScreen game) {
         this.game = game;
-
         currentBuildingStates = new ArrayList<>();
     }
 
@@ -94,6 +91,7 @@ public class BuildManager {
                 .getInstance()
                 .getClient()
                 .sendTCP(message);
+        SoundEffectManager.playBuild();
     }
 
     /**
@@ -109,28 +107,5 @@ public class BuildManager {
      */
     public void updateBuildingStates(List<BuildingState> buildingStates) {
         currentBuildingStates = buildingStates != null ? buildingStates : new ArrayList<>();
-
-        Set<String> currentKeys = new HashSet<>();
-        for (BuildingState b : currentBuildingStates) {
-            String key = buildingKey(b);
-            currentKeys.add(key);
-
-            if (buildingsSeen && !knownBuildingKeys.contains(key)) {
-                SoundEffectManager.playBuild();
-            }
-        }
-
-        knownBuildingKeys.clear();
-        knownBuildingKeys.addAll(currentKeys);
-        buildingsSeen = true;
     }
-
-    /**
-     * Returns a unique key for a building state.
-     */
-    private String buildingKey(BuildingState b) {
-        if (b.getUniqueId() != 0) return "u:" + b.getUniqueId();
-        return "p:" + b.getId() + ":" + b.getWorldX() + ":" + b.getWorldY();
-    }
-
 }

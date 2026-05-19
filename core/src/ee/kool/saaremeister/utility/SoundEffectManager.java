@@ -19,7 +19,6 @@ public final class SoundEffectManager {
     private static Sound[] bulletShots;
     private static Sound[] rocketShots;
     private static Sound rocketExplosion;
-    private static Sound[] deaths;
     private static Sound spawn;
     private static Sound drink;
     private static Sound armorBuy;
@@ -49,22 +48,14 @@ public final class SoundEffectManager {
                 "sound_effects/rocket_2.mp3"
         );
         rocketExplosion = load("sound_effects/explosion.mp3");
-        deaths = loadMany(
-                "sound_effects/death_1.mp3",
-                "sound_effects/death_2.mp3",
-                "sound_effects/death_3.mp3",
-                "sound_effects/death_4.mp3",
-                "sound_effects/death_5.mp3",
-                "sound_effects/death_6.mp3"
-        );
         spawn = load("sound_effects/spawn.mp3");
         drink = load("sound_effects/drink.mp3");
         armorBuy = load("sound_effects/armor.mp3");
         builds = loadMany(
-                "sound_effects/build_1.mp3",
-                "sound_effects/build_2.mp3",
-                "sound_effects/build_3.mp3"
+                "sound_effects/build_1.wav",
+                "sound_effects/build_2.wav"
         );
+        Gdx.app.log("SFX", "build loaded count = " + builds.length);
         capture = load("sound_effects/capture.mp3");
         lose = load("sound_effects/lose.mp3");
         menuClick = load("sound_effects/click.mp3");
@@ -85,10 +76,9 @@ public final class SoundEffectManager {
     }
 
     // Plays the given sound effect or a random sound effect from the given array.
-    public static void playBulletShot() { playRandom(bulletShots, 0.5f); }
-    public static void playRocketShot() { playRandom(rocketShots, 0.8f); }
-    public static void playRocketExplosion() { play(rocketExplosion, 1.0f); }
-    public static void playDeath() { playRandom(deaths, 1.0f); }
+    public static void playBulletShot() { playRandom(bulletShots, 0.3f); }
+    public static void playRocketShot() { playRandom(rocketShots, 0.6f); }
+    public static void playRocketExplosion() { play(rocketExplosion, 0.7f); }
     public static void playSpawn() { play(spawn, 1.0f); }
     public static void playDrink() { play(drink, 1.0f); }
     public static void playArmorBought() { play(armorBuy, 1.0f); }
@@ -104,7 +94,6 @@ public final class SoundEffectManager {
         if (!initialized) return;
         disposeMany(bulletShots);
         disposeMany(rocketShots);
-        disposeMany(deaths);
         disposeMany(builds);
         disposeOne(rocketExplosion);
         disposeOne(spawn);
@@ -138,7 +127,7 @@ public final class SoundEffectManager {
             try {
                 return Gdx.audio.newSound(Gdx.files.internal("assets/" + relativePath));
             } catch (Exception second) {
-                Log.warn("SoundEffectManager: failed to load " + relativePath);
+                Log.warn("SoundEffectManager: failed to load " + relativePath, second);
                 return null;
             }
         }

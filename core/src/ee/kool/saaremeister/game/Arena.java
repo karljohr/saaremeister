@@ -66,6 +66,7 @@ public class Arena {
                         players.add(newPlayer);
                         return newPlayer;
                     });
+
             // Update username, necessary for differentiating bot from player
             player.setUsername(playerState.getUsername());
 
@@ -80,24 +81,23 @@ public class Arena {
                     playerState.getRespawnRemainingMs()
             );
 
+            // Update role if not already set
+            if (myRole == null) {
+                myRole = gameStateMessage.getPlayerStates().stream()
+                        .filter(p -> p.getId() == myId)
+                        .map(PlayerState::getRole)
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            // Sound effects for spawning (only for the player themselves)
             Boolean wasAlive = previousAliveByPlayer.put(playerState.getId(), playerState.isAlive());
-            if (wasAlive != null) {
-                if (wasAlive && !playerState.isAlive()) {
-                    SoundEffectManager.playDeath();
-                } else if (!wasAlive && playerState.isAlive()) {
-                    SoundEffectManager.playSpawn(); // keep or remove depending on desired spawn behavior
-                }
+            if (wasAlive != null && !wasAlive && playerState.isAlive() && playerState.getId() == myId) {
+                SoundEffectManager.playSpawn();
             }
         });
 
-        if (myRole == null) {
-            myRole = gameStateMessage.getPlayerStates().stream()
-                    .filter(p -> p.getId() == myId)
-                    .map(PlayerState::getRole)
-                    .findFirst()
-                    .orElse(null);
-        }
-
+        // Sound effects for explosions
         var explosionStates = gameStateMessage.getExplosionStates();
         if (explosionStates != null) {
             for (ExplosionState explosionState : explosionStates) {
@@ -106,6 +106,7 @@ public class Arena {
             }
         }
 
+        // Sound effects for shooting
         this.bullets = gameStateMessage.getBulletStates() != null
                 ? gameStateMessage.getBulletStates()
                 : new ArrayList<>();
@@ -120,6 +121,7 @@ public class Arena {
             previousBulletCount = this.bullets.size();
         }
 
+        // Sound effects for rocket launching
         this.rockets = gameStateMessage.getRocketStates() != null
                 ? gameStateMessage.getRocketStates()
                 : new ArrayList<>();
@@ -134,6 +136,7 @@ public class Arena {
             previousRocketCount = this.rockets.size();
         }
 
+        // Sound effects for zone capturing
         this.captureZones = gameStateMessage.getCaptureZones() != null
                 ? gameStateMessage.getCaptureZones()
                 : new ArrayList<>();

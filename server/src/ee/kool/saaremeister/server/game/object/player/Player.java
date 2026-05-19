@@ -112,7 +112,7 @@ public abstract class Player {
         shape.setAsBox(
                 PLAYER_PIXEL_WIDTH / 2.5f / PPM,
                 PLAYER_PIXEL_HEIGHT / 2.5f / PPM,
-                new Vector2(0, 0),
+                new Vector2(0, -PLAYER_PIXEL_HEIGHT / 4f / PPM),
                 0
         );
 

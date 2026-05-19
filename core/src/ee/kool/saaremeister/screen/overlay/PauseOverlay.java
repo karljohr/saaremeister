@@ -65,6 +65,7 @@ public class PauseOverlay implements Disposable {
         title.setAlignment(Align.center);
 
         TextButton resumeButton = new TextButton("J2tka", skin);
+        SoundEffectManager.bindMenuClick(resumeButton);
         resumeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -72,19 +73,19 @@ public class PauseOverlay implements Disposable {
                 onResume.run();
             }
         });
-        SoundEffectManager.bindMenuClick(resumeButton);
 
         TextButton leaveButton = new TextButton("Lahku", skin);
+        SoundEffectManager.bindMenuClick(leaveButton);
         leaveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 onLeave.run();
             }
         });
-        SoundEffectManager.bindMenuClick(leaveButton);
 
         // Settings button
         TextButton settingsButton = new TextButton("Settings", skin);
+        SoundEffectManager.bindMenuClick(settingsButton);
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -97,7 +98,6 @@ public class PauseOverlay implements Disposable {
                 );
             }
         });
-        SoundEffectManager.bindMenuClick(settingsButton);
 
         panel.defaults().width(220).pad(8);
         panel.add(title).center().padBottom(16).row();

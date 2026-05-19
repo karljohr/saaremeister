@@ -140,13 +140,13 @@ public class SettingsScreen extends ScreenAdapter {
         blocker.setTouchable(Touchable.disabled);
 
         TextButton back = new TextButton("Back", skin);
+        SoundEffectManager.bindMenuClick(back);
         back.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 applySettingsAndReturn(settings);
             }
         });
-        SoundEffectManager.bindMenuClick(back);
 
         root.add(new Label("Settings", skin)).row();
 

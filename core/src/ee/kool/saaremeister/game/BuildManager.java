@@ -40,6 +40,8 @@ public class BuildManager {
     private List<BuildingState> currentBuildingStates;
     @Setter
     private PreviewRenderSource previewRenderSource;
+    private boolean buildingsSeen = false;
+    private int previousBuildingCount = 0;
 
     public BuildManager(GameScreen game) {
         this.game = game;
@@ -91,7 +93,6 @@ public class BuildManager {
                 .getInstance()
                 .getClient()
                 .sendTCP(message);
-        SoundEffectManager.playBuild();
     }
 
     /**
@@ -106,6 +107,16 @@ public class BuildManager {
      * Updates the building states and plays a sound effect if a new building is seen.
      */
     public void updateBuildingStates(List<BuildingState> buildingStates) {
-        currentBuildingStates = buildingStates != null ? buildingStates : new ArrayList<>();
+        List<BuildingState> nextStates = buildingStates != null ? buildingStates : new ArrayList<>();
+        int currentCount = nextStates.size();
+
+        if (!buildingsSeen) {
+            buildingsSeen = true;
+        } else if (currentCount > previousBuildingCount) {
+            SoundEffectManager.playBuild();
+        }
+
+        previousBuildingCount = currentCount;
+        currentBuildingStates = nextStates;
     }
 }

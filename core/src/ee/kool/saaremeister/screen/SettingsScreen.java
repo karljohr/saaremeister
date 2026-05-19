@@ -14,10 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
-import ee.kool.saaremeister.utility.AudioManager;
-import ee.kool.saaremeister.utility.Settings;
-import ee.kool.saaremeister.utility.SettingsManager;
-import ee.kool.saaremeister.utility.Ui;
+import ee.kool.saaremeister.utility.*;
 
 public class SettingsScreen extends ScreenAdapter {
 
@@ -55,7 +52,7 @@ public class SettingsScreen extends ScreenAdapter {
         root.setFillParent(true);
         root.center();
 
-        // Volume
+        // Music volume
         Label volumeLabel = new Label("Music Volume", descStyle);
         Slider volume = new Slider(0f, 1f, 0.01f, false, skin);
         volume.setValue(settings.musicVolume);
@@ -67,11 +64,24 @@ public class SettingsScreen extends ScreenAdapter {
             return false;
         });
 
+        // SFX volume
+        Label sfxLabel = new Label("SFX Volume", descStyle);
+        Slider sfx = new Slider(0f, 1f, 0.01f, false, skin);
+        sfx.setValue(settings.sfxVolume);
+
+        sfx.addListener(e -> {
+            settings.sfxVolume = sfx.getValue();
+            return false;
+        });
+
         // Resolution
         Label resolutionLabel = new Label("Resolution", descStyle);
         TextButton res1 = new TextButton("1280x720", skin);
+        SoundEffectManager.bindMenuClick(res1);
         TextButton res2 = new TextButton("1920x1080", skin);
+        SoundEffectManager.bindMenuClick(res2);
         TextButton res3 = new TextButton("2560x1440", skin);
+        SoundEffectManager.bindMenuClick(res3);
 
         res1.addListener(new ClickListener() {
             @Override
@@ -111,6 +121,7 @@ public class SettingsScreen extends ScreenAdapter {
         // Fullscreen
         Label displayLabel = new Label("Display Mode", descStyle);
         TextButton fullscreen = new TextButton(settings.fullscreen ? "Fullscreen" : "Windowed", skin);
+        SoundEffectManager.bindMenuClick(fullscreen);
         Label escHintLabel = new Label("Esc - save and exit", descStyle);
 
         fullscreen.addListener(new ClickListener() {
@@ -129,6 +140,7 @@ public class SettingsScreen extends ScreenAdapter {
         blocker.setTouchable(Touchable.disabled);
 
         TextButton back = new TextButton("Back", skin);
+        SoundEffectManager.bindMenuClick(back);
         back.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -140,6 +152,8 @@ public class SettingsScreen extends ScreenAdapter {
 
         root.add(volumeLabel).padTop(20).row();
         root.add(volume).width(300).pad(10).row();
+        root.add(sfxLabel).padTop(12).row();
+        root.add(sfx).width(300).pad(10).row();
 
         if (mode == SettingsMode.FULL) {
         root.add(resolutionLabel).padTop(20).row();

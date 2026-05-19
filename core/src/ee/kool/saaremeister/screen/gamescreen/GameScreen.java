@@ -206,9 +206,9 @@ public class GameScreen extends ScreenAdapter {
         LobbyExitMessage exitMessage = new LobbyExitMessage();
         exitMessage.setLobbyId(lobbyId);
         ServerConnection.getInstance().getClient().sendTCP(exitMessage);
-
         ServerConnection.getInstance().setStaticBodiesListener(null);
-
+        AudioManager.stop();
+        AudioManager.dispose();
         game.setScreen(new TitleScreen(game));
         dispose();
     }

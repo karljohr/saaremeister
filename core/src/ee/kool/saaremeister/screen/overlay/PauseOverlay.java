@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.kool.saaremeister.screen.SettingsScreen;
+import ee.kool.saaremeister.utility.SoundEffectManager;
 import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
 
@@ -64,6 +65,7 @@ public class PauseOverlay implements Disposable {
         title.setAlignment(Align.center);
 
         TextButton resumeButton = new TextButton("J2tka", skin);
+        SoundEffectManager.bindMenuClick(resumeButton);
         resumeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -71,7 +73,9 @@ public class PauseOverlay implements Disposable {
                 onResume.run();
             }
         });
+
         TextButton leaveButton = new TextButton("Lahku", skin);
+        SoundEffectManager.bindMenuClick(leaveButton);
         leaveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -81,6 +85,7 @@ public class PauseOverlay implements Disposable {
 
         // Settings button
         TextButton settingsButton = new TextButton("Settings", skin);
+        SoundEffectManager.bindMenuClick(settingsButton);
         settingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

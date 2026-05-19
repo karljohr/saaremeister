@@ -8,9 +8,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
@@ -48,9 +46,36 @@ public class SettingsScreen extends ScreenAdapter {
 
         Settings settings = SettingsManager.get();
 
-        Table root = new Table();
-        root.setFillParent(true);
-        root.center();
+        Table content = new Table();
+        content.top().center();
+        content.defaults().pad(8);
+
+        ScrollPane scrollPane = new ScrollPane(content, skin);
+        scrollPane.setScrollingDisabled(true, false);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setOverscroll(false, false);
+        scrollPane.setForceScroll(false, true);
+        scrollPane.setScrollbarsOnTop(true);
+
+        scrollPane.addListener(new InputListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                stage.setScrollFocus(scrollPane);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                if (stage.getScrollFocus() == scrollPane) {
+                    stage.setScrollFocus(null);
+                }
+            }
+        });
+
+        Table wrapper = new Table();
+        wrapper.setFillParent(true);
+        wrapper.center();
+        float height = Gdx.graphics.getWidth() * 0.005f;
+        wrapper.add(scrollPane).padTop(height).padBottom(height).width(Gdx.graphics.getWidth() * 0.4f).expandY().fillY();
 
         // Music volume
         Label volumeLabel = new Label("Music Volume", descStyle);
@@ -148,27 +173,27 @@ public class SettingsScreen extends ScreenAdapter {
             }
         });
 
-        root.add(new Label("Settings", skin)).row();
+        content.add(new Label("Settings", skin)).padTop(20).row();
 
-        root.add(volumeLabel).padTop(20).row();
-        root.add(volume).width(300).pad(10).row();
-        root.add(sfxLabel).padTop(12).row();
-        root.add(sfx).width(300).pad(10).row();
+        content.add(volumeLabel).padTop(20).row();
+        content.add(volume).width(300).pad(10).row();
+        content.add(sfxLabel).padTop(12).row();
+        content.add(sfx).width(300).pad(10).row();
 
         if (mode == SettingsMode.FULL) {
-        root.add(resolutionLabel).padTop(20).row();
-        root.add(res1).pad(10).row();
-        root.add(res2).pad(10).row();
-        root.add(res3).pad(10).row();
+            content.add(resolutionLabel).padTop(20).row();
+            content.add(res1).pad(10).row();
+            content.add(res2).pad(10).row();
+            content.add(res3).pad(10).row();
 
-        root.add(uiScaleLabel).padTop(20).row();
-        root.add(uiScaleSlider).width(300).pad(10).row();
+            content.add(uiScaleLabel).padTop(20).row();
+            content.add(uiScaleSlider).width(300).pad(10).row();
 
-        root.add(displayLabel).padTop(20).row();
-        root.add(fullscreen).pad(10).row();
+            content.add(displayLabel).padTop(20).row();
+            content.add(fullscreen).pad(10).row();
         }
 
-        root.add(back).pad(10);
+        content.add(back).pad(10).padBottom(40).row();
 
         Table hintContainer = new Table();
         hintContainer.setFillParent(true);
@@ -177,7 +202,7 @@ public class SettingsScreen extends ScreenAdapter {
         hintContainer.add(escHintLabel).left();
 
         stage.addActor(blocker);
-        stage.addActor(root);
+        stage.addActor(wrapper);
         stage.addActor(hintContainer);
     }
 

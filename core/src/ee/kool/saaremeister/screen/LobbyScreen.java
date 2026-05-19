@@ -19,6 +19,7 @@ import ee.kool.saaremeister.component.ChatTable;
 import ee.kool.saaremeister.network.ServerConnection;
 import ee.kool.saaremeister.screen.gamescreen.GameScreen;
 import ee.kool.saaremeister.screen.overlay.TutorialOverlay;
+import ee.kool.saaremeister.utility.AudioManager;
 import ee.kool.saaremeister.utility.SoundEffectManager;
 import ee.kool.saaremeister.utility.Ui;
 import lombok.Getter;
@@ -59,6 +60,8 @@ public class LobbyScreen extends ScreenAdapter {
         this.currentPlayerCount = initialPlayerCount;
         this.currentPlayerNames = usernames;
         this.username = username;
+
+        AudioManager.playMusic("assets/music/lobby_retro.wav", true);
 
         background = new Texture("assets/background/water.png");
         spriteBatch = new SpriteBatch();

@@ -49,8 +49,7 @@ public class EndScreen extends ScreenAdapter {
         this.lobbyId = lobbyId;
         this.username = username;
         this.winsByUsername = winsByUsername;
-        AudioManager.setMusic(Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_end.wav")));
-        AudioManager.play();
+        AudioManager.playMusic("assets/music/gameplay_retro_end.wav", false);
 
         background = new Texture("assets/background/grass.png");
         spriteBatch = new SpriteBatch();
@@ -125,8 +124,6 @@ public class EndScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        AudioManager.stop();
-        AudioManager.dispose();
         super.dispose();
         stage.dispose();
         background.dispose();

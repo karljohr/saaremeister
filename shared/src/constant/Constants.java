@@ -18,7 +18,7 @@ public class Constants {
 
     // Game
     public static final int GAME_TICK_RATE = 60;
-    public static final int MATCH_DURATION_SECONDS = 156;
+    public static final int MATCH_DURATION_SECONDS = 155;
     public static final int MAX_SLOTS = 15;
 
     public static final float ZONE_PROFIT_INTERVAL = 6f;

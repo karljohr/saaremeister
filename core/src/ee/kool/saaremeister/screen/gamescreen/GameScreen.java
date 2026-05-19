@@ -83,8 +83,7 @@ public class GameScreen extends ScreenAdapter {
         Arena arena = new Arena();  // manages players and bullets
         this.hud = new Hud(spriteBatch, lobbyId, username, skin);  // info overlay
         this.shopOverlay = new ShopOverlay(spriteBatch, this);
-        AudioManager.setMusic(Gdx.audio.newMusic(Gdx.files.internal("assets/music/gameplay_retro_main.wav")));
-        AudioManager.play();
+        AudioManager.playMusic("assets/music/gameplay_retro_main.wav", false);
 
         this.screenState = new GameScreenState();
         this.worldView = new GameWorldView();
@@ -207,8 +206,6 @@ public class GameScreen extends ScreenAdapter {
         exitMessage.setLobbyId(lobbyId);
         ServerConnection.getInstance().getClient().sendTCP(exitMessage);
         ServerConnection.getInstance().setStaticBodiesListener(null);
-        AudioManager.stop();
-        AudioManager.dispose();
         game.setScreen(new TitleScreen(game));
         dispose();
     }

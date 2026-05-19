@@ -1,32 +1,51 @@
 package ee.kool.saaremeister.screen.overlay;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import ee.kool.saaremeister.utility.SoundEffectManager;
 
-import static constant.Constants.*;
+import static constant.Constants.MASTER_KILL_PROFIT;
+import static constant.Constants.MASTER_MONEY;
+import static constant.Constants.MASTER_ZONE_PROFIT;
+import static constant.Constants.OFFICER_DESTROY_PROFIT;
+import static constant.Constants.OFFICER_KILL_PROFIT;
+import static constant.Constants.OFFICER_MONEY;
+import static constant.Constants.OFFICER_ZONE_PROFIT;
+import static constant.Constants.ZONE_PROFIT_INTERVAL;
 
 /**
  * TutorialOverlay is a UI component that displays the game's manual.
- * It provides information about the goal, controls, and economy.
  * It is designed to be shown as a popup on Title and Lobby screens.
  */
 public class TutorialOverlay extends Table {
-    public TutorialOverlay(Skin skin) {
-        this.setFillParent(false);
-        this.center();
 
+    private final Table dialogWindow;
+    private final Cell<Table> dialogCell;
+    private final Cell<ScrollPane> scrollPaneCell;
+    private final Table scrollContainer;
+    private final Label infoLabel;
+    private final ScrollPane scrollPane;
+    private final TextButton closeButton;
+
+    public TutorialOverlay(Skin skin) {
+        setFillParent(true);
+        center();
+
+        dialogWindow = new Table();
         try {
             Texture backgroundTexture = new Texture(Gdx.files.internal("background/sand.png"));
-            this.setBackground(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
+            dialogWindow.setBackground(new TextureRegionDrawable(new TextureRegion(backgroundTexture)));
         } catch (Exception e) {
-            // If textures not found, no background
+            // The tutorial still works without the decorative background.
         }
 
         String text = String.format(
@@ -59,45 +78,100 @@ public class TutorialOverlay extends Table {
                 MASTER_KILL_PROFIT, OFFICER_KILL_PROFIT,
                 OFFICER_DESTROY_PROFIT,
                 ZONE_PROFIT_INTERVAL, MASTER_ZONE_PROFIT, OFFICER_ZONE_PROFIT
-                );
+        );
 
-        Label infoLabel = new Label(text, skin);
+        infoLabel = new Label(text, skin);
         infoLabel.setWrap(true);
         infoLabel.setFontScale(0.9f);
 
-        this.add(infoLabel).width(1200).pad(40);
-        this.row();
+        // Inner table for text
+        scrollContainer = new Table();
+        scrollContainer.top().left();
+        scrollContainer.add(infoLabel).pad(30).growX().top();
 
-        // Closing button
-        TextButton closeButton = new TextButton("Sulge", skin);
+        scrollPane = new ScrollPane(scrollContainer, skin);
+        scrollPane.setScrollingDisabled(true, false);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setOverscroll(false, false);
+        scrollPane.setFlickScroll(true);
+
+        scrollPaneCell = dialogWindow.add(scrollPane).pad(20).expand().fill();
+        dialogWindow.row();
+
+        closeButton = new TextButton("Sulge", skin);
         SoundEffectManager.bindMenuClick(closeButton);
         closeButton.addListener(event -> {
             if (!closeButton.isPressed()) {
                 return false;
             }
-            this.setVisible(false);
+            close();
             return true;
         });
-        this.add(closeButton).padBottom(40).size(200, 60);
+        dialogWindow.add(closeButton).padBottom(30).size(220, 60);
 
-        this.setVisible(false);
-        this.pack();
+        dialogCell = add(dialogWindow);
 
+        setVisible(false);
         updatePosition();
     }
 
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        if (!isVisible()) {
+            return;
+        }
+
+        updatePosition();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            close();
+        }
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (visible) {
+            updatePosition();
+            scrollPane.layout();
+            scrollPane.setScrollPercentY(0f);
+        }
+    }
+
+    private void close() {
+        setVisible(false);
+    }
+
     /**
-     * Updates the position of the overlay to be centered on the screen.
+     * Keeps the tutorial centered and sized inside the currently visible UI viewport.
      */
     public void updatePosition() {
-        this.pack();
+        float viewportWidth = getStage() == null
+                ? Gdx.graphics.getWidth()
+                : getStage().getViewport().getWorldWidth();
+        float viewportHeight = getStage() == null
+                ? Gdx.graphics.getHeight()
+                : getStage().getViewport().getWorldHeight();
 
-        // Horizontally centered
-        float x = (Gdx.graphics.getWidth() - this.getWidth()) / 2;
+        float margin = Math.clamp(Math.min(viewportWidth, viewportHeight) * 0.05f, 16f, 50f);
+        float dialogWidth = Math.clamp(viewportWidth - margin * 2f, 320f, 1050f);
+        float dialogHeight = Math.clamp(viewportHeight - margin * 2f, 260f, 760f);
+        float contentPadding = Math.clamp(dialogWidth * 0.03f, 12f, 30f);
+        float buttonHeight = Math.clamp(dialogHeight * 0.08f, 44f, 60f);
 
-        // Vertically 50 px from top
-        float y = Gdx.graphics.getHeight() - this.getHeight() - 50;
+        infoLabel.setFontScale(Math.clamp(dialogWidth / 1050f, 0.65f, 0.9f));
 
-        this.setPosition(x, y);
+        dialogCell.width(dialogWidth).height(dialogHeight);
+        scrollPaneCell
+                .width(dialogWidth - 40f)
+                .height(Math.max(120f, dialogHeight - buttonHeight - 70f));
+        scrollContainer.getCell(infoLabel)
+                .width(Math.max(220f, dialogWidth - 40f - contentPadding * 2f))
+                .pad(contentPadding);
+        dialogWindow.getCell(closeButton)
+                .padBottom(Math.clamp(dialogHeight * 0.04f, 12f, 30f))
+                .size(Math.min(220f, dialogWidth - 80f), buttonHeight);
+
+        invalidateHierarchy();
     }
 }

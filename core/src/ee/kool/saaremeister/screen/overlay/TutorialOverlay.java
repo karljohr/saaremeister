@@ -4,6 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -123,9 +126,36 @@ public class TutorialOverlay extends Table {
         }
 
         updatePosition();
+
+        Stage stage = getStage();
+        if (stage != null) {
+            Vector2 stageCoords = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+            stage.screenToStageCoordinates(stageCoords);
+
+            Actor hit = stage.hit(stageCoords.x, stageCoords.y, true);
+            if (hit != null && isDescendantOf(hit, scrollPane)) {
+                stage.setScrollFocus(scrollPane);
+            } else if (stage.getScrollFocus() == scrollPane) {
+                stage.setScrollFocus(null);
+            }
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             close();
         }
+    }
+
+    /**
+     * Checks whether the actor under the mouse is inside the scrollPane somewhere in its hierarchy.
+     */
+    private boolean isDescendantOf(Actor actor, Actor parent) {
+        while (actor != null) {
+            if (actor == parent) {
+                return true;
+            }
+            actor = actor.getParent();
+        }
+        return false;
     }
 
     @Override

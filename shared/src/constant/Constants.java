@@ -30,14 +30,14 @@ public class Constants {
 
     // Island master
     public static final int MASTER_LIVES = 100;
-    public static final int MASTER_MONEY = 700;
+    public static final int MASTER_MONEY = 1000;
     public static final int MASTER_KILL_PROFIT = 100;
     public static final int MASTER_ZONE_PROFIT = 50;
 
     // Tax officer
     public static final int OFFICER_LIVES = 50;
     public static final int OFFICER_MONEY = 500;
-    public static final int OFFICER_KILL_PROFIT = 100;
+    public static final int OFFICER_KILL_PROFIT = 200;
     public static final int OFFICER_DESTROY_PROFIT = 50;
     public static final int OFFICER_ZONE_PROFIT = 50;
 

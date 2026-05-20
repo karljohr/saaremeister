@@ -42,7 +42,7 @@ public class TimerUI implements UIComponent<GameStateMessage> {
 
     public void update(GameStateMessage msg) {
 
-        int totalSeconds = Math.max(0, (int) (MATCH_DURATION_SECONDS - msg.getGameTime()));
+        int totalSeconds = Math.max(0, (int) Math.ceil(MATCH_DURATION_SECONDS - msg.getGameTime()));
         int minutes =  totalSeconds / 60;
         int seconds = totalSeconds % 60;
 

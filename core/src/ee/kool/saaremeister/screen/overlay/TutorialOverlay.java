@@ -57,10 +57,11 @@ public class TutorialOverlay extends Table {
                \s
                 M2NGU EESM2RK:
                 - SAAREMEISTER: Kaitse saart ja sellel asuvaid vallutusalasid. Sinu ylesanne on h2vitada sissetungivad\s
-                maksuametnikud ning mitte lasta neil vallutada kõik saarel olevad alad enne m2nguaja lõppu
+                maksuametnikud ning mitte lasta neil vallutada k6ik saarel olevad alad enne m2nguaja lõppu
                 - MAKSUAMETNIK: Vallutage tiimiga saarel olevaid alasid. V6iduks peab teie meeskond kontrollima k6iki\s
                 alasid enne m2nguaja l6ppu.
-                - SURM: M6lemad osapooled synnivad uuesti (respawn) 5 sekundit peale surma.
+                - SURM: M6lemad osapooled synnivad uuesti (respawn) 5 sekundit peale surma, kuid kaotavad selle käigus\s
+                k6ik oma teenitud raha.
                \s
                 MAJANDUS:
                 - ALGKAPITAL: Iga m2ngija alustab m2ngu kindla rahasummaga (Saaremeister: %d, Maksuametnik: %d).
@@ -68,14 +69,17 @@ public class TutorialOverlay extends Table {
                     - vastase tapmisel (Saaremeister: %d, Maksuametnik: %d),
                     - maksuametnikuna ehitiste lõhkumisel %d
                     - vallutatud ala eest iga %.0f sekundi p2rast
-                      (Saaremeister: %d, Maksuametnik: %d),
-                    - aardekirstu leidmisel (Coming Soon).
+                      (Saaremeister: %d, Maksuametnik: %d).
                \s
                 JUHTIMINE:
                 - WASD: Liikumine
                 - SPACE: Tulistamine (sihtimine hiirega)
                 - B: Pood
                 - Ehitamise juhtimised: Ehitamise ajal all vasakus nurgas
+               \s
+               Soovitatud on m2ngimiseks kasutada hiirt ja klaviatuuri.
+               \s
+               2ra unusta relva omale osta!
                \s""",
                 MASTER_MONEY, OFFICER_MONEY,
                 MASTER_KILL_PROFIT, OFFICER_KILL_PROFIT,
@@ -85,7 +89,7 @@ public class TutorialOverlay extends Table {
 
         infoLabel = new Label(text, skin);
         infoLabel.setWrap(true);
-        infoLabel.setFontScale(0.9f);
+        infoLabel.setFontScale(1f);
 
         // Inner table for text
         scrollContainer = new Table();

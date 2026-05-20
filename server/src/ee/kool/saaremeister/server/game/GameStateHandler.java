@@ -27,14 +27,19 @@ public class GameStateHandler {
     private boolean gameOver = false;
     private List<CaptureZoneState> captureZoneStates = new ArrayList<>();
     private PlayerRole winnerPlayerRole = null;
+    private long matchStartMs = -1L;
 
     /**
-     * Increments the game time if all players have joined.
+     * Increments the game time if all players have joined using the current time.
      */
     public void incrementGameTimeIfPlayersPresent() {
-        if (allPlayersHaveJoined) {
-            gameTime += 1f / GAME_TICK_RATE;
+        if (!allPlayersHaveJoined) return;
+
+        long now = System.currentTimeMillis();
+        if (matchStartMs < 0L) {
+            matchStartMs = now;
         }
+        gameTime = (now - matchStartMs) / 1000f;
     }
 
     /**
@@ -77,7 +82,7 @@ public class GameStateHandler {
         gameStateMessage.setBulletStates(bulletStates);
         gameStateMessage.setRocketStates(rocketStates);
         gameStateMessage.setBuildingStates(buildingStates);
-        gameStateMessage.setGameTime(Math.round(gameTime));
+        gameStateMessage.setGameTime(gameTime);
         gameStateMessage.setAllPlayersHaveJoined(allPlayersHaveJoined);
         gameStateMessage.setGameOver(gameOver);
         gameStateMessage.setCaptureZones(captureZoneStates);

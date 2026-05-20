@@ -26,10 +26,10 @@ public class ArmorUI implements UIComponent<PlayerState> {
         armorBarStyle.background.setMinHeight(15);
         armorBarStyle.knobBefore.setMinHeight(15);
 
-        armorBar = new ProgressBar(0, 100, 10, false, armorBarStyle);
+        armorBar = new ProgressBar(0, 40, 4, false, armorBarStyle);
         armorBar.setAnimateDuration(0.1f);
 
-        armorLabel = LabelComponent.createLabel("0% ARMOR", TEXT_COLOR, 20);
+        armorLabel = LabelComponent.createLabel("0 ARMOR", TEXT_COLOR, 25);
 
         root.add(livesIcon).size(24, 24).padTop(5).padLeft(14).padRight(14).left();
         root.add(armorBar).width(200);
@@ -39,7 +39,7 @@ public class ArmorUI implements UIComponent<PlayerState> {
 
     public void update(PlayerState me) {
             armorBar.setValue(me.getDefense());
-            armorLabel.setText(me.getDefense() + "% ARMOR");
+            armorLabel.setText(me.getDefense() + " ARMOR");
     }
 
     public void update() {

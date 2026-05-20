@@ -17,7 +17,7 @@ public class ShopRegistry {
             new ShopItem(5, "Tervisejook", 75, Category.TARVIKUD, "health_pot"),
             new ShopItem(6, "Kiirusjook", 50, Category.TARVIKUD, "speed_pot"),
             new ShopItem(7, "Tugevusjook", 100, Category.TARVIKUD, "strength_pot"),
-            new ShopItem(8, "Suurtükitorn", 75, Category.EHITISED, "gun_tower"),
+            new ShopItem(8, "Suurtükitorn", 100, Category.EHITISED, "gun_tower"),
             new ShopItem(9, "Müürid", 50, Category.EHITISED, "walls"),
             new ShopItem(10, "Ballistilise raketi baas", 200, Category.EHITISED,
                     "ballistic_rocket_base"

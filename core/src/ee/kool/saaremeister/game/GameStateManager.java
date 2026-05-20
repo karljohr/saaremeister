@@ -22,7 +22,7 @@ public class GameStateManager {
 
     private Client client;
     private final GameStateMessageListener gameStateMessageListener;
-    private GameStateMessage latestGameStateMessage;
+    private volatile GameStateMessage latestGameStateMessage;
     private PlayerRole myRole;
     private final Map<Integer, String> usernamesByPlayerId = new HashMap<>();
 

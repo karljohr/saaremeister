@@ -21,6 +21,10 @@ public class PlayerInputManager {
     private Direction facing = Direction.DOWN;
     private long nextShotAtNs = 0L;
     private static final long SHOOT_INTERVAL_NS = BULLET_TIMEOUT_MILLISECONDS * 1_000_000L;
+    private static final long MOVEMENT_TCP_FALLBACK_INTERVAL_NS = 100_000_000L;     // 100ms
+    private Direction lastSentDirX = null;
+    private Direction lastSentDirY = null;
+    private long nextMovementTcpAtNs = 0L;
 
     /**
      * Handles the player movement input.
@@ -56,10 +60,21 @@ public class PlayerInputManager {
             facing = movementMessage.getDirectionX();
         }
 
-        ServerConnection
-                .getInstance()
-                .getClient()
-                .sendUDP(movementMessage);
+        var client = ServerConnection.getInstance().getClient();
+        client.sendUDP(movementMessage);    // fast path
+
+        // Reliable fallback over TCP
+        long now = System.nanoTime();
+        Direction dirX = movementMessage.getDirectionX();
+        Direction dirY = movementMessage.getDirectionY();
+        boolean changed = dirX != lastSentDirX || dirY != lastSentDirY;
+        boolean periodic = now > nextMovementTcpAtNs;
+        if (changed || periodic) {
+            client.sendTCP(movementMessage);
+            lastSentDirX = dirX;
+            lastSentDirY = dirY;
+            nextMovementTcpAtNs = now + MOVEMENT_TCP_FALLBACK_INTERVAL_NS;
+        }
     }
 
     /**
@@ -67,7 +82,12 @@ public class PlayerInputManager {
      */
     public void stopMovement() {
         var movementMessage = new PlayerMovementMessage();
-        ServerConnection.getInstance().getClient().sendUDP(movementMessage);
+        var client = ServerConnection.getInstance().getClient();
+        client.sendUDP(movementMessage);
+        client.sendTCP(movementMessage);    // ensure stop is always delivered
+        lastSentDirX = null;
+        lastSentDirY = null;
+        nextMovementTcpAtNs = 0L;
     }
 
     /**

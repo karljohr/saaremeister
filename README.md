@@ -56,6 +56,8 @@ samaaegselt samas alas seista)
   vähemalt üks ala kätte jääma.
   - Maksuametnikul: püüda kõik vallutatavad alad enda tiimi valdusesse enne aja lõppu.
 
+Mäng kestab nii mitu raundi, kui mitu mängijat on lobbys. Lobbys jookseb mängijatevaheline edetabel.
+
 ---
 
 ### Käivitamine

@@ -31,20 +31,20 @@ public class Constants {
     // Island master
     public static final int MASTER_LIVES = 100;
     public static final int MASTER_MONEY = 1000;
-    public static final int MASTER_KILL_PROFIT = 100;
+    public static final int MASTER_KILL_PROFIT = 25;
     public static final int MASTER_ZONE_PROFIT = 50;
 
     // Tax officer
-    public static final int OFFICER_LIVES = 50;
-    public static final int OFFICER_MONEY = 500;
+    public static final int OFFICER_LIVES = 100;
+    public static final int OFFICER_MONEY = 700;
     public static final int OFFICER_KILL_PROFIT = 200;
-    public static final int OFFICER_DESTROY_PROFIT = 50;
-    public static final int OFFICER_ZONE_PROFIT = 50;
+    public static final int OFFICER_DESTROY_PROFIT = 75;
+    public static final int OFFICER_ZONE_PROFIT = 100;
 
     // Bot
-    public static final int BOT_LIVES = 50;
+    public static final int BOT_LIVES = 100;
     public static final float BOT_SPEED = 150f;
-    public static final float BOT_ENGAGEMENT_RANGE = 5.5f;
+    public static final float BOT_ENGAGEMENT_RANGE = 6f;
 
     // Bullet
     public static final float BULLET_SPEED = 12f;
@@ -65,8 +65,8 @@ public class Constants {
     public static final float ROCKET_HEIGHT_IN_PIXELS = 16;
 
     // Lobby
-    public static final int LOBBY_MAX_PLAYERS = 4;
-    public static final int PLAYER_COUNT_INGAME_LIMIT = 4;
+    public static final int LOBBY_MAX_PLAYERS = 5;
+    public static final int PLAYER_COUNT_INGAME_LIMIT = 5;
 
     // Capture Zone
     public static final int CAPTURE_SECONDS_REQUIRED = 5;

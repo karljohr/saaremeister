@@ -106,6 +106,7 @@ public class MatchRules {
         players.forEach(player -> {
             if (player.getLives() <= 0 && player.isAlive()) {
                 player.setAlive(false);
+                player.setMoney(0);
                 player.setRespawnAtMs(System.currentTimeMillis() + 5000);
                 player.getBody().setActive(false);
             }
@@ -116,6 +117,7 @@ public class MatchRules {
                     player.setLives(OFFICER_LIVES);
                 }
 
+                player.setMoney(0);
                 player.resetCombatBonuses();
 
                 Body playerBody = player.getBody();

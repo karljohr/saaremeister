@@ -20,6 +20,9 @@ public class HealthBarRenderer {
     private static final int Y_OFFSET_BUILDING = 40;
     private static final int DURATION_MS = 3000;
 
+    /**
+     * Updates the health bar renderer.
+     */
     public void update(List<? extends HasHealth> entities) {
         for (HasHealth entity : entities) {
             if (entity.getMaxHealth() == 0) continue;
@@ -37,6 +40,9 @@ public class HealthBarRenderer {
         }
     }
 
+    /**
+     * Notifies the health bar renderer that the given entity has taken damage.
+     */
     public void notifyDamage(HasHealth entity) {
         visibleUntil.put(
                 entity.getId(),
@@ -45,6 +51,9 @@ public class HealthBarRenderer {
 
     }
 
+    /**
+     * Renders the health bars for the given entities.
+     */
     public void render(ShapeRenderer shapeRenderer, List<? extends HasHealth> entities) {
         for (HasHealth entity : entities) {
             Long until = visibleUntil.get(entity.getId());

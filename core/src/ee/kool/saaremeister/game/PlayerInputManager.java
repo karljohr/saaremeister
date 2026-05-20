@@ -11,12 +11,16 @@ import message.PlayerMovementMessage;
 import message.PlayerShootingMessage;
 import message.dto.Direction;
 
+import static constant.Constants.BULLET_TIMEOUT_MILLISECONDS;
+
 /**
  * Listens for the user input and forwards update messages to the server.
  */
 public class PlayerInputManager {
 
     private Direction facing = Direction.DOWN;
+    private long nextShotAtNs = 0L;
+    private static final long SHOOT_INTERVAL_NS = BULLET_TIMEOUT_MILLISECONDS * 1_000_000L;
 
     /**
      * Handles the player movement input.
@@ -70,7 +74,11 @@ public class PlayerInputManager {
      * Handles the player's shooting input.
      */
     public void handleShootingInput(float px, float py, float mx, float my, int selectedSlot) {
-        if (!Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) return;
+        if (!Gdx.input.isKeyPressed(Input.Keys.SPACE)) return;
+
+        // Delay for shooting when space is held down
+        long now = System.nanoTime();
+        if (now < nextShotAtNs) return;
 
         Vector2 aim = new Vector2(mx - px, my - py);
         if (aim.isZero(0.001f)) return;
@@ -79,6 +87,8 @@ public class PlayerInputManager {
         msg.setAim(aim.nor());
         msg.setSelectedSlot(selectedSlot);
         ServerConnection.getInstance().getClient().sendTCP(msg);
+
+        nextShotAtNs = now + SHOOT_INTERVAL_NS;
     }
 
     public void handleActionInput(Hotbar hotbar, float px, float py, float mx, float my) {

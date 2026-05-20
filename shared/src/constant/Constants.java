@@ -14,14 +14,14 @@ public class Constants {
     // Networking
     public static final int TCP_PORT = 8082;
     public static final int UDP_PORT = 8083;
-    public static final String SERVER_IP = "localhost";     // TalTech serveri IP: 193.40.157.179
+    public static final String SERVER_IP = "193.40.157.179";     // TalTech serveri IP: 193.40.157.179
 
     // Game
     public static final int GAME_TICK_RATE = 60;
-    public static final int MATCH_DURATION_SECONDS = 155;
+    public static final int MATCH_DURATION_SECONDS = 160;
     public static final int MAX_SLOTS = 15;
 
-    public static final float ZONE_PROFIT_INTERVAL = 6f;
+    public static final float ZONE_PROFIT_INTERVAL = 10f;
 
     // Player
     public static final float PLAYER_SPEED = 250.0f;
@@ -30,33 +30,33 @@ public class Constants {
 
     // Island master
     public static final int MASTER_LIVES = 100;
-    public static final int MASTER_MONEY = 1000;
-    public static final int MASTER_KILL_PROFIT = 200;
-    public static final int MASTER_ZONE_PROFIT = 100;
+    public static final int MASTER_MONEY = 700;
+    public static final int MASTER_KILL_PROFIT = 100;
+    public static final int MASTER_ZONE_PROFIT = 50;
 
     // Tax officer
     public static final int OFFICER_LIVES = 50;
     public static final int OFFICER_MONEY = 500;
-    public static final int OFFICER_KILL_PROFIT = 200;
-    public static final int OFFICER_DESTROY_PROFIT = 100;
+    public static final int OFFICER_KILL_PROFIT = 100;
+    public static final int OFFICER_DESTROY_PROFIT = 50;
     public static final int OFFICER_ZONE_PROFIT = 50;
 
     // Bot
-    public static final int BOT_LIVES = 30;
+    public static final int BOT_LIVES = 50;
     public static final float BOT_SPEED = 150f;
-    public static final float BOT_ENGAGEMENT_RANGE = 7f;
+    public static final float BOT_ENGAGEMENT_RANGE = 5.5f;
 
     // Bullet
-    public static final float BULLET_SPEED = 8.0f;
-    public static final long BULLET_TIMEOUT_MILLISECONDS = 500;
+    public static final float BULLET_SPEED = 12f;
+    public static final long BULLET_TIMEOUT_MILLISECONDS = 400;
     public static final float BULLET_WIDTH_IN_PIXELS = 8;
     public static final float BULLET_HEIGHT_IN_PIXELS = 8;
     public static final float BULLET_DAMAGE = 10;
 
     // Consumables
     public static final int HEALTH_POTION_HEAL = 20;
-    public static final float SPEED_POTION_MULTIPLIER = 1.25f;
-    public static final float STRENGTH_POTION_MULTIPLIER = 1.30f;
+    public static final float SPEED_POTION_MULTIPLIER = 1.5f;
+    public static final float STRENGTH_POTION_MULTIPLIER = 1.5f;
     public static final long SPEED_POTION_DURATION_MILLISECONDS = 10_000L;
     public static final long STRENGTH_POTION_DURATION_MILLISECONDS = 10_000L;
 

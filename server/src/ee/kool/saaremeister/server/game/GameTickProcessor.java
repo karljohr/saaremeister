@@ -25,6 +25,7 @@ import static constant.Constants.GAME_TICK_RATE;
  * Processes the game state and updates the game objects per tick.
  */
 public class GameTickProcessor {
+    private static final int RELIABLE_SNAPSHOT_INTERVAL_TICKS = 6;  // 60 TPS -> 10 reliable snapshots per second
 
     private final World world;
     private final GameStateHandler gameStateHandler;
@@ -43,6 +44,8 @@ public class GameTickProcessor {
     private final LobbyManager lobbyManager;
     private final int lobbyId;
     private final EconomyManager economyManager;
+
+    private int ticksSinceLastReliableSnapshot = 0;
 
     public GameTickProcessor(
             World world,
@@ -128,12 +131,6 @@ public class GameTickProcessor {
 
         // Update player positions.
         players.forEach(Player::updateFromPhysics);
-        var gameStateMessage = gameStateHandler.getGameStateMessage(
-                players,
-                bullets,
-                buildHandler.getBuildings(),
-                explosionStates
-        );
 
         // Distribute zone profits
         economyManager.distributeZoneProfits(captureZones, players);
@@ -145,8 +142,16 @@ public class GameTickProcessor {
                 .collect(Collectors.toCollection(ArrayList::new));
         gameStateHandler.setCaptureZoneStates(zoneStates);
 
+        var gameStateMessage = gameStateHandler.getGameStateMessage(players, bullets, buildHandler.getBuildings(),
+                explosionStates);
+
         // Send the game state to all clients.
         connections.forEach(connection -> connection.sendUDP(gameStateMessage));
+        ticksSinceLastReliableSnapshot++;
+        if (ticksSinceLastReliableSnapshot >= RELIABLE_SNAPSHOT_INTERVAL_TICKS) {
+            connections.forEach(connection -> connection.sendTCP(gameStateMessage));
+            ticksSinceLastReliableSnapshot = 0;
+        }
 
         // If there is a match end reason, stop the game.
         MatchRules.MatchEndReason endReason = matchRules.determineEndReason(

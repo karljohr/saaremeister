@@ -48,6 +48,7 @@ public class ServerConnection {
     private Consumer<RoundEndMessage> roundEndListener;
     private volatile ConnectionStatus connectionStatus = ConnectionStatus.DISCONNECTED;
     private volatile String lastErrorMessage;
+    private static final int CONNECTION_TIMEOUT_MS = 15000;
 
     /**
      * Private constructor to prevent instantiation.
@@ -113,7 +114,7 @@ public class ServerConnection {
                 client.close();
                 client.start();
 
-                client.connect(5000, SERVER_IP, TCP_PORT, UDP_PORT);
+                client.connect(CONNECTION_TIMEOUT_MS, SERVER_IP, TCP_PORT, UDP_PORT);
             } catch (Exception e) {
                 connectionStatus = ConnectionStatus.FAILED;
                 lastErrorMessage = "Serveriga ei saanud uhendust.";

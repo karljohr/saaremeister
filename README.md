@@ -1,45 +1,45 @@
 # ITI0301-2026
+
 ## Saaremeister: Läänemere valitseja
 
 ---
 
 ### Mängu idee ja kokkuvõte
 
-
-“Saaremeister: Läänemere valitseja” on king-of-the-hill top-down tüüpi videomäng, 
-mille eesmärgiks on kas saaremeistrina oma saart vallutajate eest kaitsta ehitades 
+“Saaremeister: Läänemere valitseja” on king-of-the-hill top-down tüüpi videomäng,
+mille eesmärgiks on kas saaremeistrina oma saart vallutajate eest kaitsta ehitades
 kindlustusi ja kaitserelvi või maksuameti liikmetena saart rünnata ja see üle võtta.
 
 ---
 
 ### Idee kirjeldus
 
-Mäng koosneb Läänemere kõige uhkemast meelelahutussaarest, ühest saaremeistrist 
-ning mitmeliikmelisest maksuametnike tiimist. Saaremeistri ülesanne on oma 
-lõbustussaart kaitsta ründavate maksuametnike eest, kes maksupettuse kahtlustamise 
-tõttu üritavad saart üle võtta ning saaremeistrit kõrvaldada. Saaremeistril on 
-enne igat vooru ressursse ning natuke aega luua saarele kindlustusehitisi ja -relvi, 
-millega strateegiliselt maksuametnikele vastu võidelda. Maksuametnikud töötavad 
-aga tiimina, mistõttu nemad saavad valmistusaega kasutada ründeplaanide koostamiseks 
-ning relvade ostmiseks. Kui saaremeister suudab teatud aja lõppedes maksuametnikud 
-välja tõrjuda, jääb saar talle alles ning meelelahutus jätkub samas vaimus. Kui 
-aga maksuametnikud suudavad saare endale võtta, läheb saar riigi omandisse ning 
+Mäng koosneb Läänemere kõige uhkemast meelelahutussaarest, ühest saaremeistrist
+ning mitmeliikmelisest maksuametnike tiimist. Saaremeistri ülesanne on oma
+lõbustussaart kaitsta ründavate maksuametnike eest, kes maksupettuse kahtlustamise
+tõttu üritavad saart üle võtta ning saaremeistrit kõrvaldada. Saaremeistril on
+enne igat vooru ressursse ning natuke aega luua saarele kindlustusehitisi ja -relvi,
+millega strateegiliselt maksuametnikele vastu võidelda. Maksuametnikud töötavad
+aga tiimina, mistõttu nemad saavad valmistusaega kasutada ründeplaanide koostamiseks
+ning relvade ostmiseks. Kui saaremeister suudab teatud aja lõppedes maksuametnikud
+välja tõrjuda, jääb saar talle alles ning meelelahutus jätkub samas vaimus. Kui
+aga maksuametnikud suudavad saare endale võtta, läheb saar riigi omandisse ning
 saaremeistrile määratakse vanglakaristus. Täpsemad reeglid on järgmised: kui vooru (aja)
-lõppedes jääb saaremeistri kätte kasvõi üks vallutatav ala, siis võidab 
-saaremeister, vastasel juhul on võidukad maksuametnikud. Maksuametnikud saavad 
+lõppedes jääb saaremeistri kätte kasvõi üks vallutatav ala, siis võidab
+saaremeister, vastasel juhul on võidukad maksuametnikud. Maksuametnikud saavad
 olla nii päris mängijad kui ka AI, kuid saaremeister on alati päris mängija.
 
 ---
 
 ### Mängujuhend
 
-- **Liitumine**: 
+- **Liitumine**:
   - Sisestada soovitud kasutajanimi ja vajutada nuppu "Liitu lobbyga"
   - Oodata lobbys kuni kõik mängijad on sisenenud
   - Vajutada nuppu "Start Game", et siseneda mängu
 - **Liikumine**: klahvid W, A, S ja D
 - **Tulistamine**: sihtimine hiirega ja tulistamine SPACE
-- **Vestlusakna kasutus**: 
+- **Vestlusakna kasutus**:
   - Hiirega vajutada vestlusakna peale
   - Kirjutada sõnum
   - Vajutada hiireklahviga "->" nuppu
@@ -48,10 +48,10 @@ olla nii päris mängijad kui ka AI, kuid saaremeister on alati päris mängija.
   - Valida poest sobiv ehitis
   - Hiirega määrata ehitise asukoht ja ehitada vasaku hiireklahviga
   - Tühistada ehitamine parema hiireklahviga
-- **Ala vallutamine**: Seista alas 5 sekundit (vastastiimi mängija ei tohi 
+- **Ala vallutamine**: Seista alas 5 sekundit (vastastiimi mängija ei tohi
 samaaegselt samas alas seista)
 - **Lahkumine**: ESC klahv ja valida menüüst "Lahku" või mänguakna sulgemine
-- **Eesmärk**: 
+- **Eesmärk**:
   - Saaremeistril: hoida saarel asuvad alad enda käes. Võitmiseks peab aja lõppedes
   vähemalt üks ala kätte jääma.
   - Maksuametnikul: püüda kõik vallutatavad alad enda tiimi valdusesse enne aja lõppu.
@@ -62,9 +62,9 @@ Mäng kestab nii mitu raundi, kui mitu mängijat on lobbys. Lobbys jookseb mäng
 
 ### Käivitamine
 
-1. Kloonida projekti repo oma IDE-sse (soovitatavalt IntelliJ) (https://gitlab.cs.taltech.ee/chrito/iti0301-2026.git)
-2. **SERVER (kui jooksutada kliendi masinas)**: 
-   1. Teha kindlaks, et serveri kataloog on moodul 
+1. Kloonida projekti repo oma IDE-sse (soovitatavalt IntelliJ) (<https://gitlab.cs.taltech.ee/chrito/iti0301-2026.git>)
+2. **SERVER (kui jooksutada kliendi masinas)**:
+   1. Teha kindlaks, et serveri kataloog on moodul
    2. Vahetada Constants.java klassis muutuja SERVER_IP väärtus "localhost" peale
    3. Minna server → src → ee.kool.saaremeister.server → ServerLauncher.java
    4. Käivitada see fail
@@ -74,7 +74,6 @@ Mäng kestab nii mitu raundi, kui mitu mängijat on lobbys. Lobbys jookseb mäng
    3. Käivitada see fail
 
 **Lisaks**: DesktopLauncher.java faili võib käivitada üheaegselt mitu eksemplari, et mängida mitme mängijaga.
-
 
 ---
 
@@ -109,10 +108,3 @@ Mäng kestab nii mitu raundi, kui mitu mängijat on lobbys. Lobbys jookseb mäng
 - Karl-Johannees Ränkel
 - Christofer Toom
 
----
-
-### Ühendus TalTechi serveriga
-
-1. Minna shared → src → constant → Constants.java
-2. Veenduda, et on rida `public static final String SERVER_IP = "193.40.157.179";` täpselt nende väärtustega
-3. Käivitada DesktopLauncher.java eelneva juhendi järgi

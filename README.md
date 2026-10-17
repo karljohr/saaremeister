@@ -60,7 +60,7 @@ Mäng kestab nii mitu raundi, kui mitu mängijat on lobbys. Lobbys jookseb mäng
 
 ### Käivitamine
 
-1. Kloonida projekti repo oma IDE-sse (soovitatavalt IntelliJ) (<https://gitlab.cs.taltech.ee/chrito/iti0301-2026.git>)
+1. Kloonida projekti repo oma IDE-sse (soovitatavalt IntelliJ)
 2. **SERVER (kui jooksutada kliendi masinas)**:
    1. Teha kindlaks, et serveri kataloog on moodul
    2. Vahetada Constants.java klassis muutuja SERVER_IP väärtus "localhost" peale

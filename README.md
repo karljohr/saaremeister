@@ -1,5 +1,3 @@
-# ITI0301-2026
-
 ## Saaremeister: Läänemere valitseja
 
 ---
